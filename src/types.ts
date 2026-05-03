@@ -73,6 +73,18 @@ export interface BcgMatrixData {
   dogs: string;
 }
 
+export interface ValueChainData {
+  inboundLogistics: string;
+  operations: string;
+  outboundLogistics: string;
+  marketingSales: string;
+  service: string;
+  firmInfrastructure: string;
+  hrManagement: string;
+  technologyDevelopment: string;
+  procurement: string;
+}
+
 export interface CanvasData {
   id?: string;
   userId: string;
@@ -93,6 +105,7 @@ export interface CanvasData {
   leanCanvas?: LeanCanvasData;
   ansoffMatrix?: AnsoffMatrixData;
   bcgMatrix?: BcgMatrixData;
+  valueChain?: ValueChainData;
   createdAt: any;
   updatedAt: any;
   imageUrl?: string;
