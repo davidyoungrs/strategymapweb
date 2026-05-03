@@ -562,7 +562,7 @@ export default function App() {
       <main className="flex-1 flex flex-col overflow-hidden relative">
         {/* Developer Toggle - Localhost Only */}
         {window.location.hostname === 'localhost' && isAdmin && (
-          <div className="fixed top-4 right-4 z-[100] flex items-center gap-2 px-3 py-1.5 bg-zinc-900/90 backdrop-blur-md border border-zinc-700 rounded-full shadow-2xl animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-2 px-3 py-1.5 bg-zinc-900/90 backdrop-blur-md border border-zinc-700 rounded-full shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-300">
             <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Dev Preview</span>
             <button 
               onClick={() => setForceStandardMode(!forceStandardMode)}
