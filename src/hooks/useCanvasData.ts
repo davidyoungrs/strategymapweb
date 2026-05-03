@@ -205,7 +205,12 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
     try {
       const isTitleChanged = canvasData.id && canvasData.title !== originalTitle;
       const canvasesRef = collection(db, 'canvases');
-      const canvasId = isTitleChanged ? doc(canvasesRef).id : (canvasData.id || doc(canvasesRef).id);
+      
+      // Ownership check: If we're editing a canvas that belongs to someone else, 
+      // we should treat it as a NEW canvas for the current user.
+      const isExternalCanvas = canvasData.id && canvasData.userId && canvasData.userId !== targetUserId;
+      
+      const canvasId = (isTitleChanged || isExternalCanvas) ? doc(canvasesRef).id : (canvasData.id || doc(canvasesRef).id);
       const canvasRef = doc(db, 'canvases', canvasId);
       
       const dataToSave = {
@@ -213,7 +218,8 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
         id: canvasId,
         userId: targetUserId,
         updatedAt: serverTimestamp(),
-        createdAt: isTitleChanged ? serverTimestamp() : (canvasData.createdAt || serverTimestamp()),
+        createdAt: (isTitleChanged || isExternalCanvas || !canvasData.createdAt) ? serverTimestamp() : canvasData.createdAt,
+        // Ensure all objects exist
         swot: canvasData.swot || { strengths: '', weaknesses: '', opportunities: '', threats: '' },
         strategyMap: canvasData.strategyMap || { financial: [], customer: [], internal: [], learning: [] },
         pestel: canvasData.pestel || { political: '', economic: '', social: '', technological: '', environmental: '', legal: '' },
@@ -229,18 +235,28 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
       
       await setDoc(canvasRef, dataToSave, { merge: true });
       
-      if (!canvasData.id || isTitleChanged) {
-        setCanvasData(prev => ({ ...prev, id: canvasId }));
+      if (!canvasData.id || isTitleChanged || isExternalCanvas) {
+        setCanvasData(prev => ({ ...prev, id: canvasId, userId: targetUserId }));
+        if (isExternalCanvas && !silent) {
+          alert("This canvas belonged to another user. A copy has been saved to your account.");
+        }
       }
       
       const savedString = JSON.stringify({ ...dataToSave, updatedAt: null, createdAt: null });
       setLastSavedData(savedString);
       setOriginalTitle(canvasData.title);
       setSaveStatus('saved');
-      if (!silent) alert(isTitleChanged ? "Saved as new canvas!" : "Canvas saved successfully!");
+      if (!silent && !isExternalCanvas) {
+        alert(isTitleChanged ? "Saved as new canvas!" : "Canvas saved successfully!");
+      }
     } catch (error) {
       setSaveStatus('unsaved');
-      handleFirestoreError(error, OperationType.WRITE, 'canvases');
+      // If it's a silent autosave, don't throw to avoid freezing the UI
+      if (!silent) {
+        handleFirestoreError(error, OperationType.WRITE, 'canvases');
+      } else {
+        console.warn('Autosave failed:', error);
+      }
     } finally {
       setIsSaving(false);
     }
