@@ -392,7 +392,7 @@ export default function App() {
     if (!user || !profile) return;
     
     // Replace this URL with your actual Lemon Squeezy Checkout URL
-    const CHECKOUT_URL = "https://reallysimple.lemonsqueezy.com/checkout/buy/63494c15-306e-437f-86e1-c07e367b37da";
+    const CHECKOUT_URL = "https://kettlestrat.lemonsqueezy.com/checkout/buy/63494c15-306e-437f-86e1-c07e367b37da";
     
     // Append the user ID to the checkout URL so we can identify them in the webhook
     const checkoutWithParams = `${CHECKOUT_URL}?checkout[custom][user_id]=${user.uid}`;
