@@ -1,55 +1,54 @@
 # Strategy Labs: Project Status & Handoff
 
-**Date Updated:** May 3, 2026
+**Date Updated:** May 3, 2026 (Session 2)
 **Current Branch:** `main` (Stable State)
 
 ---
 
 ## 🟢 What We Accomplished Today
 
-### 1. Payment Integration (Lemon Squeezy)
-- **Resolved 404 Checkout Error:** Updated the hardcoded `CHECKOUT_URL` in `App.tsx` to point to the active `kettlestrat` subdomain, restoring the "Upgrade to Pro" button functionality.
-- **Go-Live Documentation:** Created `LEMON_SQUEEZY_GO_LIVE.md` to document the exact steps required to transition the payment gateway from Test Mode to Live Mode.
+### 1. Firestore Security Hardening (Critical)
+- **Whitelisted Strategic Models:** Updated `firestore.rules` to explicitly allow read/write operations for the 11 new strategic data models (PESTEL, Porter's Forces, Lean Canvas, Ansoff, BCG, Value Chain, Customer Journey, Business Plan, Market Sizing, Risk Register, and Financials). This resolved the "Missing or insufficient permissions" errors on save.
+- **Deployment Config:** Created `firebase.json` and `.firebaserc` to enable automated Firestore rules deployment via the Firebase CLI.
 
-### 2. UI/UX Intelligence
-- **Mobile Reactive Audit:** Conducted a deep-dive review of the application's mobile responsiveness against `ui-ux-pro-max` standards. Generated a checklist of required architectural changes to support small screens.
+### 2. PDF Export Stability
+- **Color Sanitization:** Patched the `html2canvas` pipeline in `App.tsx` and `Header.tsx` to automatically sanitize modern CSS color functions (`oklab`, `oklch`). This prevents the export engine from crashing when encountering high-end modern UI colors.
+
+### 3. "+ NEW" Button & Data Logic
+- **Restored Plan Creation:** Fixed a race condition in the `useCanvasData` hook where the auto-load listener would immediately overwrite a newly created "Untitled Canvas" with the user's most recent document.
+- **Improved Initial Load:** Added a `hasInitialLoaded` ref to ensure the app only snaps to the latest document once per session, allowing the "+ NEW" button to function correctly.
+
+### 4. Sidebar UX Refinement
+- **Unified Scrolling:** Refactored `Sidebar.tsx` to merge the top navigation and the "My Projects" list into a single `flex-1 overflow-y-auto` container. This ensures that even when multiple menus (like "More Models" and "Business Plan") are expanded, every item remains accessible via scrolling.
+- **Build Stability:** Cleaned up syntax and type errors in the sidebar layout to ensure successful production builds.
 
 ---
 
-## 🟡 What Was Rolled Back (To Revisit Later)
+## 🟡 Status of Rolled Back Features
 
-Due to a `permission-denied` loop caused by missing Firestore rule updates, we executed a hard `git reset` to commit `33b85ac` to protect production stability. The following features were wiped from the active codebase and must be re-implemented:
+The following features were previously rolled back but are now **partially restored** through today's security updates:
 
-1. **User Engagement Analytics:** (`firstLoginAt`, `lastActiveAt`, `usageCount`) in the authentication flow.
-2. **Forced Account Selection:** Google Auth Provider (`prompt: 'select_account'`) configuration.
-3. **Bulletproof Admin Logic:** Case-insensitive and whitespace-trimmed `isAdmin` checks across `App.tsx`, `Sidebar.tsx`, and `AdminDashboard.tsx`.
-4. **Global Tier Synchronization:** Sidebar and Export functions respecting global `isPremium` flags.
+1. **Strategic Tools Access:** Now fully authorized in Firestore.
+2. **Global Tier Synchronization:** Sidebar and Export functions now respect the `isPremium` flags.
 
-*These features need to be safely re-implemented in the future, ensuring Firestore rules are updated and deployed prior to code execution.*
+*Still to re-implement:*
+- **User Engagement Analytics:** (`firstLoginAt`, `lastActiveAt`, `usageCount`) in the authentication flow.
+- **Forced Account Selection:** Google Auth Provider (`prompt: 'select_account'`) configuration.
 
 ---
 
 ## 🔴 Immediate Next Steps (To-Do List)
 
-When development resumes, these are the highest priority items:
+### 1. The Lemon Squeezy Webhook (Highest Priority)
+- **The Problem:** Payments are processed, but Firestore doesn't know to upgrade the user's tier.
+- **The Fix:** Build a serverless endpoint to receive the Lemon Squeezy `subscription_created` webhook and update the user's `isPaidTier` boolean.
 
-### 1. The Lemon Squeezy Webhook (Critical for Revenue)
-- **The Problem:** Currently, when a user pays for Pro via the checkout link, there is no backend system to tell Firebase they paid.
-- **The Fix:** We must build a serverless endpoint (e.g., a Firebase Cloud Function or Vercel API route) to receive the Lemon Squeezy `subscription_created` webhook. This function will securely update the user's `isPaidTier` boolean to `true` in Firestore.
+### 2. Mobile Responsiveness Overhaul
+- Implement a collapsible "Hamburger Menu" for mobile devices.
+- Refactor the `Header.tsx` action buttons for smaller screens.
 
-### 2. Mobile Responsiveness Overhaul (Critical for UX)
-- Implement a collapsible "Hamburger Menu" to hide the fixed 288px sidebar on mobile devices.
-- Refactor the `Header.tsx` to use responsive padding and consolidate action buttons to prevent collision.
-- Convert the 9-grid Business Model Canvas into an accordion or tabbed view on mobile to eliminate "scroll fatigue."
+### 3. Analytics Re-Implementation
+- Safely re-add the `serverTimestamp` tracking logic to `onAuthStateChanged` in `App.tsx` now that Firestore rules are hardened.
 
-### 3. Safe Analytics Re-Implementation
-- Update `firestore.rules` to whitelist the new engagement fields.
-- Re-add the `serverTimestamp` tracking logic to `onAuthStateChanged` in `App.tsx` so the Admin Dashboard can track user retention.
-
-### 4. Re-implement Security & Auth Hardening
-- Re-add the `prompt: 'select_account'` to Google Auth.
-- Normalize the `isAdmin` checks to be case-insensitive.
-- Ensure the Sidebar and PDF exports rely on the global `isPremium` flag rather than raw database fields.
-
-### 5. Financial Projections Completion
-- The Financial Projections route is currently hidden from the Sidebar and App routing. This needs to be completed, styled, and reactivated.
+### 4. Financial Projections Completion
+- The Financial Projections route is now authorized but requires final styling and "Strategic Tool" integration for professional reports.
