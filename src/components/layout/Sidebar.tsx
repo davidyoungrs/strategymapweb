@@ -53,6 +53,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const currentView = location.pathname.substring(1) || 'canvas';
+  const [isMoreModelsOpen, setIsMoreModelsOpen] = useState(
+    ['porter', 'lean-canvas', 'ansoff', 'bcg'].includes(currentView)
+  );
   return (
     <aside className="w-72 bg-white dark:bg-zinc-950 border-r border-zinc-100 dark:border-zinc-800 flex flex-col h-screen sticky top-0">
       <div className="p-8">
@@ -121,61 +124,82 @@ export const Sidebar: React.FC<SidebarProps> = ({
             PESTEL Analysis
           </motion.button>
 
-          <motion.button 
-            whileHover={{ x: 4 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => navigate('/porter')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
-              currentView === 'porter' 
-                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' 
-                : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
-            }`}
-          >
-            <Shield className="w-5 h-5" />
-            Porter's Five Forces
-          </motion.button>
+          {/* More Models Dropdown */}
+          {(() => {
+            const moreModelViews = ['porter', 'lean-canvas', 'ansoff', 'bcg'];
+            const isMoreModelActive = moreModelViews.includes(currentView);
+            return (
+              <div>
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setIsMoreModelsOpen(!isMoreModelsOpen)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                    isMoreModelActive
+                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                      : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                  }`}
+                >
+                  <span className="flex items-center gap-3">
+                    <LayoutGrid className="w-5 h-5" />
+                    More Models
+                  </span>
+                  {isMoreModelsOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                </motion.button>
 
-          <motion.button 
-            whileHover={{ x: 4 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => navigate('/lean-canvas')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
-              currentView === 'lean-canvas' 
-                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' 
-                : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
-            }`}
-          >
-            <LayoutGrid className="w-5 h-5" />
-            Lean Canvas
-          </motion.button>
+                <AnimatePresence>
+                  {isMoreModelsOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden pl-4"
+                    >
+                      <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
+                        onClick={() => navigate('/porter')}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                          currentView === 'porter' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                        }`}
+                      >
+                        <Shield className="w-4 h-4" />
+                        Porter's Five Forces
+                      </motion.button>
 
-          <motion.button 
-            whileHover={{ x: 4 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => navigate('/ansoff')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
-              currentView === 'ansoff' 
-                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' 
-                : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
-            }`}
-          >
-            <Grid3X3 className="w-5 h-5" />
-            Ansoff Matrix
-          </motion.button>
+                      <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
+                        onClick={() => navigate('/lean-canvas')}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                          currentView === 'lean-canvas' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                        }`}
+                      >
+                        <LayoutGrid className="w-4 h-4" />
+                        Lean Canvas
+                      </motion.button>
 
-          <motion.button 
-            whileHover={{ x: 4 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => navigate('/bcg')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
-              currentView === 'bcg' 
-                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' 
-                : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
-            }`}
-          >
-            <PieChart className="w-5 h-5" />
-            BCG Matrix
-          </motion.button>
+                      <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
+                        onClick={() => navigate('/ansoff')}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                          currentView === 'ansoff' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                        }`}
+                      >
+                        <Grid3X3 className="w-4 h-4" />
+                        Ansoff Matrix
+                      </motion.button>
+
+                      <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
+                        onClick={() => navigate('/bcg')}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                          currentView === 'bcg' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                        }`}
+                      >
+                        <PieChart className="w-4 h-4" />
+                        BCG Matrix
+                      </motion.button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })()}
 
           {(userProfile?.isPaidTier || userProfile?.email === 'david.young@reallysimpleapps.com') && (
             <div className="pt-4 mt-4 border-t border-zinc-100 dark:border-zinc-800">
