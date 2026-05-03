@@ -102,6 +102,9 @@ export default function App() {
   const navigate = useNavigate();
   const currentView = location.pathname.substring(1) || 'canvas';
 
+  const isAdmin = profile?.email === 'david.young@reallysimpleapps.com' || profile?.email === 'david.young@celerosft.com';
+  const isPremium = profile?.isPaidTier || isAdmin;
+
   const [viewUserId, setViewUserId] = useState<string | undefined>(undefined);
   const [impersonatedUserEmail, setImpersonatedUserEmail] = useState<string | null>(null);
 
@@ -612,6 +615,96 @@ export default function App() {
                     />
                   </motion.div>
                 } />
+                <Route path="/pestel" element={
+                  <PestelView 
+                    canvasData={canvasData} 
+                    setCanvasData={setCanvasData} 
+                    onBack={() => navigate('/')} 
+                  />
+                } />
+                {isPremium && (
+                  <>
+                    <Route path="/porter" element={
+                      <PorterForcesView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                    <Route path="/lean-canvas" element={
+                      <LeanCanvasView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                    <Route path="/ansoff" element={
+                      <AnsoffMatrixView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                    <Route path="/bcg" element={
+                      <BcgMatrixView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                    <Route path="/value-chain" element={
+                      <ValueChainView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                    <Route path="/customer-journey" element={
+                      <CustomerJourneyView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                    <Route path="/market-sizing" element={
+                      <MarketSizingView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                    <Route path="/risk-register" element={
+                      <RiskRegisterView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                    <Route path="/financials" element={
+                      <FinancialProjectionsView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                    <Route path="/executive-summary" element={
+                      <BusinessPlanView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        type="executive-summary"
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                    <Route path="/mission-vision" element={
+                      <BusinessPlanView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        type="mission-vision"
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                  </>
+                )}
                 <Route path="/strategy-map" element={
                   <motion.div
                     initial={{ opacity: 0, scale: 0.98 }}
@@ -628,92 +721,6 @@ export default function App() {
                       onSelectCanvas={handleSelectCanvas}
                     />
                   </motion.div>
-                } />
-                <Route path="/pestel" element={
-                  <PestelView 
-                    canvasData={canvasData} 
-                    setCanvasData={setCanvasData} 
-                    onBack={() => navigate('/')} 
-                  />
-                } />
-                <Route path="/porter" element={
-                  <PorterForcesView 
-                    canvasData={canvasData} 
-                    setCanvasData={setCanvasData} 
-                    onBack={() => navigate('/')} 
-                  />
-                } />
-                <Route path="/lean-canvas" element={
-                  <LeanCanvasView 
-                    canvasData={canvasData} 
-                    setCanvasData={setCanvasData} 
-                    onBack={() => navigate('/')} 
-                  />
-                } />
-                <Route path="/ansoff" element={
-                  <AnsoffMatrixView 
-                    canvasData={canvasData} 
-                    setCanvasData={setCanvasData} 
-                    onBack={() => navigate('/')} 
-                  />
-                } />
-                <Route path="/bcg" element={
-                  <BcgMatrixView 
-                    canvasData={canvasData} 
-                    setCanvasData={setCanvasData} 
-                    onBack={() => navigate('/')} 
-                  />
-                } />
-                <Route path="/value-chain" element={
-                  <ValueChainView 
-                    canvasData={canvasData} 
-                    setCanvasData={setCanvasData} 
-                    onBack={() => navigate('/')} 
-                  />
-                } />
-                <Route path="/customer-journey" element={
-                  <CustomerJourneyView 
-                    canvasData={canvasData} 
-                    setCanvasData={setCanvasData} 
-                    onBack={() => navigate('/')} 
-                  />
-                } />
-                <Route path="/market-sizing" element={
-                  <MarketSizingView 
-                    canvasData={canvasData} 
-                    setCanvasData={setCanvasData} 
-                    onBack={() => navigate('/')} 
-                  />
-                } />
-                <Route path="/risk-register" element={
-                  <RiskRegisterView 
-                    canvasData={canvasData} 
-                    setCanvasData={setCanvasData} 
-                    onBack={() => navigate('/')} 
-                  />
-                } />
-                <Route path="/financials" element={
-                  <FinancialProjectionsView 
-                    canvasData={canvasData} 
-                    setCanvasData={setCanvasData} 
-                    onBack={() => navigate('/')} 
-                  />
-                } />
-                <Route path="/executive-summary" element={
-                  <BusinessPlanView 
-                    canvasData={canvasData} 
-                    setCanvasData={setCanvasData} 
-                    onBack={() => navigate('/')} 
-                    type="summary"
-                  />
-                } />
-                <Route path="/mission-vision" element={
-                  <BusinessPlanView 
-                    canvasData={canvasData} 
-                    setCanvasData={setCanvasData} 
-                    onBack={() => navigate('/')} 
-                    type="identity"
-                  />
                 } />
                 <Route path="/swot" element={
                   <motion.div

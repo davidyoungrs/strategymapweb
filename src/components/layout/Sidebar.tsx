@@ -59,6 +59,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const currentView = location.pathname.substring(1) || 'canvas';
+
+  const isAdmin = userProfile?.email === 'david.young@reallysimpleapps.com' || userProfile?.email === 'david.young@celerosft.com';
+  const isPremium = userProfile?.isPaidTier || isAdmin;
+
   const [isMoreModelsOpen, setIsMoreModelsOpen] = useState(
     ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'market-sizing', 'risk-register'].includes(currentView)
   );
@@ -134,7 +138,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </motion.button>
 
           {/* More Models Dropdown */}
-          {(() => {
+          {isPremium && (() => {
             const moreModelViews = ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'market-sizing', 'risk-register'];
             const isMoreModelActive = moreModelViews.includes(currentView);
             return (
@@ -251,7 +255,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           })()}
 
           {/* Business Plan Dropdown */}
-          {(() => {
+          {isPremium && (() => {
             const planViews = ['executive-summary', 'mission-vision', 'financials'];
             const isPlanActive = planViews.includes(currentView);
             return (
