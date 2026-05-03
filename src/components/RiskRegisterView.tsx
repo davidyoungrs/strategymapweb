@@ -4,7 +4,8 @@ import {
   Plus, 
   Trash2,
   ArrowLeft,
-  ChevronDown
+  ChevronDown,
+  Sparkles
 } from 'lucide-react';
 import { CanvasData, RiskRegisterItem } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';

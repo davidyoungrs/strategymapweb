@@ -194,7 +194,7 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
   const handleSaveCanvas = async (silent = false) => {
     if (!targetUserId || !profile) return;
     
-    const isAdmin = profile.email === 'david.young@reallysimpleapps.com';
+    const isAdmin = profile.email === 'david.young@reallysimpleapps.com' || profile.email === 'david.young@celerosft.com';
     if (!profile.isPaidTier && !isAdmin) {
       if (!silent) alert("Saving is a Pro feature. Please upgrade to save your canvas.");
       return;
