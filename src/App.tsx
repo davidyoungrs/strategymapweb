@@ -308,9 +308,9 @@ export default function App() {
           for (let i = 0; i < elements.length; i++) {
             const el = elements[i] as HTMLElement;
             const style = window.getComputedStyle(el);
-            if (style.color.includes('oklch')) el.style.color = 'currentColor';
-            if (style.backgroundColor.includes('oklch')) el.style.backgroundColor = 'transparent';
-            if (style.borderColor.includes('oklch')) el.style.borderColor = 'currentColor';
+            if (style.color.includes('oklch') || style.color.includes('oklab')) el.style.color = 'currentColor';
+            if (style.backgroundColor.includes('oklch') || style.backgroundColor.includes('oklab')) el.style.backgroundColor = 'transparent';
+            if (style.borderColor.includes('oklch') || style.borderColor.includes('oklab')) el.style.borderColor = 'currentColor';
           }
         }
       });
@@ -364,9 +364,9 @@ export default function App() {
             for (let i = 0; i < elements.length; i++) {
               const el = elements[i] as HTMLElement;
               const style = window.getComputedStyle(el);
-              if (style.color.includes('oklch')) el.style.color = 'currentColor';
-              if (style.backgroundColor.includes('oklch')) el.style.backgroundColor = 'transparent';
-              if (style.borderColor.includes('oklch')) el.style.borderColor = 'currentColor';
+              if (style.color.includes('oklch') || style.color.includes('oklab')) el.style.color = 'currentColor';
+              if (style.backgroundColor.includes('oklch') || style.backgroundColor.includes('oklab')) el.style.backgroundColor = 'transparent';
+              if (style.borderColor.includes('oklch') || style.borderColor.includes('oklab')) el.style.borderColor = 'currentColor';
             }
           }
         });
