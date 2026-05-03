@@ -12,7 +12,11 @@ import {
   FolderOpen,
   Trash2,
   Sparkles,
-  Globe
+  Globe,
+  Shield,
+  LayoutGrid,
+  Grid3X3,
+  PieChart
 } from 'lucide-react';
 import { Kettle } from '../icons/Kettle';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -115,6 +119,62 @@ export const Sidebar: React.FC<SidebarProps> = ({
           >
             <Globe className="w-5 h-5" />
             PESTEL Analysis
+          </motion.button>
+
+          <motion.button 
+            whileHover={{ x: 4 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate('/porter')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
+              currentView === 'porter' 
+                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' 
+                : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+            }`}
+          >
+            <Shield className="w-5 h-5" />
+            Porter's Five Forces
+          </motion.button>
+
+          <motion.button 
+            whileHover={{ x: 4 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate('/lean-canvas')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
+              currentView === 'lean-canvas' 
+                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' 
+                : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+            }`}
+          >
+            <LayoutGrid className="w-5 h-5" />
+            Lean Canvas
+          </motion.button>
+
+          <motion.button 
+            whileHover={{ x: 4 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate('/ansoff')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
+              currentView === 'ansoff' 
+                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' 
+                : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+            }`}
+          >
+            <Grid3X3 className="w-5 h-5" />
+            Ansoff Matrix
+          </motion.button>
+
+          <motion.button 
+            whileHover={{ x: 4 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate('/bcg')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
+              currentView === 'bcg' 
+                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' 
+                : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+            }`}
+          >
+            <PieChart className="w-5 h-5" />
+            BCG Matrix
           </motion.button>
 
           {(userProfile?.isPaidTier || userProfile?.email === 'david.young@reallysimpleapps.com') && (

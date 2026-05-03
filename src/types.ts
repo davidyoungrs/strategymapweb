@@ -39,6 +39,40 @@ export interface PestelData {
   legal: string;
 }
 
+export interface PorterForcesData {
+  competitiveRivalry: string;
+  threatOfNewEntrants: string;
+  threatOfSubstitutes: string;
+  bargainingPowerOfBuyers: string;
+  bargainingPowerOfSuppliers: string;
+}
+
+export interface LeanCanvasData {
+  problem: string;
+  solution: string;
+  uniqueValueProposition: string;
+  unfairAdvantage: string;
+  lcCustomerSegments: string;
+  keyMetrics: string;
+  lcChannels: string;
+  lcCostStructure: string;
+  lcRevenueStreams: string;
+}
+
+export interface AnsoffMatrixData {
+  marketPenetration: string;
+  productDevelopment: string;
+  marketDevelopment: string;
+  diversification: string;
+}
+
+export interface BcgMatrixData {
+  stars: string;
+  cashCows: string;
+  questionMarks: string;
+  dogs: string;
+}
+
 export interface CanvasData {
   id?: string;
   userId: string;
@@ -55,6 +89,10 @@ export interface CanvasData {
   strategyMap?: StrategyMapData;
   swot?: SwotData;
   pestel?: PestelData;
+  porterForces?: PorterForcesData;
+  leanCanvas?: LeanCanvasData;
+  ansoffMatrix?: AnsoffMatrixData;
+  bcgMatrix?: BcgMatrixData;
   createdAt: any;
   updatedAt: any;
   imageUrl?: string;

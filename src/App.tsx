@@ -54,6 +54,10 @@ import { jsPDF } from 'jspdf';
 import { StrategyMap } from './components/StrategyMap';
 import { SwotView } from './components/SwotView';
 import { PestelView } from './components/PestelView';
+import { PorterForcesView } from './components/PorterForcesView';
+import { LeanCanvasView } from './components/LeanCanvasView';
+import { AnsoffMatrixView } from './components/AnsoffMatrixView';
+import { BcgMatrixView } from './components/BcgMatrixView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
@@ -612,6 +616,34 @@ export default function App() {
                 } />
                 <Route path="/pestel" element={
                   <PestelView 
+                    canvasData={canvasData} 
+                    setCanvasData={setCanvasData} 
+                    onBack={() => navigate('/')} 
+                  />
+                } />
+                <Route path="/porter" element={
+                  <PorterForcesView 
+                    canvasData={canvasData} 
+                    setCanvasData={setCanvasData} 
+                    onBack={() => navigate('/')} 
+                  />
+                } />
+                <Route path="/lean-canvas" element={
+                  <LeanCanvasView 
+                    canvasData={canvasData} 
+                    setCanvasData={setCanvasData} 
+                    onBack={() => navigate('/')} 
+                  />
+                } />
+                <Route path="/ansoff" element={
+                  <AnsoffMatrixView 
+                    canvasData={canvasData} 
+                    setCanvasData={setCanvasData} 
+                    onBack={() => navigate('/')} 
+                  />
+                } />
+                <Route path="/bcg" element={
+                  <BcgMatrixView 
                     canvasData={canvasData} 
                     setCanvasData={setCanvasData} 
                     onBack={() => navigate('/')} 
