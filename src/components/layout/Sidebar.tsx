@@ -21,7 +21,8 @@ import {
   Route,
   FileText,
   Target,
-  AlertTriangle
+  AlertTriangle,
+  Calculator
 } from 'lucide-react';
 import { Kettle } from '../icons/Kettle';
 import { useNavigate, useLocation } from 'react-router-dom';
