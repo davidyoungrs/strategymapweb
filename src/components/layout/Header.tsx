@@ -8,7 +8,8 @@ import {
   Loader2,
   Cloud,
   Check,
-  AlertCircle
+  AlertCircle,
+  Lock
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
@@ -20,6 +21,7 @@ interface HeaderProps {
   handleSaveCanvas: () => void;
   handleNewCanvas: () => void;
   saveStatus: 'saved' | 'saving' | 'unsaved';
+  isPremium: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -28,7 +30,8 @@ export const Header: React.FC<HeaderProps> = ({
   setIsLogoModalOpen,
   handleSaveCanvas,
   handleNewCanvas,
-  saveStatus
+  saveStatus,
+  isPremium
 }) => {
   const location = useLocation();
   const currentPath = location.pathname.substring(1) || 'canvas';
@@ -38,6 +41,18 @@ export const Header: React.FC<HeaderProps> = ({
       case 'strategy-map': return 'Strategy Map';
       case 'swot': return 'SWOT Analysis';
       case 'admin': return 'Admin Dashboard';
+      case 'pestel': return 'PESTEL Analysis';
+      case 'porter': return 'Porter\'s Five Forces';
+      case 'lean-canvas': return 'Lean Canvas';
+      case 'ansoff': return 'Ansoff Matrix';
+      case 'bcg': return 'BCG Matrix';
+      case 'value-chain': return 'Value Chain';
+      case 'customer-journey': return 'Customer Journey';
+      case 'market-sizing': return 'Market Sizing';
+      case 'risk-register': return 'Risk & Opportunity';
+      case 'financials': return 'Financial Projections';
+      case 'executive-summary': return 'Executive Summary';
+      case 'mission-vision': return 'Mission & Vision';
       default: return 'Business Model';
     }
   };
@@ -67,45 +82,68 @@ export const Header: React.FC<HeaderProps> = ({
           <Plus className="w-4 h-4" />
           New
         </motion.button>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 mr-2 transition-all">
-          {saveStatus === 'saving' && (
-            <>
-              <Loader2 className="w-3 h-3 text-blue-500 animate-spin" />
-              <span className="text-[9px] font-black uppercase tracking-widest text-blue-500">Saving...</span>
-            </>
-          )}
-          {saveStatus === 'saved' && (
-            <>
-              <Check className="w-3 h-3 text-emerald-500" />
-              <span className="text-[9px] font-black uppercase tracking-widest text-emerald-500">Saved</span>
-            </>
-          )}
-          {saveStatus === 'unsaved' && (
-            <>
-              <Cloud className="w-3 h-3 text-zinc-400" />
-              <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Unsaved</span>
-            </>
-          )}
-        </div>
+        
+        {isPremium && (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 mr-2 transition-all">
+            {saveStatus === 'saving' && (
+              <>
+                <Loader2 className="w-3 h-3 text-blue-500 animate-spin" />
+                <span className="text-[9px] font-black uppercase tracking-widest text-blue-500">Saving...</span>
+              </>
+            )}
+            {saveStatus === 'saved' && (
+              <>
+                <Check className="w-3 h-3 text-emerald-500" />
+                <span className="text-[9px] font-black uppercase tracking-widest text-emerald-500">Saved</span>
+              </>
+            )}
+            {saveStatus === 'unsaved' && (
+              <>
+                <Cloud className="w-3 h-3 text-zinc-400" />
+                <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Unsaved</span>
+              </>
+            )}
+          </div>
+        )}
 
         <motion.button 
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => handleSaveCanvas()}
+          whileHover={isPremium ? { scale: 1.02 } : {}}
+          whileTap={isPremium ? { scale: 0.98 } : {}}
+          onClick={() => {
+            if (isPremium) {
+              handleSaveCanvas();
+            } else {
+              alert("Cloud saving is a Pro feature. Please upgrade to sync your data.");
+            }
+          }}
           disabled={saveStatus === 'saving'}
-          className="px-4 py-2 text-zinc-600 dark:text-zinc-300 font-bold text-xs uppercase tracking-widest hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors flex items-center gap-2"
+          className={`px-4 py-2 font-bold text-xs uppercase tracking-widest rounded-lg transition-colors flex items-center gap-2 ${
+            !isPremium 
+              ? 'text-zinc-400 dark:text-zinc-600 cursor-not-allowed opacity-50' 
+              : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+          }`}
         >
-          {saveStatus === 'saving' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          {!isPremium ? <Lock className="w-4 h-4" /> : (saveStatus === 'saving' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />)}
           Save
         </motion.button>
         <motion.button 
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => setIsLogoModalOpen(true)}
-          className="px-4 py-2 text-zinc-600 dark:text-zinc-300 font-bold text-xs uppercase tracking-widest hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors flex items-center gap-2"
+          whileHover={isPremium ? { scale: 1.02 } : {}}
+          whileTap={isPremium ? { scale: 0.98 } : {}}
+          onClick={() => {
+            if (isPremium) {
+              setIsLogoModalOpen(true);
+            } else {
+              alert("Strategic Tools and Reports are Pro features. Please upgrade to access export options.");
+            }
+          }}
+          className={`px-4 py-2 font-bold text-xs uppercase tracking-widest rounded-lg transition-colors flex items-center gap-2 ${
+            !isPremium 
+              ? 'text-zinc-400 dark:text-zinc-600 cursor-not-allowed opacity-50' 
+              : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+          }`}
           title="Tools"
         >
-          <Wrench className="w-4 h-4" />
+          {!isPremium ? <Lock className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
           <span className="hidden lg:block">Tools</span>
         </motion.button>
         <motion.button 

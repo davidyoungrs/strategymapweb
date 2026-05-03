@@ -601,6 +601,7 @@ export default function App() {
           handleSaveCanvas={handleSaveCanvas}
           handleNewCanvas={handleNewCanvas}
           saveStatus={saveStatus}
+          isPremium={isPremium}
         />
 
         <div className="flex-1 overflow-y-auto bg-zinc-50 dark:bg-zinc-900/50 relative" ref={canvasRef}>
