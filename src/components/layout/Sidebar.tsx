@@ -15,6 +15,7 @@ import {
   Globe,
   Shield,
   LayoutGrid,
+  Lock,
   Grid3X3,
   PieChart,
   Link,
@@ -138,25 +139,38 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </motion.button>
 
           {/* More Models Dropdown */}
-          {isPremium && (() => {
+          {(() => {
             const moreModelViews = ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'market-sizing', 'risk-register'];
             const isMoreModelActive = moreModelViews.includes(currentView);
             return (
               <div className="mt-2">
                 <motion.button
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setIsMoreModelsOpen(!isMoreModelsOpen)}
+                  onClick={() => {
+                    if (isPremium) {
+                      setIsMoreModelsOpen(!isMoreModelsOpen);
+                    } else {
+                      alert("More Models is a Pro feature. Please upgrade to access these strategic frameworks.");
+                    }
+                  }}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
                     isMoreModelActive
                       ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
                       : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
-                  }`}
+                  } ${!isPremium ? 'opacity-70 grayscale-[0.5]' : ''}`}
                 >
                   <span className="flex items-center gap-3">
                     <LayoutGrid className="w-5 h-5" />
-                    More Models
+                    <span className="flex items-center gap-2">
+                      More Models
+                      {!isPremium && <Lock className="w-3 h-3 text-zinc-400" />}
+                    </span>
                   </span>
-                  {isMoreModelsOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                  {isPremium ? (
+                    isMoreModelsOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />
+                  ) : (
+                    <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400 border border-zinc-200 dark:border-zinc-800 px-1.5 py-0.5 rounded-md">Pro</span>
+                  )}
                 </motion.button>
 
                 <AnimatePresence>
@@ -255,25 +269,38 @@ export const Sidebar: React.FC<SidebarProps> = ({
           })()}
 
           {/* Business Plan Dropdown */}
-          {isPremium && (() => {
+          {(() => {
             const planViews = ['executive-summary', 'mission-vision', 'financials'];
             const isPlanActive = planViews.includes(currentView);
             return (
               <div className="mt-2">
                 <motion.button
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setIsBusinessPlanOpen(!isBusinessPlanOpen)}
+                  onClick={() => {
+                    if (isPremium) {
+                      setIsBusinessPlanOpen(!isBusinessPlanOpen);
+                    } else {
+                      alert("The Business Planning Suite is a Pro feature. Please upgrade to access financials and executive summaries.");
+                    }
+                  }}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
                     isPlanActive
                       ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
                       : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
-                  }`}
+                  } ${!isPremium ? 'opacity-70 grayscale-[0.5]' : ''}`}
                 >
                   <span className="flex items-center gap-3">
                     <FileText className="w-5 h-5" />
-                    Your Business Plan
+                    <span className="flex items-center gap-2">
+                      Your Business Plan
+                      {!isPremium && <Lock className="w-3 h-3 text-zinc-400" />}
+                    </span>
                   </span>
-                  {isBusinessPlanOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                  {isPremium ? (
+                    isBusinessPlanOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />
+                  ) : (
+                    <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400 border border-zinc-200 dark:border-zinc-800 px-1.5 py-0.5 rounded-md">Pro</span>
+                  )}
                 </motion.button>
 
                 <AnimatePresence>
