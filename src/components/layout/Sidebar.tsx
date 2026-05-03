@@ -131,69 +131,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             PESTEL Analysis
           </motion.button>
 
-          {/* Business Plan Dropdown */}
-          {(() => {
-            const planViews = ['executive-summary', 'mission-vision'];
-            const isPlanActive = planViews.includes(currentView);
-            return (
-              <div className="mt-2">
-                <motion.button
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setIsBusinessPlanOpen(!isBusinessPlanOpen)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
-                    isPlanActive
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
-                      : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
-                  }`}
-                >
-                  <span className="flex items-center gap-3">
-                    <FileText className="w-5 h-5" />
-                    Your Business Plan
-                  </span>
-                  {isBusinessPlanOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                </motion.button>
-
-                <AnimatePresence>
-                  {isBusinessPlanOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden pl-4"
-                    >
-                      <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
-                        onClick={() => navigate('/executive-summary')}
-                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
-                          currentView === 'executive-summary' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
-                        }`}
-                      >
-                        <FileText className="w-4 h-4" />
-                        Executive Summary
-                      </motion.button>
-
-                      <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
-                        onClick={() => navigate('/mission-vision')}
-                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
-                          currentView === 'mission-vision' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
-                        }`}
-                      >
-                        <Target className="w-4 h-4" />
-                        Mission & Values
-                      </motion.button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })()}
-
           {/* More Models Dropdown */}
           {(() => {
-            const moreModelViews = ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey'];
+            const moreModelViews = ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'market-sizing'];
             const isMoreModelActive = moreModelViews.includes(currentView);
             return (
-              <div>
+              <div className="mt-2">
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setIsMoreModelsOpen(!isMoreModelsOpen)}
@@ -287,6 +230,63 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       >
                         <PieChart className="w-4 h-4" />
                         Market Sizing
+                      </motion.button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })()}
+
+          {/* Business Plan Dropdown */}
+          {(() => {
+            const planViews = ['executive-summary', 'mission-vision'];
+            const isPlanActive = planViews.includes(currentView);
+            return (
+              <div className="mt-2">
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setIsBusinessPlanOpen(!isBusinessPlanOpen)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                    isPlanActive
+                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                      : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                  }`}
+                >
+                  <span className="flex items-center gap-3">
+                    <FileText className="w-5 h-5" />
+                    Your Business Plan
+                  </span>
+                  {isBusinessPlanOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                </motion.button>
+
+                <AnimatePresence>
+                  {isBusinessPlanOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden pl-4"
+                    >
+                      <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
+                        onClick={() => navigate('/executive-summary')}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                          currentView === 'executive-summary' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                        }`}
+                      >
+                        <FileText className="w-4 h-4" />
+                        Executive Summary
+                      </motion.button>
+
+                      <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
+                        onClick={() => navigate('/mission-vision')}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                          currentView === 'mission-vision' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                        }`}
+                      >
+                        <Target className="w-4 h-4" />
+                        Mission & Values
                       </motion.button>
                     </motion.div>
                   )}
