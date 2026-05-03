@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   collection, 
   query, 
@@ -78,11 +78,17 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
   const [lastSavedData, setLastSavedData] = useState<string>('');
 
-  const targetUserId = viewUserId || userId;
+  const canvasIdRef = useRef(canvasData.id);
+  const hasInitialLoaded = useRef(false);
+
+  useEffect(() => {
+    canvasIdRef.current = canvasData.id;
+  }, [canvasData.id]);
 
   useEffect(() => {
     if (!targetUserId) {
       setUserCanvases([]);
+      hasInitialLoaded.current = false;
       return;
     }
 
@@ -97,22 +103,23 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
       const canvases = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CanvasData));
       setUserCanvases(canvases);
       
-      // Auto-load most recent if none selected OR if we switched users
-      if (!snapshot.empty && (!canvasData.id || canvasData.userId !== targetUserId)) {
+      // Auto-load most recent ONLY on the first snapshot or if we switched users
+      if (!snapshot.empty && !hasInitialLoaded.current) {
         const firstDoc = snapshot.docs[0];
         const data = { id: firstDoc.id, ...firstDoc.data() } as CanvasData;
         setCanvasData(data);
         setOriginalTitle(firstDoc.data().title);
         setLastSavedData(JSON.stringify(data));
+        hasInitialLoaded.current = true;
       } else if (snapshot.empty) {
-        setCanvasData(prev => ({ ...prev, userId: targetUserId, id: undefined }));
+        hasInitialLoaded.current = true;
       }
     }, (error) => {
       handleFirestoreError(error, OperationType.LIST, 'canvases');
     });
 
     return () => unsubscribe();
-  }, [targetUserId, canvasData.id]);
+  }, [targetUserId]);
 
   const handleNewCanvas = () => {
     setCanvasData({
