@@ -49,9 +49,7 @@ import {
   Grid3X3,
   PieChart,
   Link,
-  Route as Route,
-  FileText,
-  Target,
+  Route as RouteIcon,
   AlertTriangle
 } from 'lucide-react';
 import { Kettle } from './components/icons/Kettle';
