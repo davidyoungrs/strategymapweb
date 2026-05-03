@@ -1,0 +1,122 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile information and subscription status",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user's unique ID"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "photoURL": {
+          "type": "string"
+        },
+        "isPaidTier": {
+          "type": "boolean",
+          "description": "Whether the user has paid for premium features"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "user"]
+        }
+      },
+      "required": ["uid", "email", "isPaidTier"]
+    },
+    "Canvas": {
+      "title": "Canvas",
+      "description": "A Business Model Canvas",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who owns this canvas"
+        },
+        "title": {
+          "type": "string"
+        },
+        "keyPartners": {
+          "type": "string"
+        },
+        "keyActivities": {
+          "type": "string"
+        },
+        "valuePropositions": {
+          "type": "string"
+        },
+        "customerRelationships": {
+          "type": "string"
+        },
+        "customerSegments": {
+          "type": "string"
+        },
+        "keyResources": {
+          "type": "string"
+        },
+        "channels": {
+          "type": "string"
+        },
+        "costStructure": {
+          "type": "string"
+        },
+        "revenueStreams": {
+          "type": "string"
+        },
+        "strategyMap": {
+          "type": "object"
+        },
+        "swot": {
+          "type": "object"
+        },
+        "createdAt": {
+          "type": "timestamp"
+        },
+        "updatedAt": {
+          "type": "timestamp"
+        },
+        "imageUrl": {
+          "type": "string"
+        },
+        "logoUrl": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "keyPartners",
+        "keyActivities",
+        "valuePropositions",
+        "customerRelationships",
+        "customerSegments",
+        "keyResources",
+        "channels",
+        "costStructure",
+        "revenueStreams",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "User profiles"
+    },
+    "/canvases/{canvasId}": {
+      "schema": {
+        "$ref": "#/entities/Canvas"
+      },
+      "description": "User canvases"
+    }
+  }
+}

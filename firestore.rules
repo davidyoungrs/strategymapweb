@@ -1,0 +1,170 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId}
+    // Fields:
+    //   - uid: string (required, immutable)
+    //   - email: string (required)
+    //   - displayName: string (optional)
+    //   - photoURL: string (optional)
+    //   - isPaidTier: boolean (required)
+    //
+    // Collection: canvases
+    // Document ID: {canvasId}
+    // Fields:
+    //   - id: string (optional)
+    //   - userId: string (required, immutable)
+    //   - title: string (required)
+    //   - keyPartners: string (required)
+    //   - keyActivities: string (required)
+    //   - valuePropositions: string (required)
+    //   - customerRelationships: string (required)
+    //   - customerSegments: string (required)
+    //   - keyResources: string (required)
+    //   - channels: string (required)
+    //   - costStructure: string (required)
+    //   - revenueStreams: string (required)
+    //   - strategyMap: map (optional)
+    //   - swot: map (optional)
+    //   - createdAt: timestamp (required, immutable)
+    //   - updatedAt: timestamp (required)
+    //   - imageUrl: string (optional)
+    //   - logoUrl: string (optional)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+    
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+    
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+    
+    function isValidString(field, minLen, maxLen) {
+      return request.resource.data[field] is string &&
+        request.resource.data[field].size() >= minLen &&
+        request.resource.data[field].size() <= maxLen;
+    }
+    
+    function isValidOptionalString(field, minLen, maxLen) {
+      return !(field in request.resource.data) ||
+             (request.resource.data[field] is string &&
+              request.resource.data[field].size() >= minLen &&
+              request.resource.data[field].size() <= maxLen);
+    }
+
+    function isValidEmail(email) {
+       return email is string &&
+         email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
+          (request.auth.token.email == "david.young@reallysimpleapps.com" && request.auth.token.email_verified == true));
+    }
+
+    function isPro() {
+      return isAdmin() || 
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isPaidTier == true);
+    }
+
+    function isValidUserProfile() {
+      return hasOnlyAllowedFields(['uid', 'email', 'displayName', 'photoURL', 'isPaidTier', 'role']) &&
+             hasRequiredFields(['uid', 'email', 'isPaidTier']) &&
+             request.resource.data.uid == request.auth.uid &&
+             isValidEmail(request.resource.data.email) &&
+             isValidOptionalString('displayName', 0, 100) &&
+             isValidOptionalString('photoURL', 0, 1000) &&
+             request.resource.data.isPaidTier is bool &&
+             (!( 'role' in request.resource.data) || request.resource.data.role in ['admin', 'user']);
+    }
+
+    function isValidCanvas() {
+      return hasOnlyAllowedFields([
+               'userId', 'title', 'keyPartners', 'keyActivities', 'valuePropositions',
+               'customerRelationships', 'customerSegments', 'keyResources', 'channels',
+               'costStructure', 'revenueStreams', 'createdAt', 'updatedAt', 'imageUrl', 
+               'strategyMap', 'swot', 'id', 'logoUrl'
+             ]) &&
+             hasRequiredFields([
+               'userId', 'title', 'keyPartners', 'keyActivities', 'valuePropositions',
+               'customerRelationships', 'customerSegments', 'keyResources', 'channels',
+               'costStructure', 'revenueStreams', 'createdAt', 'updatedAt'
+             ]) &&
+             (request.resource.data.userId == request.auth.uid || isAdmin()) &&
+             isValidString('title', 1, 200) &&
+             isValidString('keyPartners', 0, 20000) &&
+             isValidString('keyActivities', 0, 20000) &&
+             isValidString('valuePropositions', 0, 20000) &&
+             isValidString('customerRelationships', 0, 20000) &&
+             isValidString('customerSegments', 0, 20000) &&
+             isValidString('keyResources', 0, 20000) &&
+             isValidString('channels', 0, 20000) &&
+             isValidString('costStructure', 0, 20000) &&
+             isValidString('revenueStreams', 0, 20000) &&
+             request.resource.data.createdAt is timestamp &&
+             request.resource.data.updatedAt is timestamp &&
+             isValidOptionalString('imageUrl', 0, 200000) &&
+             isValidOptionalString('logoUrl', 0, 200000) &&
+             isValidOptionalString('id', 0, 100) &&
+             (!('strategyMap' in request.resource.data) || request.resource.data.strategyMap is map) &&
+             (!('swot' in request.resource.data) || request.resource.data.swot is map);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) && 
+                       isValidUserProfile() && 
+                       request.resource.data.isPaidTier == false;
+      allow update: if (isOwner(userId) || isAdmin()) && 
+                       isValidUserProfile();
+    }
+
+    match /canvases/{canvasId} {
+      allow read: if isDocOwner() || isAdmin();
+      allow list: if isAdmin();
+      
+      allow create: if (isAuthenticated() || isAdmin()) && 
+                       isValidCanvas() &&
+                       isPro();
+                       
+      allow update: if (isDocOwner() || isAdmin()) && 
+                       isValidCanvas() &&
+                       isPro();
+                       
+      allow delete: if isDocOwner() || isAdmin();
+    }
+  }
+}

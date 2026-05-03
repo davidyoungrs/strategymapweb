@@ -1,0 +1,80 @@
+export interface UserProfile {
+  uid: string;
+  email: string;
+  displayName?: string;
+  photoURL?: string;
+  isPaidTier: boolean;
+  subscriptionId?: string;
+  subscriptionStatus?: string;
+  customerPortalUrl?: string;
+}
+
+export interface StrategyObjective {
+  id: string;
+  text: string;
+}
+
+export interface StrategyMapData {
+  title?: string;
+  financial: StrategyObjective[];
+  customer: StrategyObjective[];
+  internal: StrategyObjective[];
+  learning: StrategyObjective[];
+}
+
+export interface SwotData {
+  title?: string;
+  strengths: string;
+  weaknesses: string;
+  opportunities: string;
+  threats: string;
+}
+
+export interface CanvasData {
+  id?: string;
+  userId: string;
+  title: string;
+  keyPartners: string;
+  keyActivities: string;
+  valuePropositions: string;
+  customerRelationships: string;
+  customerSegments: string;
+  keyResources: string;
+  channels: string;
+  costStructure: string;
+  revenueStreams: string;
+  strategyMap?: StrategyMapData;
+  swot?: SwotData;
+  createdAt: any;
+  updatedAt: any;
+  imageUrl?: string;
+  logoUrl?: string;
+}
+
+export enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+export interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string;
+    email?: string;
+    emailVerified?: boolean;
+    isAnonymous?: boolean;
+    tenantId?: string;
+    providerInfo: {
+      providerId: string;
+      displayName: string | null;
+      email: string | null;
+      photoUrl: string | null;
+    }[];
+  }
+}
