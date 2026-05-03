@@ -60,6 +60,7 @@ import { AnsoffMatrixView } from './components/AnsoffMatrixView';
 import { BcgMatrixView } from './components/BcgMatrixView';
 import { ValueChainView } from './components/ValueChainView';
 import { CustomerJourneyView } from './components/CustomerJourneyView';
+import { BusinessPlanView } from './components/BusinessPlanView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
@@ -663,6 +664,22 @@ export default function App() {
                     canvasData={canvasData} 
                     setCanvasData={setCanvasData} 
                     onBack={() => navigate('/')} 
+                  />
+                } />
+                <Route path="/executive-summary" element={
+                  <BusinessPlanView 
+                    canvasData={canvasData} 
+                    setCanvasData={setCanvasData} 
+                    onBack={() => navigate('/')} 
+                    type="summary"
+                  />
+                } />
+                <Route path="/mission-vision" element={
+                  <BusinessPlanView 
+                    canvasData={canvasData} 
+                    setCanvasData={setCanvasData} 
+                    onBack={() => navigate('/')} 
+                    type="identity"
                   />
                 } />
                 <Route path="/swot" element={

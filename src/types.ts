@@ -93,6 +93,13 @@ export interface CustomerJourneyData {
   advocacy: string;
 }
 
+export interface BusinessPlanData {
+  executiveSummary: string;
+  mission: string;
+  vision: string;
+  values: string;
+}
+
 export interface CanvasData {
   id?: string;
   userId: string;
@@ -115,6 +122,7 @@ export interface CanvasData {
   bcgMatrix?: BcgMatrixData;
   valueChain?: ValueChainData;
   customerJourney?: CustomerJourneyData;
+  businessPlan?: BusinessPlanData;
   createdAt: any;
   updatedAt: any;
   imageUrl?: string;

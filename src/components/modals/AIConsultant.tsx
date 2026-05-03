@@ -78,11 +78,14 @@ export const AIConsultant: React.FC<AIConsultantProps> = ({ canvasData, isOpen, 
         Review this plan and suggest 3 high-impact additions.
         
         PLAN: ${canvasData.title}
+        Executive Summary: ${canvasData.businessPlan?.executiveSummary || 'Not provided'}
+        Mission: ${canvasData.businessPlan?.mission || 'Not provided'}
+        Vision: ${canvasData.businessPlan?.vision || 'Not provided'}
         Value Props: ${canvasData.valuePropositions}
         Segments: ${canvasData.customerSegments}
         Revenue: ${canvasData.revenueStreams}
         
-        Provide suggestions in Markdown format. Be brief.
+        Provide feedback on how well the business plan aligns with the core strategy. Provide suggestions in Markdown format. Be brief.
       `;
 
       // MediaPipe Gemma 2B Inference
