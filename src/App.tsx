@@ -45,7 +45,14 @@ import {
   Moon,
   Loader2,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Grid3X3,
+  PieChart,
+  Link,
+  Route as Route,
+  FileText,
+  Target,
+  AlertTriangle
 } from 'lucide-react';
 import { Kettle } from './components/icons/Kettle';
 import html2canvas from 'html2canvas';
@@ -61,6 +68,7 @@ import { BcgMatrixView } from './components/BcgMatrixView';
 import { ValueChainView } from './components/ValueChainView';
 import { CustomerJourneyView } from './components/CustomerJourneyView';
 import { MarketSizingView } from './components/MarketSizingView';
+import { RiskRegisterView } from './components/RiskRegisterView';
 import { BusinessPlanView } from './components/BusinessPlanView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { Header } from './components/layout/Header';
@@ -74,7 +82,7 @@ import { LicensesModal } from './components/modals/LicensesModal';
 import { AIConsultant } from './components/modals/AIConsultant';
 import { ReportView } from './components/layout/ReportView';
 import { useCanvasData } from './hooks/useCanvasData';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function App() {
@@ -92,6 +100,7 @@ export default function App() {
   });
   
   const location = useLocation();
+  const navigate = useNavigate();
   const currentView = location.pathname.substring(1) || 'canvas';
 
   const [viewUserId, setViewUserId] = useState<string | undefined>(undefined);
@@ -109,6 +118,9 @@ export default function App() {
   } = useCanvasData(user?.uid, profile, viewUserId);
 
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
+  const [isMoreModelsOpen, setIsMoreModelsOpen] = useState(
+    ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'market-sizing', 'risk-register'].includes(currentView)
+  );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [canvasToDelete, setCanvasToDelete] = useState<string | null>(null);
   const [logoUrlInput, setLogoUrlInput] = useState('');
@@ -334,6 +346,7 @@ export default function App() {
       });
 
       const pages = ['report-page-1', 'report-page-2', 'report-page-3'];
+      const moreModelViews = ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'market-sizing', 'risk-register'];
       
       for (let i = 0; i < pages.length; i++) {
         const element = document.getElementById(pages[i]);
@@ -573,7 +586,7 @@ export default function App() {
           <div className="min-h-full relative pb-20">
             <AnimatePresence mode="wait">
               <Routes location={location} key={location.pathname}>
-                <Route path="/" element={
+                <RouterRoute path="/" element={
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -588,7 +601,6 @@ export default function App() {
                           type="text"
                           value={canvasData.title}
                           onChange={(e) => setCanvasData(prev => ({ ...prev, title: e.target.value }))}
-                          className="text-4xl md:text-5xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 bg-transparent border-none outline-none focus:ring-0 p-0 w-full"
                           placeholder="Canvas Title"
                         />
                       </div>
@@ -601,7 +613,7 @@ export default function App() {
                     />
                   </motion.div>
                 } />
-                <Route path="/strategy-map" element={
+                <RouterRoute path="/strategy-map" element={
                   <motion.div
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -669,6 +681,13 @@ export default function App() {
                 } />
                 <Route path="/market-sizing" element={
                   <MarketSizingView 
+                    canvasData={canvasData} 
+                    setCanvasData={setCanvasData} 
+                    onBack={() => navigate('/')} 
+                  />
+                } />
+                <Route path="/risk-register" element={
+                  <RiskRegisterView 
                     canvasData={canvasData} 
                     setCanvasData={setCanvasData} 
                     onBack={() => navigate('/')} 

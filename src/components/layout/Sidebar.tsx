@@ -20,7 +20,8 @@ import {
   Link,
   Route,
   FileText,
-  Target
+  Target,
+  AlertTriangle
 } from 'lucide-react';
 import { Kettle } from '../icons/Kettle';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -58,7 +59,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const location = useLocation();
   const currentView = location.pathname.substring(1) || 'canvas';
   const [isMoreModelsOpen, setIsMoreModelsOpen] = useState(
-    ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey'].includes(currentView)
+    ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'market-sizing', 'risk-register'].includes(currentView)
   );
   const [isBusinessPlanOpen, setIsBusinessPlanOpen] = useState(
     ['executive-summary', 'mission-vision'].includes(currentView)
@@ -133,7 +134,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* More Models Dropdown */}
           {(() => {
-            const moreModelViews = ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'market-sizing'];
+            const moreModelViews = ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'market-sizing', 'risk-register'];
             const isMoreModelActive = moreModelViews.includes(currentView);
             return (
               <div className="mt-2">
@@ -230,6 +231,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       >
                         <PieChart className="w-4 h-4" />
                         Market Sizing
+                      </motion.button>
+
+                      <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
+                        onClick={() => navigate('/risk-register')}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                          currentView === 'risk-register' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                        }`}
+                      >
+                        <AlertTriangle className="w-4 h-4" />
+                        Risk Register
                       </motion.button>
                     </motion.div>
                   )}

@@ -102,6 +102,16 @@ export interface MarketSizingData {
   somDescription: string;
 }
 
+export interface RiskRegisterItem {
+  id: string;
+  risk: string;
+  probability: 'Low' | 'Medium' | 'High';
+  impact: 'Low' | 'Medium' | 'High';
+  mitigation: string;
+}
+
+export type RiskRegisterData = RiskRegisterItem[];
+
 export interface BusinessPlanData {
   executiveSummary: string;
   mission: string;
@@ -133,6 +143,7 @@ export interface CanvasData {
   customerJourney?: CustomerJourneyData;
   businessPlan?: BusinessPlanData;
   marketSizing?: MarketSizingData;
+  riskRegister?: RiskRegisterData;
   createdAt: any;
   updatedAt: any;
   imageUrl?: string;
