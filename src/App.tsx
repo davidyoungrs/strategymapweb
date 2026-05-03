@@ -59,6 +59,7 @@ import { LeanCanvasView } from './components/LeanCanvasView';
 import { AnsoffMatrixView } from './components/AnsoffMatrixView';
 import { BcgMatrixView } from './components/BcgMatrixView';
 import { ValueChainView } from './components/ValueChainView';
+import { CustomerJourneyView } from './components/CustomerJourneyView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
@@ -652,6 +653,13 @@ export default function App() {
                 } />
                 <Route path="/value-chain" element={
                   <ValueChainView 
+                    canvasData={canvasData} 
+                    setCanvasData={setCanvasData} 
+                    onBack={() => navigate('/')} 
+                  />
+                } />
+                <Route path="/customer-journey" element={
+                  <CustomerJourneyView 
                     canvasData={canvasData} 
                     setCanvasData={setCanvasData} 
                     onBack={() => navigate('/')} 

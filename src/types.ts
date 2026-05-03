@@ -85,6 +85,14 @@ export interface ValueChainData {
   procurement: string;
 }
 
+export interface CustomerJourneyData {
+  awareness: string;
+  consideration: string;
+  purchase: string;
+  retention: string;
+  advocacy: string;
+}
+
 export interface CanvasData {
   id?: string;
   userId: string;
@@ -106,6 +114,7 @@ export interface CanvasData {
   ansoffMatrix?: AnsoffMatrixData;
   bcgMatrix?: BcgMatrixData;
   valueChain?: ValueChainData;
+  customerJourney?: CustomerJourneyData;
   createdAt: any;
   updatedAt: any;
   imageUrl?: string;

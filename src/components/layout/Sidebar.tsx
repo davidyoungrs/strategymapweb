@@ -17,7 +17,8 @@ import {
   LayoutGrid,
   Grid3X3,
   PieChart,
-  Link
+  Link,
+  Route
 } from 'lucide-react';
 import { Kettle } from '../icons/Kettle';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -55,7 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const location = useLocation();
   const currentView = location.pathname.substring(1) || 'canvas';
   const [isMoreModelsOpen, setIsMoreModelsOpen] = useState(
-    ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain'].includes(currentView)
+    ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey'].includes(currentView)
   );
   return (
     <aside className="w-72 bg-white dark:bg-zinc-950 border-r border-zinc-100 dark:border-zinc-800 flex flex-col h-screen sticky top-0">
@@ -127,7 +128,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* More Models Dropdown */}
           {(() => {
-            const moreModelViews = ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain'];
+            const moreModelViews = ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey'];
             const isMoreModelActive = moreModelViews.includes(currentView);
             return (
               <div>
@@ -204,6 +205,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       >
                         <Link className="w-4 h-4" />
                         Value Chain
+                      </motion.button>
+
+                      <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
+                        onClick={() => navigate('/customer-journey')}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                          currentView === 'customer-journey' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                        }`}
+                      >
+                        <Route className="w-4 h-4" />
+                        Customer Journey
                       </motion.button>
                     </motion.div>
                   )}
