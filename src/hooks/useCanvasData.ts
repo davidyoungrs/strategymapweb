@@ -63,6 +63,13 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
       somDescription: '',
     },
     riskRegister: [],
+    financials: {
+      years: [
+        { year: 1, revenue: 0, cogs: 0, operatingExpenses: 0 },
+        { year: 2, revenue: 0, cogs: 0, operatingExpenses: 0 },
+        { year: 3, revenue: 0, cogs: 0, operatingExpenses: 0 },
+      ]
+    },
     createdAt: null,
     updatedAt: null,
   });
@@ -154,6 +161,13 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
         samDescription: '',
       },
       riskRegister: [],
+      financials: {
+        years: [
+          { year: 1, revenue: 0, cogs: 0, operatingExpenses: 0 },
+          { year: 2, revenue: 0, cogs: 0, operatingExpenses: 0 },
+          { year: 3, revenue: 0, cogs: 0, operatingExpenses: 0 },
+        ]
+      },
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
@@ -205,7 +219,12 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
         pestel: canvasData.pestel || { political: '', economic: '', social: '', technological: '', environmental: '', legal: '' },
         businessPlan: canvasData.businessPlan || { executiveSummary: '', mission: '', vision: '', values: '' },
         marketSizing: canvasData.marketSizing || { tam: '', sam: '', som: '', tamDescription: '', samDescription: '', somDescription: '' },
-        riskRegister: canvasData.riskRegister || []
+        riskRegister: canvasData.riskRegister || [],
+        financials: canvasData.financials || { years: [
+          { year: 1, revenue: 0, cogs: 0, operatingExpenses: 0 },
+          { year: 2, revenue: 0, cogs: 0, operatingExpenses: 0 },
+          { year: 3, revenue: 0, cogs: 0, operatingExpenses: 0 },
+        ]}
       };
       
       await setDoc(canvasRef, dataToSave, { merge: true });

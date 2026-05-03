@@ -112,6 +112,17 @@ export interface RiskRegisterItem {
 
 export type RiskRegisterData = RiskRegisterItem[];
 
+export interface FinancialYear {
+  year: number;
+  revenue: number;
+  cogs: number;
+  operatingExpenses: number;
+}
+
+export interface FinancialProjectionsData {
+  years: FinancialYear[];
+}
+
 export interface BusinessPlanData {
   executiveSummary: string;
   mission: string;
@@ -144,6 +155,7 @@ export interface CanvasData {
   businessPlan?: BusinessPlanData;
   marketSizing?: MarketSizingData;
   riskRegister?: RiskRegisterData;
+  financials?: FinancialProjectionsData;
   createdAt: any;
   updatedAt: any;
   imageUrl?: string;

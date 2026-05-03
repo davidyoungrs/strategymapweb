@@ -69,6 +69,7 @@ import { ValueChainView } from './components/ValueChainView';
 import { CustomerJourneyView } from './components/CustomerJourneyView';
 import { MarketSizingView } from './components/MarketSizingView';
 import { RiskRegisterView } from './components/RiskRegisterView';
+import { FinancialProjectionsView } from './components/FinancialProjectionsView';
 import { BusinessPlanView } from './components/BusinessPlanView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { Header } from './components/layout/Header';
@@ -688,6 +689,13 @@ export default function App() {
                 } />
                 <Route path="/risk-register" element={
                   <RiskRegisterView 
+                    canvasData={canvasData} 
+                    setCanvasData={setCanvasData} 
+                    onBack={() => navigate('/')} 
+                  />
+                } />
+                <Route path="/financials" element={
+                  <FinancialProjectionsView 
                     canvasData={canvasData} 
                     setCanvasData={setCanvasData} 
                     onBack={() => navigate('/')} 
