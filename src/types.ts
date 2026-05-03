@@ -93,6 +93,15 @@ export interface CustomerJourneyData {
   advocacy: string;
 }
 
+export interface MarketSizingData {
+  tam: string;
+  sam: string;
+  som: string;
+  tamDescription: string;
+  samDescription: string;
+  somDescription: string;
+}
+
 export interface BusinessPlanData {
   executiveSummary: string;
   mission: string;
@@ -123,6 +132,7 @@ export interface CanvasData {
   valueChain?: ValueChainData;
   customerJourney?: CustomerJourneyData;
   businessPlan?: BusinessPlanData;
+  marketSizing?: MarketSizingData;
   createdAt: any;
   updatedAt: any;
   imageUrl?: string;

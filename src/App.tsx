@@ -60,6 +60,7 @@ import { AnsoffMatrixView } from './components/AnsoffMatrixView';
 import { BcgMatrixView } from './components/BcgMatrixView';
 import { ValueChainView } from './components/ValueChainView';
 import { CustomerJourneyView } from './components/CustomerJourneyView';
+import { MarketSizingView } from './components/MarketSizingView';
 import { BusinessPlanView } from './components/BusinessPlanView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { Header } from './components/layout/Header';
@@ -661,6 +662,13 @@ export default function App() {
                 } />
                 <Route path="/customer-journey" element={
                   <CustomerJourneyView 
+                    canvasData={canvasData} 
+                    setCanvasData={setCanvasData} 
+                    onBack={() => navigate('/')} 
+                  />
+                } />
+                <Route path="/market-sizing" element={
+                  <MarketSizingView 
                     canvasData={canvasData} 
                     setCanvasData={setCanvasData} 
                     onBack={() => navigate('/')} 
