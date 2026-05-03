@@ -167,6 +167,7 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
         som: '',
         tamDescription: '',
         samDescription: '',
+        somDescription: '',
       },
       riskRegister: [],
       financials: {

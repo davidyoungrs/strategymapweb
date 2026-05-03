@@ -74,17 +74,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside className="w-72 bg-white dark:bg-zinc-950 border-r border-zinc-100 dark:border-zinc-800 flex flex-col h-screen sticky top-0">
       <div className="p-8">
-        <div className="flex items-center gap-3 mb-10">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
-            <Kettle className="text-white w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 leading-none">KETTLE</h1>
-            <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 tracking-[0.3em] mt-1">STRAT</p>
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
+              <Kettle className="text-white w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 leading-none">KETTLE</h1>
+              <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 tracking-[0.3em] mt-1">STRAT</p>
+            </div>
           </div>
         </div>
-
-      <div className="flex-1 overflow-y-auto">
+        
+        <div className="flex-1 overflow-y-auto">
         <div className="p-8 pb-4">
           <nav className="space-y-1">
             <motion.button 
@@ -451,14 +452,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest leading-relaxed">No saved plans yet</p>
               </div>
             )}
-          </div>
         </div>
       </div>
+    </div>
 
-      <div className="p-6 mt-auto space-y-4">
+    <div className="p-6 mt-auto space-y-4">
         {!userProfile?.isPaidTier && (
           <motion.button 
-            whileHover={{ y: -2, shadow: "0 10px 15px -3px rgba(59, 130, 246, 0.1)" }}
+            whileHover={{ y: -2, boxShadow: "0 10px 15px -3px rgba(59, 130, 246, 0.1)" }}
             whileTap={{ scale: 0.98 }}
             onClick={handleUpgrade}
             className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl group hover:border-blue-500 transition-all text-left"
