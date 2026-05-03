@@ -42,6 +42,7 @@ interface SidebarProps {
   onLogout: () => void;
   handleLoadTemplate: (templateId: string) => void;
   onShowTour: () => void;
+  isPremium: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -54,7 +55,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   handleUpgrade,
   onLogout,
   handleLoadTemplate,
-  onShowTour
+  onShowTour,
+  isPremium
 }) => {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const navigate = useNavigate();
@@ -62,7 +64,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const currentView = location.pathname.substring(1) || 'canvas';
 
   const isAdmin = userProfile?.email === 'david.young@reallysimpleapps.com' || userProfile?.email === 'david.young@celerosft.com';
-  const isPremium = userProfile?.isPaidTier || isAdmin;
 
   const [isMoreModelsOpen, setIsMoreModelsOpen] = useState(
     ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'market-sizing', 'risk-register'].includes(currentView)

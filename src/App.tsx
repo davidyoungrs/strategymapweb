@@ -102,8 +102,9 @@ export default function App() {
   const navigate = useNavigate();
   const currentView = location.pathname.substring(1) || 'canvas';
 
+  const [forceStandardMode, setForceStandardMode] = useState(false);
   const isAdmin = profile?.email === 'david.young@reallysimpleapps.com' || profile?.email === 'david.young@celerosft.com';
-  const isPremium = profile?.isPaidTier || isAdmin;
+  const isPremium = (profile?.isPaidTier || isAdmin) && !forceStandardMode;
 
   const [viewUserId, setViewUserId] = useState<string | undefined>(undefined);
   const [impersonatedUserEmail, setImpersonatedUserEmail] = useState<string | null>(null);
@@ -163,7 +164,7 @@ export default function App() {
           const userSnap = await getDoc(userRef);
           
           if (!userSnap.exists()) {
-            const isAdmin = currentUser.email === 'david.young@reallysimpleapps.com';
+            const isAdmin = currentUser.email === 'david.young@reallysimpleapps.com' || currentUser.email === 'david.young@celerosft.com';
             const newProfile: UserProfile = {
               uid: currentUser.uid,
               email: currentUser.email || '',
@@ -555,9 +556,27 @@ export default function App() {
         onLogout={handleLogout}
         handleLoadTemplate={handleLoadTemplate}
         onShowTour={() => setIsTourOpen(true)}
+        isPremium={isPremium}
       />
 
       <main className="flex-1 flex flex-col overflow-hidden relative">
+        {/* Developer Toggle - Localhost Only */}
+        {window.location.hostname === 'localhost' && isAdmin && (
+          <div className="fixed top-4 right-4 z-[100] flex items-center gap-2 px-3 py-1.5 bg-zinc-900/90 backdrop-blur-md border border-zinc-700 rounded-full shadow-2xl animate-in fade-in slide-in-from-top-2 duration-300">
+            <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Dev Preview</span>
+            <button 
+              onClick={() => setForceStandardMode(!forceStandardMode)}
+              className={`flex items-center gap-2 px-2 py-1 rounded-md transition-all ${
+                forceStandardMode ? 'bg-rose-600 text-white shadow-lg shadow-rose-900/20' : 'bg-zinc-800 text-zinc-300'
+              }`}
+            >
+              <Shield className="w-3 h-3" />
+              <span className="text-[10px] font-black uppercase tracking-tight">
+                {forceStandardMode ? 'Standard (Locked)' : 'Admin (Unlocked)'}
+              </span>
+            </button>
+          </div>
+        )}
         {viewUserId && (
           <div className="bg-amber-500 text-white px-4 py-2 flex items-center justify-between z-50 shadow-md">
             <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
