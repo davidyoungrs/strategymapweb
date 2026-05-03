@@ -585,7 +585,7 @@ export default function App() {
           <div className="min-h-full relative pb-20">
             <AnimatePresence mode="wait">
               <Routes location={location} key={location.pathname}>
-                <RouterRoute path="/" element={
+                <Route path="/" element={
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -612,7 +612,7 @@ export default function App() {
                     />
                   </motion.div>
                 } />
-                <RouterRoute path="/strategy-map" element={
+                <Route path="/strategy-map" element={
                   <motion.div
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
