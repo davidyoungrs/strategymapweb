@@ -104,6 +104,7 @@ export interface MarketSizingData {
 
 export interface RiskRegisterItem {
   id: string;
+  type: 'Risk' | 'Opportunity';
   risk: string;
   probability: 'Low' | 'Medium' | 'High';
   impact: 'Low' | 'Medium' | 'High';

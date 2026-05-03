@@ -85,7 +85,7 @@ export const AIConsultant: React.FC<AIConsultantProps> = ({ canvasData, isOpen, 
         SAM: ${canvasData.marketSizing?.sam || 'Not provided'}
         SOM: ${canvasData.marketSizing?.som || 'Not provided'}
         Financials: ${canvasData.financials?.years.map(y => `Y${y.year}: Rev $${y.revenue}, Profit $${y.revenue - y.cogs - y.operatingExpenses}`).join('; ') || 'Not provided'}
-        Risks: ${canvasData.riskRegister?.map(r => `${r.risk} (Prob: ${r.probability}, Impact: ${r.impact})`).join(', ') || 'None'}
+        Risks & Opportunities: ${canvasData.riskRegister?.map(r => `${r.type}: ${r.risk} (Prob: ${r.probability}, Impact: ${r.impact})`).join(', ') || 'None'}
         Value Props: ${canvasData.valuePropositions}
         Segments: ${canvasData.customerSegments}
         Revenue: ${canvasData.revenueStreams}

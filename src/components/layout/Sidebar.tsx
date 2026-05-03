@@ -241,7 +241,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         }`}
                       >
                         <AlertTriangle className="w-4 h-4" />
-                        Risk Register
+                        Risk & Opportunity
                       </motion.button>
                     </motion.div>
                   )}
