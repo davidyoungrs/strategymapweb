@@ -18,7 +18,9 @@ import {
   Grid3X3,
   PieChart,
   Link,
-  Route
+  Route,
+  FileText,
+  Target
 } from 'lucide-react';
 import { Kettle } from '../icons/Kettle';
 import { useNavigate, useLocation } from 'react-router-dom';
