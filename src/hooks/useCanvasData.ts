@@ -40,6 +40,14 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
       opportunities: '',
       threats: '',
     },
+    pestel: {
+      political: '',
+      economic: '',
+      social: '',
+      technological: '',
+      environmental: '',
+      legal: '',
+    },
     createdAt: null,
     updatedAt: null,
   });
@@ -109,6 +117,14 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
         opportunities: '',
         threats: '',
       },
+      pestel: {
+        political: '',
+        economic: '',
+        social: '',
+        technological: '',
+        environmental: '',
+        legal: '',
+      },
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
@@ -156,7 +172,8 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
         updatedAt: serverTimestamp(),
         createdAt: isTitleChanged ? serverTimestamp() : (canvasData.createdAt || serverTimestamp()),
         swot: canvasData.swot || { strengths: '', weaknesses: '', opportunities: '', threats: '' },
-        strategyMap: canvasData.strategyMap || { financial: [], customer: [], internal: [], learning: [] }
+        strategyMap: canvasData.strategyMap || { financial: [], customer: [], internal: [], learning: [] },
+        pestel: canvasData.pestel || { political: '', economic: '', social: '', technological: '', environmental: '', legal: '' }
       };
       
       await setDoc(canvasRef, dataToSave, { merge: true });

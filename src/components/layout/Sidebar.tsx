@@ -11,7 +11,8 @@ import {
   ChevronRight,
   FolderOpen,
   Trash2,
-  Sparkles
+  Sparkles,
+  Globe
 } from 'lucide-react';
 import { Kettle } from '../icons/Kettle';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -100,6 +101,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
           >
             <Star className="w-5 h-5" />
             SWOT Analysis
+          </motion.button>
+
+          <motion.button 
+            whileHover={{ x: 4 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate('/pestel')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
+              currentView === 'pestel' 
+                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' 
+                : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+            }`}
+          >
+            <Globe className="w-5 h-5" />
+            PESTEL Analysis
           </motion.button>
 
           {(userProfile?.isPaidTier || userProfile?.email === 'david.young@reallysimpleapps.com') && (

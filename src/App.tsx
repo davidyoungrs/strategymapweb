@@ -53,6 +53,7 @@ import { jsPDF } from 'jspdf';
 
 import { StrategyMap } from './components/StrategyMap';
 import { SwotView } from './components/SwotView';
+import { PestelView } from './components/PestelView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
@@ -608,6 +609,13 @@ export default function App() {
                       onSelectCanvas={handleSelectCanvas}
                     />
                   </motion.div>
+                } />
+                <Route path="/pestel" element={
+                  <PestelView 
+                    canvasData={canvasData} 
+                    setCanvasData={setCanvasData} 
+                    onBack={() => navigate('/')} 
+                  />
                 } />
                 <Route path="/swot" element={
                   <motion.div

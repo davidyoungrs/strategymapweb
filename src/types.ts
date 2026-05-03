@@ -30,6 +30,15 @@ export interface SwotData {
   threats: string;
 }
 
+export interface PestelData {
+  political: string;
+  economic: string;
+  social: string;
+  technological: string;
+  environmental: string;
+  legal: string;
+}
+
 export interface CanvasData {
   id?: string;
   userId: string;
@@ -45,6 +54,7 @@ export interface CanvasData {
   revenueStreams: string;
   strategyMap?: StrategyMapData;
   swot?: SwotData;
+  pestel?: PestelData;
   createdAt: any;
   updatedAt: any;
   imageUrl?: string;
