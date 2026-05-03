@@ -111,7 +111,9 @@ service cloud.firestore {
                'userId', 'title', 'keyPartners', 'keyActivities', 'valuePropositions',
                'customerRelationships', 'customerSegments', 'keyResources', 'channels',
                'costStructure', 'revenueStreams', 'createdAt', 'updatedAt', 'imageUrl', 
-               'strategyMap', 'swot', 'id', 'logoUrl'
+               'strategyMap', 'swot', 'pestel', 'porterForces', 'leanCanvas', 'ansoffMatrix',
+               'bcgMatrix', 'valueChain', 'customerJourney', 'businessPlan', 'marketSizing',
+               'riskRegister', 'financials', 'id', 'logoUrl'
              ]) &&
              hasRequiredFields([
                'userId', 'title', 'keyPartners', 'keyActivities', 'valuePropositions',
@@ -135,7 +137,18 @@ service cloud.firestore {
              isValidOptionalString('logoUrl', 0, 200000) &&
              isValidOptionalString('id', 0, 100) &&
              (!('strategyMap' in request.resource.data) || request.resource.data.strategyMap is map) &&
-             (!('swot' in request.resource.data) || request.resource.data.swot is map);
+             (!('swot' in request.resource.data) || request.resource.data.swot is map) &&
+             (!('pestel' in request.resource.data) || request.resource.data.pestel is map) &&
+             (!('porterForces' in request.resource.data) || request.resource.data.porterForces is map) &&
+             (!('leanCanvas' in request.resource.data) || request.resource.data.leanCanvas is map) &&
+             (!('ansoffMatrix' in request.resource.data) || request.resource.data.ansoffMatrix is map) &&
+             (!('bcgMatrix' in request.resource.data) || request.resource.data.bcgMatrix is map) &&
+             (!('valueChain' in request.resource.data) || request.resource.data.valueChain is map) &&
+             (!('customerJourney' in request.resource.data) || request.resource.data.customerJourney is map) &&
+             (!('businessPlan' in request.resource.data) || request.resource.data.businessPlan is map) &&
+             (!('marketSizing' in request.resource.data) || request.resource.data.marketSizing is map) &&
+             (!('riskRegister' in request.resource.data) || request.resource.data.riskRegister is list) &&
+             (!('financials' in request.resource.data) || request.resource.data.financials is map);
     }
 
     // ===============================================================
