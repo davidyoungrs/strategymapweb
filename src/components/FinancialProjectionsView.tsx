@@ -81,7 +81,7 @@ export const FinancialProjectionsView: React.FC<FinancialProjectionsViewProps> =
         </button>
         <div>
           <h2 className="text-3xl font-black text-zinc-900 dark:text-zinc-100 tracking-tight uppercase italic">Financial Projections</h2>
-          <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">3-Year Strategic Forecast</p>
+          <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">3-Year Strategic Statement</p>
         </div>
       </div>
 
@@ -111,70 +111,115 @@ export const FinancialProjectionsView: React.FC<FinancialProjectionsViewProps> =
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
-                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-500">Projection Period</th>
-                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-500">Revenue ($)</th>
-                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-500">COGS ($)</th>
-                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-500">OpEx ($)</th>
-                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-500 text-right">Net Profit</th>
+                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-500 w-64 border-r border-zinc-100 dark:border-zinc-800">Financial Item</th>
+                {financials.years.map(y => (
+                  <th key={y.year} className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100 text-center bg-zinc-50/30 dark:bg-zinc-900/30">
+                    Year {y.year}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-              {financials.years.map((y) => {
-                const grossProfit = y.revenue - y.cogs;
-                const netProfit = grossProfit - y.operatingExpenses;
-                const margin = y.revenue > 0 ? (netProfit / y.revenue) * 100 : 0;
+              {/* REVENUE SECTION */}
+              <tr className="bg-zinc-50/30 dark:bg-zinc-900/20">
+                <td className="px-8 py-4 border-r border-zinc-100 dark:border-zinc-800">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Revenue</span>
+                </td>
+                {financials.years.map(y => <td key={y.year} className="px-8 py-4 bg-zinc-50/10 dark:bg-zinc-900/10"></td>)}
+              </tr>
+              <tr className="group transition-colors">
+                <td className="px-8 py-6 border-r border-zinc-100 dark:border-zinc-800">
+                  <p className="text-sm font-black text-zinc-900 dark:text-zinc-100">Total Revenue</p>
+                  <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight">Main Income Streams</p>
+                </td>
+                {financials.years.map(y => (
+                  <td key={y.year} className="px-8 py-6">
+                    <input
+                      type="number"
+                      value={y.revenue || ''}
+                      onChange={(e) => updateYear(y.year, 'revenue', e.target.value)}
+                      className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm font-black text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 ring-blue-500/20 text-center"
+                      placeholder="0"
+                    />
+                  </td>
+                ))}
+              </tr>
+              <tr className="group transition-colors">
+                <td className="px-8 py-6 border-r border-zinc-100 dark:border-zinc-800">
+                  <p className="text-sm font-black text-zinc-900 dark:text-zinc-100">COGS</p>
+                  <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight text-rose-500">Cost of Goods Sold</p>
+                </td>
+                {financials.years.map(y => (
+                  <td key={y.year} className="px-8 py-6">
+                    <input
+                      type="number"
+                      value={y.cogs || ''}
+                      onChange={(e) => updateYear(y.year, 'cogs', e.target.value)}
+                      className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm font-black text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 ring-blue-500/20 text-center"
+                      placeholder="0"
+                    />
+                  </td>
+                ))}
+              </tr>
+              <tr className="bg-zinc-900 dark:bg-zinc-50">
+                <td className="px-8 py-4 border-r border-zinc-800 dark:border-zinc-200">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Gross Profit</span>
+                </td>
+                {financials.years.map(y => (
+                  <td key={y.year} className="px-8 py-4 text-center">
+                    <p className="text-sm font-black italic text-white dark:text-zinc-900">
+                      {formatCurrency(y.revenue - y.cogs)}
+                    </p>
+                  </td>
+                ))}
+              </tr>
 
-                return (
-                  <tr key={y.year} className="group hover:bg-zinc-50/30 dark:hover:bg-zinc-900/30 transition-colors">
-                    <td className="px-8 py-8">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center font-black text-zinc-900 dark:text-zinc-100">
-                          Y{y.year}
-                        </div>
-                        <div>
-                          <p className="text-xs font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-50">Year {y.year}</p>
-                          <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">Projection</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-8">
-                      <input
-                        type="number"
-                        value={y.revenue || ''}
-                        onChange={(e) => updateYear(y.year, 'revenue', e.target.value)}
-                        className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm font-black text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 ring-blue-500/20"
-                        placeholder="0"
-                      />
-                    </td>
-                    <td className="px-8 py-8">
-                      <input
-                        type="number"
-                        value={y.cogs || ''}
-                        onChange={(e) => updateYear(y.year, 'cogs', e.target.value)}
-                        className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm font-black text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 ring-blue-500/20"
-                        placeholder="0"
-                      />
-                    </td>
-                    <td className="px-8 py-8">
-                      <input
-                        type="number"
-                        value={y.operatingExpenses || ''}
-                        onChange={(e) => updateYear(y.year, 'operatingExpenses', e.target.value)}
-                        className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm font-black text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 ring-blue-500/20"
-                        placeholder="0"
-                      />
-                    </td>
-                    <td className="px-8 py-8 text-right">
-                      <p className={`text-sm font-black italic tracking-tight ${netProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+              {/* EXPENSES SECTION */}
+              <tr className="bg-zinc-50/30 dark:bg-zinc-900/20">
+                <td className="px-8 py-4 border-r border-zinc-100 dark:border-zinc-800">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Operations</span>
+                </td>
+                {financials.years.map(y => <td key={y.year} className="px-8 py-4 bg-zinc-50/10 dark:bg-zinc-900/10"></td>)}
+              </tr>
+              <tr className="group transition-colors">
+                <td className="px-8 py-6 border-r border-zinc-100 dark:border-zinc-800">
+                  <p className="text-sm font-black text-zinc-900 dark:text-zinc-100">Operating Expenses</p>
+                  <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight text-rose-500">OpEx / Overheads</p>
+                </td>
+                {financials.years.map(y => (
+                  <td key={y.year} className="px-8 py-6">
+                    <input
+                      type="number"
+                      value={y.operatingExpenses || ''}
+                      onChange={(e) => updateYear(y.year, 'operatingExpenses', e.target.value)}
+                      className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm font-black text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 ring-blue-500/20 text-center"
+                      placeholder="0"
+                    />
+                  </td>
+                ))}
+              </tr>
+
+              {/* NET PROFIT SECTION */}
+              <tr className="bg-emerald-600 dark:bg-emerald-500">
+                <td className="px-8 py-6 border-r border-emerald-700 dark:border-emerald-400 shadow-inner">
+                  <p className="text-sm font-black uppercase italic tracking-tighter text-white">Net Profit (EBITDA)</p>
+                  <p className="text-[10px] font-bold text-emerald-200 dark:text-emerald-900 uppercase tracking-widest">Bottom Line</p>
+                </td>
+                {financials.years.map(y => {
+                  const netProfit = y.revenue - y.cogs - y.operatingExpenses;
+                  const margin = y.revenue > 0 ? (netProfit / y.revenue) * 100 : 0;
+                  return (
+                    <td key={y.year} className="px-8 py-6 text-center border-l border-emerald-500/20">
+                      <p className="text-lg font-black italic text-white tracking-tighter">
                         {formatCurrency(netProfit)}
                       </p>
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">
+                      <p className="text-[10px] font-black text-emerald-100 dark:text-emerald-900 uppercase tracking-widest mt-0.5">
                         {margin.toFixed(1)}% Margin
                       </p>
                     </td>
-                  </tr>
-                );
-              })}
+                  );
+                })}
+              </tr>
             </tbody>
           </table>
         </div>
@@ -187,11 +232,11 @@ export const FinancialProjectionsView: React.FC<FinancialProjectionsViewProps> =
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h4 className="text-sm font-black text-blue-900 dark:text-blue-100 uppercase tracking-tight italic">Financial Logic</h4>
+              <h4 className="text-sm font-black text-blue-900 dark:text-blue-100 uppercase tracking-tight italic">Standard Financial View</h4>
               <ArrowUpRight className="w-4 h-4 text-blue-400" />
             </div>
             <p className="text-xs text-blue-700 dark:text-blue-400 mt-1 leading-relaxed max-w-2xl font-medium">
-              These projections are key for investor readiness. Ensure your revenue growth correlates with the **Market Sizing (SAM/SOM)** you defined earlier. The **AI Strategist** can help sanity-check these margins against industry averages.
+              This columnar layout is the standard for P&L statements. It allows you to easily track your **Year-on-Year (YoY) growth** and margin expansion as your business scales. Ensure your operating expenses grow logically with your revenue.
             </p>
           </div>
         </div>
