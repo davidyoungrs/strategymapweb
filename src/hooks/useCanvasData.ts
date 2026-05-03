@@ -78,6 +78,7 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
   const [lastSavedData, setLastSavedData] = useState<string>('');
 
+  const targetUserId = viewUserId || userId;
   const canvasIdRef = useRef(canvasData.id);
   const hasInitialLoaded = useRef(false);
 
