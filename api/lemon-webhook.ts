@@ -36,7 +36,8 @@ if (!getApps().length) {
   }
 }
 
-const db = getFirestore('ai-studio-51d41aa2-0bcf-4c7d-9cab-69a1a391248c');
+const databaseId = process.env.FIREBASE_FIRESTORE_DATABASE_ID || 'ai-studio-51d41aa2-0bcf-4c7d-9cab-69a1a391248c';
+const db = getFirestore(databaseId);
 
 // We need the raw body for signature verification
 export const config = {
@@ -67,19 +68,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Get raw body
   const rawBody = await getRawBody(req);
   const hmac = crypto.createHmac('sha256', secret);
-  const digest = hmac.update(rawBody).digest('hex');
-  const signature = req.headers['x-signature'] as string;
+  const digest = Buffer.from(hmac.update(rawBody).digest('hex'), 'utf8');
+  const signature = Buffer.from(req.headers['x-signature'] as string || '', 'utf8');
 
-  if (signature !== digest) {
+  // Use timingSafeEqual to prevent timing attacks
+  if (signature.length !== digest.length || !crypto.timingSafeEqual(digest, signature)) {
     console.error('Invalid signature');
     return res.status(401).json({ error: 'Invalid signature' });
   }
 
   // Parse body manually since we disabled bodyParser
   const payload = JSON.parse(rawBody.toString());
-  
-  // Deep log for debugging
-  console.log('Webhook Meta:', JSON.stringify(payload.meta, null, 2));
   
   const eventName = payload.meta.event_name;
   const userId = payload.meta.custom_data?.user_id;
@@ -100,7 +99,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     switch (eventName) {
       case 'subscription_created':
       case 'subscription_updated':
+      case 'subscription_resumed':
+      case 'subscription_unpaused':
         const status = payload.data.attributes.status;
+        // In Lemon Squeezy, "on_trial" and "active" are the paid states. 
+        // "cancelled" is also paid until the end of the billing period (status remains "active" until expiry)
         const isPaid = status === 'active' || status === 'on_trial';
         const portalUrl = payload.data.attributes.urls?.customer_portal;
         
@@ -114,10 +117,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         break;
 
       case 'subscription_cancelled':
+        // NOTE: We don't necessarily set isPaidTier to false here because 
+        // they might still have time left on their month. 
+        // We update the status so the UI can show "Cancelled (expires on...)"
+        await userRef.set({
+          subscriptionStatus: 'cancelled',
+          updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true });
+        break;
+
       case 'subscription_expired':
+      case 'subscription_paused':
         await userRef.set({
           isPaidTier: false,
-          subscriptionStatus: 'cancelled',
+          subscriptionStatus: eventName === 'subscription_paused' ? 'paused' : 'expired',
           updatedAt: FieldValue.serverTimestamp(),
         }, { merge: true });
         break;
