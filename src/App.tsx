@@ -93,9 +93,9 @@ export default function App() {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('darkMode');
       if (saved !== null) return saved === 'true';
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return true;
     }
-    return false;
+    return true;
   });
   
   const location = useLocation();
