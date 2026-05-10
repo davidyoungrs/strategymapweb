@@ -2,49 +2,127 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Poppins", sans-serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "IBM Plex Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Industrial Palette */
+  --color-primary: #7ef473;
+  --color-primary-content: #003a04;
+  --color-secondary: #0e3e1b;
+  --color-secondary-content: #92c595;
+  --color-tertiary: #faf6f2;
+  
+  /* Redefining Zinc to Industrial Charcoal/Obsidian */
+  --color-zinc-50: #faf6f2;
+  --color-zinc-100: #e5e2de;
+  --color-zinc-200: #bdcab6;
+  --color-zinc-300: #889482;
+  --color-zinc-400: #37393d;
+  --color-zinc-500: #323538;
+  --color-zinc-600: #272a2d;
+  --color-zinc-700: #1d2023;
+  --color-zinc-800: #191c1f;
+  --color-zinc-900: #111417;
+  --color-zinc-950: #0b0f11;
+
+  /* Mapping common accents to the primary lime/industrial green */
+  --color-blue-50: #e3ffd8;
+  --color-blue-100: #c6ffb1;
+  --color-blue-200: #a5ff8a;
+  --color-blue-300: #86fc7a;
+  --color-blue-400: #7ef473;
+  --color-blue-500: #7ef473;
+  --color-blue-600: #7ef473;
+  --color-blue-700: #6adf61;
+  --color-blue-800: #006e10;
+  --color-blue-900: #003a04;
+  --color-blue-950: #002202;
+
+  /* Mapping Emerald to Secondary Industrial Green */
+  --color-emerald-50: #f0f7f0;
+  --color-emerald-100: #e1ede1;
+  --color-emerald-200: #c2dbc2;
+  --color-emerald-300: #a0d3a2;
+  --color-emerald-400: #7eb881;
+  --color-emerald-500: #5c9d60;
+  --color-emerald-600: #24522d;
+  --color-emerald-700: #1a3d21;
+  --color-emerald-800: #0e3e1b;
+  --color-emerald-900: #073916;
+  --color-emerald-950: #031c0b;
+
+  /* Mapping Amber to Industrial Stone/Gold */
+  --color-amber-50: #faf6f2;
+  --color-amber-100: #f1eee9;
+  --color-amber-200: #e5e2de;
+  --color-amber-300: #d1cdc8;
+  --color-amber-400: #bdbaaf;
+  --color-amber-500: #a09d94;
+  --color-amber-600: #605f5c;
+  --color-amber-700: #474744;
+  --color-amber-800: #31302e;
+  --color-amber-900: #1c1c19;
+  --color-amber-950: #0d0d0c;
+
+  /* Sharpening the radius system globally for Industrial Precision */
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.75rem;
+  --radius-3xl: 1rem;
 }
 
 @layer base {
   body {
-    @apply font-sans antialiased text-zinc-900 bg-zinc-50 dark:text-zinc-50 dark:bg-zinc-950 selection:bg-blue-100 selection:text-blue-900;
+    @apply font-sans antialiased text-zinc-100 bg-zinc-900 selection:bg-primary selection:text-primary-content;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    @apply font-display font-bold uppercase tracking-tight;
   }
 
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-transparent;
+    @apply bg-zinc-950;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-zinc-200 dark:bg-zinc-800 rounded-full hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors;
+    @apply bg-zinc-700 rounded-full hover:bg-zinc-600 transition-colors;
   }
 
   * {
-    @apply border-zinc-200 dark:border-zinc-800;
+    @apply border-zinc-800/50;
+  }
+
+  /* Dark mode forced as base */
+  html {
+    color-scheme: dark;
+    @apply bg-zinc-950;
   }
 }
 
 @layer components {
   .premium-blur {
-    @apply backdrop-blur-md bg-white/70 dark:bg-zinc-950/70;
+    @apply backdrop-blur-md bg-zinc-900/70;
   }
   
   .glass-card {
-    @apply bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border border-white/20 dark:border-zinc-800/20 shadow-xl;
+    @apply bg-zinc-800/40 backdrop-blur-sm border border-zinc-700/30 shadow-none;
   }
 
-  .btn-premium {
-    @apply relative overflow-hidden transition-all duration-300 active:scale-95 hover:shadow-lg hover:shadow-blue-500/10;
+  .btn-primary {
+    @apply bg-primary text-primary-content font-bold px-4 py-2 rounded-md hover:brightness-110 transition-all active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply border border-zinc-100 text-zinc-100 font-bold px-4 py-2 rounded-md hover:bg-zinc-100 hover:text-zinc-900 transition-all active:scale-95;
   }
 }
 
