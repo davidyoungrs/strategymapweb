@@ -80,7 +80,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
             <div>
               <h1 className="text-xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 leading-none">KETTLE</h1>
-              <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 tracking-[0.3em] mt-1">STRAT</p>
+              <p className="text-[10px] font-bold text-zinc-900 dark:text-zinc-50 tracking-[0.3em] mt-1">STRAT</p>
             </div>
           </div>
         </div>
