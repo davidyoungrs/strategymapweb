@@ -13,18 +13,18 @@
   --color-secondary-content: #92c595;
   --color-tertiary: #faf6f2;
   
-  /* Redefining Zinc to Industrial Charcoal/Obsidian */
-  --color-zinc-50: #faf6f2;
-  --color-zinc-100: #e5e2de;
-  --color-zinc-200: #bdcab6;
-  --color-zinc-300: #889482;
-  --color-zinc-400: #37393d;
-  --color-zinc-500: #323538;
-  --color-zinc-600: #272a2d;
-  --color-zinc-700: #1d2023;
-  --color-zinc-800: #191c1f;
-  --color-zinc-900: #111417;
-  --color-zinc-950: #0b0f11;
+  /* Redefining Zinc to Industrial Charcoal/Obsidian with boosted mid-range contrast */
+  --color-zinc-50: #faf6f2;  /* Stone - lightest */
+  --color-zinc-100: #e1e2e6; /* On Surface - primary text */
+  --color-zinc-200: #cfd6cc; /* High-contrast secondary */
+  --color-zinc-300: #bdcab6; /* On Surface Variant - muted text */
+  --color-zinc-400: #a3afa0; /* Icons / Secondary text */
+  --color-zinc-500: #889482; /* Outline - subtle indicators */
+  --color-zinc-600: #6b7267; /* Muted borders */
+  --color-zinc-700: #3e4a3b; /* Dark borders */
+  --color-zinc-800: #1d2023; /* Surface container */
+  --color-zinc-900: #111417; /* Surface - main background */
+  --color-zinc-950: #0b0f11; /* Surface lowest */
 
   /* Mapping common accents to the primary lime/industrial green */
   --color-blue-50: #e3ffd8;
