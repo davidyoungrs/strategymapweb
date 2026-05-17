@@ -40,24 +40,27 @@ const Bookings: React.FC = () => {
           </div>
         </div>
         
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-zinc-800 pt-12">
-          <div className="flex flex-col gap-2">
-            <h3 className="text-xs text-primary uppercase tracking-widest font-bold">Preparation</h3>
-            <p className="text-xs text-zinc-400 opacity-70">
-              Please have any relevant system logs or architectural diagrams ready for discussion.
-            </p>
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-0 border border-zinc-800">
+          {/* Step 1 */}
+          <div className="p-10 border-b md:border-b-0 md:border-r border-zinc-800 hover:bg-zinc-900 transition-colors group">
+            <div className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-6">STEP // 01</div>
+            <h3 className="text-xl font-black text-zinc-100 mb-4 uppercase">Preparation</h3>
+            <p className="text-base text-zinc-400 mb-6">Please have any relevant system logs or architectural diagrams ready for discussion.</p>
+            <div className="w-12 h-px bg-zinc-700 group-hover:w-full transition-all duration-500"></div>
           </div>
-          <div className="flex flex-col gap-2">
-            <h3 className="text-xs text-primary uppercase tracking-widest font-bold">Duration</h3>
-            <p className="text-xs text-zinc-400 opacity-70">
-              Initial consultations typically last 30 minutes to ensure deep technical alignment.
-            </p>
+          {/* Step 2 */}
+          <div className="p-10 border-b md:border-b-0 md:border-r border-zinc-800 hover:bg-zinc-900 transition-colors group">
+            <div className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-6">STEP // 02</div>
+            <h3 className="text-xl font-black text-zinc-100 mb-4 uppercase">Duration</h3>
+            <p className="text-base text-zinc-400 mb-6">Initial consultations typically last 30 minutes to ensure deep technical alignment.</p>
+            <div className="w-12 h-px bg-zinc-700 group-hover:w-full transition-all duration-500"></div>
           </div>
-          <div className="flex flex-col gap-2">
-            <h3 className="text-xs text-primary uppercase tracking-widest font-bold">Confidentiality</h3>
-            <p className="text-xs text-zinc-400 opacity-70">
-              All discussions are covered under our standard industrial non-disclosure agreements.
-            </p>
+          {/* Step 3 */}
+          <div className="p-10 hover:bg-zinc-900 transition-colors group">
+            <div className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-6">STEP // 03</div>
+            <h3 className="text-xl font-black text-zinc-100 mb-4 uppercase">Confidentiality</h3>
+            <p className="text-base text-zinc-400 mb-6">All discussions are covered under our standard industrial non-disclosure agreements.</p>
+            <div className="w-12 h-px bg-zinc-700 group-hover:w-full transition-all duration-500"></div>
           </div>
         </div>
       </div>
