@@ -81,8 +81,16 @@ import { LicensesModal } from './components/modals/LicensesModal';
 import { AIConsultant } from './components/modals/AIConsultant';
 import { ReportView } from './components/layout/ReportView';
 import { useCanvasData } from './hooks/useCanvasData';
-import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+
+import LandingHome from './landing/pages/Home';
+import LandingBookings from './landing/pages/Bookings';
+import LandingPrivacy from './landing/pages/PrivacyPolicy';
+import LandingTerms from './landing/pages/TermsOfService';
+import LandingHeader from './landing/components/layout/Header';
+import LandingFooter from './landing/components/layout/Footer';
+import ScrollToTop from './landing/components/utils/ScrollToTop';
 
 export default function App() {
   // --- 1. ALL HOOKS (Must be at the top level) ---
@@ -406,6 +414,26 @@ export default function App() {
   };
 
   // --- 4. CONDITIONAL RENDERING (Must happen after all hooks) ---
+  const isPublicRoute = ['/aboutus', '/bookings', '/privacy', '/terms'].includes(location.pathname);
+  
+  if (isPublicRoute) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans overflow-x-hidden flex flex-col">
+        <ScrollToTop />
+        <LandingHeader />
+        <main className="flex-1">
+          <Routes>
+            <Route path="/aboutus" element={<LandingHome />} />
+            <Route path="/bookings" element={<LandingBookings />} />
+            <Route path="/privacy" element={<LandingPrivacy />} />
+            <Route path="/terms" element={<LandingTerms />} />
+          </Routes>
+        </main>
+        <LandingFooter />
+      </div>
+    );
+  }
+
   if (!isAuthReady) {
     return (
       <div className="flex h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50">
@@ -808,6 +836,13 @@ export default function App() {
                 >
                   Usage Policy
                 </button>
+                <span className="text-zinc-300 dark:text-zinc-800">•</span>
+                <Link 
+                  to="/aboutus"
+                  className="text-zinc-500 hover:text-blue-600 transition-colors font-bold uppercase tracking-widest whitespace-nowrap"
+                >
+                  About Us
+                </Link>
                 <span className="text-zinc-300 dark:text-zinc-800">•</span>
                 <button 
                   onClick={() => setIsPrivacyPolicyOpen(true)}
