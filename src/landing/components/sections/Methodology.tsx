@@ -5,8 +5,8 @@ const Methodology: React.FC = () => {
     <section id="methodology" className="py-24 bg-zinc-950 border-b border-zinc-700">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-          <div className="max-w-xl">
-            <h2 className="text-4xl md:text-5xl font-black text-zinc-100 mb-4 uppercase">The Boil and Brewing Process</h2>
+          <div className="max-w-xl md:max-w-2xl">
+            <h2 className="text-4xl md:text-5xl font-black text-zinc-100 mb-4 uppercase md:whitespace-nowrap">The Boil and Brewing Process</h2>
             <p className="text-base text-zinc-400">Our methodology is designed to strip away operational noise and expose the core efficiencies hidden within the complexity.</p>
           </div>
           <div className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-2">MET_ID: BDP-001</div>

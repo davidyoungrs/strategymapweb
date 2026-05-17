@@ -9,6 +9,7 @@ const Bookings: React.FC = () => {
         "theme": "dark",
         "styles": { "branding": { "brandColor": "#7EF473" } },
         "hideEventTypeDetails": false,
+        // @ts-ignore: hideBranding is not typed but works
         "hideBranding": true,
         "layout": "month_view"
       });
@@ -33,6 +34,7 @@ const Bookings: React.FC = () => {
             <Cal
               calLink="kettlestrat/30min"
               style={{ width: "100%", height: "100%", overflow: "scroll" }}
+              // @ts-ignore: hideBranding is not typed but works
               config={{ layout: 'month_view', theme: 'dark', hideBranding: true }}
             />
           </div>

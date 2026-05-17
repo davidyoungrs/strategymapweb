@@ -53,8 +53,6 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { Kettle } from './components/icons/Kettle';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 
 import { StrategyMap } from './components/StrategyMap';
 import { SwotView } from './components/SwotView';
@@ -81,7 +79,7 @@ import { LicensesModal } from './components/modals/LicensesModal';
 import { AIConsultant } from './components/modals/AIConsultant';
 import { ReportView } from './components/layout/ReportView';
 import { useCanvasData } from './hooks/useCanvasData';
-import { Routes, Route, Navigate, useLocation, useNavigate, Link } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import LandingHome from './landing/pages/Home';
@@ -305,6 +303,8 @@ export default function App() {
     if (!canvasRef.current) return;
     
     try {
+      const { default: html2canvas } = await import('html2canvas');
+      const { jsPDF } = await import('jspdf');
       const element = canvasRef.current;
       const canvas = await html2canvas(element, {
         scale: 2,
@@ -352,6 +352,8 @@ export default function App() {
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     try {
+      const { default: html2canvas } = await import('html2canvas');
+      const { jsPDF } = await import('jspdf');
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'px',
@@ -837,12 +839,12 @@ export default function App() {
                   Usage Policy
                 </button>
                 <span className="text-zinc-300 dark:text-zinc-800">•</span>
-                <Link 
+                <RouterLink 
                   to="/aboutus"
                   className="text-zinc-500 hover:text-blue-600 transition-colors font-bold uppercase tracking-widest whitespace-nowrap"
                 >
                   About Us
-                </Link>
+                </RouterLink>
                 <span className="text-zinc-300 dark:text-zinc-800">•</span>
                 <button 
                   onClick={() => setIsPrivacyPolicyOpen(true)}
