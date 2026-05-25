@@ -43,6 +43,7 @@ interface SidebarProps {
   handleLoadTemplate: (templateId: string) => void;
   onShowTour: () => void;
   isPremium: boolean;
+  onAuthRequired: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -56,7 +57,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onLogout,
   handleLoadTemplate,
   onShowTour,
-  isPremium
+  isPremium,
+  onAuthRequired
 }) => {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const navigate = useNavigate();
@@ -153,6 +155,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => {
                       if (isPremium) {
                         setIsMoreModelsOpen(!isMoreModelsOpen);
+                      } else if (!userProfile) {
+                        onAuthRequired();
                       } else {
                         alert("More Models is a Pro feature. Please upgrade to access these strategic frameworks.");
                       }
@@ -283,6 +287,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => {
                       if (isPremium) {
                         setIsBusinessPlanOpen(!isBusinessPlanOpen);
+                      } else if (!userProfile) {
+                        onAuthRequired();
                       } else {
                         alert("The Business Planning Suite is a Pro feature. Please upgrade to access financials and executive summaries.");
                       }
@@ -457,12 +463,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
     </div>
 
     <div className="p-6 mt-auto space-y-4">
-        {!userProfile?.isPaidTier && (
+        {(!userProfile || !userProfile.isPaidTier) && (
           <motion.button 
             whileHover={{ y: -2, boxShadow: "0 10px 15px -3px rgba(59, 130, 246, 0.1)" }}
             whileTap={{ scale: 0.98 }}
-            onClick={handleUpgrade}
-            className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl group hover:border-blue-500 transition-all text-left"
+            onClick={() => {
+              if (!userProfile) {
+                onAuthRequired();
+              } else {
+                handleUpgrade();
+              }
+            }}
+            className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl group hover:border-blue-500 transition-all text-left cursor-pointer"
           >
             <p className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Upgrade</p>
             <h4 className="text-sm font-black text-zinc-900 dark:text-zinc-50 tracking-tight uppercase">Get Pro Access</h4>
@@ -485,23 +497,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
             <div className="hidden xl:block">
               <p className="text-[10px] font-black text-zinc-900 dark:text-zinc-100 truncate w-24 uppercase tracking-tighter">
-                {userProfile?.displayName || 'User'}
+                {userProfile ? (userProfile.displayName || 'User') : 'Guest User'}
               </p>
               <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-tighter flex items-center gap-1">
-                {userProfile?.isPaidTier ? (
-                  <>
-                    <span className="text-emerald-500">Premium</span>
-                    <span className="text-zinc-300">•</span>
-                    <a 
-                      href={userProfile?.customerPortalUrl || "https://app.lemonsqueezy.com/my-orders"} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-blue-600 dark:text-blue-400 hover:underline transition-all"
-                    >
-                      Manage
-                    </a>
-                  </>
-                ) : 'Free Tier'}
+                {userProfile ? (
+                  userProfile.isPaidTier ? (
+                    <>
+                      <span className="text-emerald-500">Premium</span>
+                      <span className="text-zinc-300">•</span>
+                      <a 
+                        href={userProfile.customerPortalUrl || "https://app.lemonsqueezy.com/my-orders"} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-blue-600 dark:text-blue-400 hover:underline transition-all"
+                      >
+                        Manage
+                      </a>
+                    </>
+                  ) : 'Free Tier'
+                ) : (
+                  <button 
+                    onClick={onAuthRequired} 
+                    className="text-blue-600 dark:text-blue-400 hover:underline transition-all text-[9px] font-black uppercase tracking-tight cursor-pointer"
+                  >
+                    Log In / Sign Up
+                  </button>
+                )}
               </p>
             </div>
           </div>

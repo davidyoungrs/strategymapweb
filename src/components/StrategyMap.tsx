@@ -13,6 +13,8 @@ interface StrategyMapProps {
   onSelectCanvas: (canvas: CanvasData) => void;
 }
 
+type PerspectiveKey = 'financial' | 'customer' | 'internal' | 'learning';
+
 export const StrategyMap: React.FC<StrategyMapProps> = ({ 
   data, 
   onChange, 
@@ -21,14 +23,14 @@ export const StrategyMap: React.FC<StrategyMapProps> = ({
   userCanvases,
   onSelectCanvas
 }) => {
-  const perspectives: { key: keyof StrategyMapData; label: string; color: string }[] = [
+  const perspectives: { key: PerspectiveKey; label: string; color: string }[] = [
     { key: 'financial', label: 'Financial', color: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100' },
     { key: 'customer', label: 'Customer', color: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-100' },
     { key: 'internal', label: 'Internal Process', color: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-100' },
     { key: 'learning', label: 'Learning & Growth', color: 'bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100' },
   ];
 
-  const addObjective = (perspective: keyof StrategyMapData) => {
+  const addObjective = (perspective: PerspectiveKey) => {
     const newObjective: StrategyObjective = {
       id: Math.random().toString(36).substr(2, 9),
       text: 'New Objective',
@@ -39,14 +41,14 @@ export const StrategyMap: React.FC<StrategyMapProps> = ({
     });
   };
 
-  const updateObjective = (perspective: keyof StrategyMapData, id: string, text: string) => {
+  const updateObjective = (perspective: PerspectiveKey, id: string, text: string) => {
     onChange({
       ...data,
       [perspective]: (data[perspective] || []).map((obj) => (obj.id === id ? { ...obj, text } : obj)),
     });
   };
 
-  const removeObjective = (perspective: keyof StrategyMapData, id: string) => {
+  const removeObjective = (perspective: PerspectiveKey, id: string) => {
     onChange({
       ...data,
       [perspective]: (data[perspective] || []).filter((obj) => obj.id !== id),

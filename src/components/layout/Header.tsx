@@ -22,6 +22,8 @@ interface HeaderProps {
   handleNewCanvas: () => void;
   saveStatus: 'saved' | 'saving' | 'unsaved';
   isPremium: boolean;
+  isGuest: boolean;
+  onAuthRequired: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -31,7 +33,9 @@ export const Header: React.FC<HeaderProps> = ({
   handleSaveCanvas,
   handleNewCanvas,
   saveStatus,
-  isPremium
+  isPremium,
+  isGuest,
+  onAuthRequired
 }) => {
   const location = useLocation();
   const currentPath = location.pathname.substring(1) || 'canvas';
@@ -112,6 +116,8 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => {
             if (isPremium) {
               handleSaveCanvas();
+            } else if (isGuest) {
+              onAuthRequired();
             } else {
               alert("Cloud saving is a Pro feature. Please upgrade to sync your data.");
             }
@@ -132,6 +138,8 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => {
             if (isPremium) {
               setIsLogoModalOpen(true);
+            } else if (isGuest) {
+              onAuthRequired();
             } else {
               alert("Strategic Tools and Reports are Pro features. Please upgrade to access export options.");
             }

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LlmInference, FilesetResolver } from '@mediapipe/tasks-genai';
+import type { LlmInference } from '@mediapipe/tasks-genai';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, X, Loader2, Bot, ArrowRight, MessageSquare } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { CanvasData } from '../types';
+import { CanvasData } from '../../types';
 
 interface AIConsultantProps {
   canvasData: CanvasData;
@@ -27,6 +27,7 @@ export const AIConsultant: React.FC<AIConsultantProps> = ({ canvasData, isOpen, 
     setModelLoading(true);
     setError(null);
     try {
+      const { FilesetResolver, LlmInference } = await import('@mediapipe/tasks-genai');
       const genaiFileset = await FilesetResolver.forGenAiTasks(
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-genai/wasm"
       );
