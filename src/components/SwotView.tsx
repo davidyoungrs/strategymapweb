@@ -33,10 +33,6 @@ export function SwotView({
   }, [data, onChange]);
 
   useEffect(() => {
-    activeListeningFieldRef.current = activeField;
-  }, [activeField]);
-
-  useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
       setIsSupported(true);
@@ -77,11 +73,13 @@ export function SwotView({
           console.error('Speech recognition error:', event.error);
         }
         setActiveField(null);
+        activeListeningFieldRef.current = null;
       };
 
       recognition.onend = () => {
         console.log('Speech recognition onend triggered');
         setActiveField(null);
+        activeListeningFieldRef.current = null;
       };
 
       recognitionRef.current = recognition;
