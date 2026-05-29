@@ -1,5 +1,6 @@
+import React, { useState, useEffect, useRef } from 'react';
 import { SwotData, CanvasData } from '../types';
-import { Zap, AlertTriangle, TrendingUp, ShieldAlert, ChevronDown } from 'lucide-react';
+import { Zap, AlertTriangle, TrendingUp, ShieldAlert, ChevronDown, Mic, MicOff } from 'lucide-react';
 
 interface SwotViewProps {
   data: SwotData;
@@ -18,6 +19,81 @@ export function SwotView({
   userCanvases,
   onSelectCanvas
 }: SwotViewProps) {
+  const [isListening, setIsListening] = useState(false);
+  const [isSupported, setIsSupported] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const dataRef = useRef(data);
+  const onChangeRef = useRef(onChange);
+
+  useEffect(() => {
+    dataRef.current = data;
+    onChangeRef.current = onChange;
+  }, [data, onChange]);
+
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      setIsSupported(true);
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event: any) => {
+        let newTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            newTranscript += event.results[i][0].transcript;
+          }
+        }
+        
+        if (newTranscript.trim()) {
+          const currentStrengths = dataRef.current.strengths || '';
+          const updatedStrengths = currentStrengths.trim() 
+            ? `${currentStrengths.trim()} ${newTranscript.trim()}` 
+            : newTranscript.trim();
+          onChangeRef.current({
+            ...dataRef.current,
+            strengths: updatedStrengths
+          });
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) return;
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (error) {
+        console.error('Failed to start speech recognition:', error);
+      }
+    }
+  };
+
   const updateField = (field: keyof SwotData, value: string) => {
     onChange({ ...data, [field]: value });
   };
@@ -72,6 +148,24 @@ export function SwotView({
             <div className="flex items-center gap-3 text-emerald-600 dark:text-emerald-400">
               <Zap className="w-6 h-6" />
               <h3 className="text-lg font-black tracking-tight uppercase">Strengths</h3>
+              {isSupported && (
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  className={`p-1.5 rounded-lg transition-all duration-300 flex items-center justify-center ${
+                    isListening
+                      ? 'bg-red-500/20 text-red-500 dark:text-red-400 animate-pulse ring-2 ring-red-500/40'
+                      : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
+                  }`}
+                  title={isListening ? 'Stop recording strengths' : 'Start voice-to-text strengths'}
+                >
+                  {isListening ? (
+                    <MicOff className="w-4 h-4 text-red-500 dark:text-red-400" />
+                  ) : (
+                    <Mic className="w-4 h-4" />
+                  )}
+                </button>
+              )}
             </div>
             <span className="text-[8px] font-bold text-zinc-300 dark:text-zinc-700 uppercase tracking-widest">Internal / Positive</span>
           </div>
