@@ -24,6 +24,7 @@ export function SwotView({
   const recognitionRef = useRef<any>(null);
   const dataRef = useRef(data);
   const onChangeRef = useRef(onChange);
+  const initialTextRef = useRef('');
 
   useEffect(() => {
     dataRef.current = data;
@@ -40,18 +41,19 @@ export function SwotView({
       recognition.lang = 'en-US';
 
       recognition.onresult = (event: any) => {
-        let newTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
+        let sessionTranscript = '';
+        for (let i = 0; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
-            newTranscript += event.results[i][0].transcript;
+            sessionTranscript += event.results[i][0].transcript + ' ';
           }
         }
         
-        if (newTranscript.trim()) {
-          const currentStrengths = dataRef.current.strengths || '';
-          const formattedTranscript = `- ${newTranscript.trim()}`;
-          const updatedStrengths = currentStrengths.trim() 
-            ? `${currentStrengths.trim()}\n${formattedTranscript}` 
+        const cleanSessionTranscript = sessionTranscript.trim();
+        if (cleanSessionTranscript) {
+          const baseText = initialTextRef.current.trim();
+          const formattedTranscript = `- ${cleanSessionTranscript}`;
+          const updatedStrengths = baseText 
+            ? `${baseText}\n${formattedTranscript}` 
             : formattedTranscript;
           onChangeRef.current({
             ...dataRef.current,
@@ -86,6 +88,7 @@ export function SwotView({
       recognitionRef.current.stop();
       setIsListening(false);
     } else {
+      initialTextRef.current = dataRef.current.strengths || '';
       try {
         recognitionRef.current.start();
         setIsListening(true);
