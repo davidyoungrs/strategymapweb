@@ -71,6 +71,7 @@ export const SwotGuidedDrawer: React.FC<SwotGuidedDrawerProps> = ({ isOpen, onCl
   const initialSpeechTextRef = useRef('');
 
   const llmInferenceRef = useRef<LlmInference | null>(null);
+  const initModelPromise = useRef<Promise<void> | null>(null);
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -150,74 +151,96 @@ export const SwotGuidedDrawer: React.FC<SwotGuidedDrawerProps> = ({ isOpen, onCl
   // Initialize Local Gemma Model
   const initModel = async () => {
     if (llmInferenceRef.current) return;
-    
-    setModelLoading(true);
-    setError(null);
-    try {
-      const { FilesetResolver, LlmInference } = await import('@mediapipe/tasks-genai');
-      const genaiFileset = await FilesetResolver.forGenAiTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-genai/wasm"
-      );
+    if (initModelPromise.current) return initModelPromise.current;
 
-      const isLocal = window.location.hostname === 'localhost';
-      const MODEL_URL = isLocal 
-        ? '/models/gemma-2b-it-gpu.bin'
-        : 'https://pub-84256253504148068c680038cecbc585.r2.dev/gemma-2b-it-gpu.bin';
+    const promise = (async () => {
+      setModelLoading(true);
+      setError(null);
+      try {
+        const { FilesetResolver, LlmInference } = await import('@mediapipe/tasks-genai');
+        const genaiFileset = await FilesetResolver.forGenAiTasks(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-genai/wasm"
+        );
 
-      const genai = await LlmInference.createFromOptions(genaiFileset, {
-        baseOptions: {
-          modelAssetPath: MODEL_URL
-        },
-        maxTokens: 384,
-        temperature: 0.5,
-        topK: 30,
-      });
-      llmInferenceRef.current = genai;
-    } catch (err: any) {
-      console.error('Failed to load Gemma:', err);
-      setError(`Failed to wake up Gemma: ${err.message || 'Unknown loading error'}`);
-    } finally {
-      setModelLoading(false);
-    }
+        const isLocal = window.location.hostname === 'localhost';
+        const MODEL_URL = isLocal 
+          ? '/models/gemma-2b-it-gpu.bin'
+          : 'https://pub-84256253504148068c680038cecbc585.r2.dev/gemma-2b-it-gpu.bin';
+
+        const genai = await LlmInference.createFromOptions(genaiFileset, {
+          baseOptions: {
+            modelAssetPath: MODEL_URL
+          },
+          maxTokens: 384,
+          temperature: 0.5,
+          topK: 30,
+        });
+        llmInferenceRef.current = genai;
+      } catch (err: any) {
+        console.error('Failed to load Gemma:', err);
+        setError(`Failed to wake up Gemma: ${err.message || 'Unknown loading error'}`);
+      } finally {
+        setModelLoading(false);
+      }
+    })();
+
+    initModelPromise.current = promise;
+    return promise;
   };
 
-  // Distill input using Gemma
-  const distillInput = async (stepIndex: number, textToProcess: string) => {
-    if (!textToProcess.trim()) return;
-
-    if (!llmInferenceRef.current) {
-      await initModel();
-    }
-    if (!llmInferenceRef.current) return;
-
+  // Distill all inputs using Gemma at the end of the guided flow
+  const generateAllDistillations = async () => {
     setLoadingInsights(true);
+    setError(null);
     try {
-      const stepInfo = STEPS[stepIndex];
-      const prompt = `
-        You are an expert SWOT strategist. Distill the user's raw feedback into a highly professional, clear, bullet-pointed list of strategic ${stepInfo.title}.
-        Use professional terminology. 
-        Formatting rule:
-        - Output EXACTLY 2 to 4 bullet points.
-        - Start each bullet point with "- ".
-        - Do not output introductory text, greetings, or side notes. Just the bullet points.
+      if (!llmInferenceRef.current) {
+        await initModel();
+      }
 
-        USER RESPONSE: "${textToProcess}"
-      `;
+      if (!llmInferenceRef.current) {
+        throw new Error("Local AI model could not be initialized.");
+      }
 
-      const result = await llmInferenceRef.current.generateResponse(prompt);
-      setDistilledData(prev => ({
-        ...prev,
-        [stepInfo.key]: result.trim()
-      }));
+      const updatedDistilled = { ...distilledData };
+      for (let i = 0; i < STEPS.length; ++i) {
+        const stepInfo = STEPS[i];
+        const rawAnswer = answers[stepInfo.key];
+        if (rawAnswer.trim()) {
+          const prompt = `
+            You are an expert SWOT strategist. Distill the user's raw feedback into a highly professional, clear, bullet-pointed list of strategic ${stepInfo.title}.
+            Use professional terminology. 
+            Formatting rule:
+            - Output EXACTLY 2 to 4 bullet points.
+            - Start each bullet point with "- ".
+            - Do not output introductory text, greetings, or side notes. Just the bullet points.
+
+            USER RESPONSE: "${rawAnswer}"
+          `;
+          const result = await llmInferenceRef.current.generateResponse(prompt);
+          updatedDistilled[stepInfo.key] = result.trim();
+        } else {
+          updatedDistilled[stepInfo.key] = '';
+        }
+      }
+      setDistilledData(updatedDistilled);
+      setCurrentStep(4);
     } catch (err: any) {
       console.error('Inference Error:', err);
-      // Fallback: use raw input formatted with bullets if LLM fails
-      const stepInfo = STEPS[stepIndex];
-      const lines = textToProcess.split('\n').map(l => l.trim().startsWith('-') ? l : `- ${l}`).join('\n');
-      setDistilledData(prev => ({
-        ...prev,
-        [stepInfo.key]: lines
-      }));
+      setError('AI Inference failed or timed out. Falling back to formatting your raw answers.');
+      
+      const updatedDistilled = { ...distilledData };
+      for (let i = 0; i < STEPS.length; ++i) {
+        const stepInfo = STEPS[i];
+        const rawAnswer = answers[stepInfo.key];
+        updatedDistilled[stepInfo.key] = rawAnswer
+          .split('\n')
+          .map(l => l.trim())
+          .filter(Boolean)
+          .map(l => l.startsWith('-') ? l : `- ${l}`)
+          .join('\n');
+      }
+      setDistilledData(updatedDistilled);
+      setCurrentStep(4);
     } finally {
       setLoadingInsights(false);
     }
@@ -228,13 +251,10 @@ export const SwotGuidedDrawer: React.FC<SwotGuidedDrawerProps> = ({ isOpen, onCl
       recognitionRef.current.stop();
     }
 
-    if (currentStep >= 0 && currentStep < 4) {
-      const currentKey = STEPS[currentStep].key;
-      const userText = answers[currentKey];
-      
-      // Process with Gemma in the background
-      await distillInput(currentStep, userText);
+    if (currentStep >= 0 && currentStep < 3) {
       setCurrentStep(prev => prev + 1);
+    } else if (currentStep === 3) {
+      await generateAllDistillations();
     } else if (currentStep === -1) {
       setCurrentStep(0);
     }
@@ -254,7 +274,8 @@ export const SwotGuidedDrawer: React.FC<SwotGuidedDrawerProps> = ({ isOpen, onCl
 
   const handleStart = async () => {
     setCurrentStep(0);
-    await initModel();
+    // Trigger preloading in the background
+    initModel().catch(err => console.warn('Preloading Gemma failed:', err));
   };
 
   return (
