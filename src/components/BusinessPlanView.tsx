@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { CanvasData } from '../types';
 import { motion } from 'framer-motion';
+import { Tooltip } from './Tooltip';
+import { BUSINESS_PLAN_GUIDANCE, TooltipContent } from '../utils/guidance';
 
 interface BusinessPlanViewProps {
   canvasData: CanvasData;
@@ -29,6 +31,7 @@ interface EditorSectionProps {
   isSupported: boolean;
   isListening: boolean;
   onToggleListening: () => void;
+  tooltipContent?: TooltipContent;
 }
 
 const EditorSection: React.FC<EditorSectionProps> = ({ 
@@ -41,7 +44,8 @@ const EditorSection: React.FC<EditorSectionProps> = ({
   minHeight = "400px",
   isSupported,
   isListening,
-  onToggleListening
+  onToggleListening,
+  tooltipContent
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
 
@@ -61,9 +65,12 @@ const EditorSection: React.FC<EditorSectionProps> = ({
             {icon}
           </div>
           <div>
-            <h3 className={`text-xs font-black uppercase tracking-[0.2em] transition-colors ${
-              isFocused ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-900 dark:text-zinc-100'
-            }`}>{title}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className={`text-xs font-black uppercase tracking-[0.2em] transition-colors ${
+                isFocused ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-900 dark:text-zinc-100'
+              }`}>{title}</h3>
+              {tooltipContent && <Tooltip content={tooltipContent} />}
+            </div>
             <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">{subtitle}</p>
           </div>
         </div>
@@ -251,6 +258,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
             isSupported={isSupported}
             isListening={activeField === 'executiveSummary'}
             onToggleListening={() => toggleListening('executiveSummary')}
+            tooltipContent={BUSINESS_PLAN_GUIDANCE.executiveSummary}
           />
         ) : (
           <div className="grid grid-cols-1 gap-6">
@@ -265,6 +273,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               isSupported={isSupported}
               isListening={activeField === 'mission'}
               onToggleListening={() => toggleListening('mission')}
+              tooltipContent={BUSINESS_PLAN_GUIDANCE.mission}
             />
             <EditorSection
               icon={<Eye className="w-6 h-6" />}
@@ -277,6 +286,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               isSupported={isSupported}
               isListening={activeField === 'vision'}
               onToggleListening={() => toggleListening('vision')}
+              tooltipContent={BUSINESS_PLAN_GUIDANCE.vision}
             />
             <EditorSection
               icon={<Heart className="w-6 h-6" />}
@@ -289,6 +299,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               isSupported={isSupported}
               isListening={activeField === 'values'}
               onToggleListening={() => toggleListening('values')}
+              tooltipContent={BUSINESS_PLAN_GUIDANCE.values}
             />
           </div>
         )}

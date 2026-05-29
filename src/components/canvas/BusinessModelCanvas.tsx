@@ -13,6 +13,8 @@ import {
   MicOff
 } from 'lucide-react';
 import { CanvasData } from '../../types';
+import { Tooltip } from '../Tooltip';
+import { BMC_GUIDANCE } from '../../utils/guidance';
 
 interface BusinessModelCanvasProps {
   canvasData: CanvasData;
@@ -31,6 +33,7 @@ interface BmcCellProps {
   isSupported: boolean;
   isListening: boolean;
   onToggleListening: () => void;
+  tooltipContent?: { definition: string; questions: string[]; example?: string };
 }
 
 const BmcCell: React.FC<BmcCellProps> = ({ 
@@ -43,7 +46,8 @@ const BmcCell: React.FC<BmcCellProps> = ({
   isMain = false,
   isSupported,
   isListening,
-  onToggleListening
+  onToggleListening,
+  tooltipContent
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
 
@@ -63,11 +67,14 @@ const BmcCell: React.FC<BmcCellProps> = ({
             {icon}
           </div>
           <div>
-            <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] leading-none transition-colors ${
-              isFocused || isMain ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-900 dark:text-zinc-100'
-            }`}>
-              {title}
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] leading-none transition-colors ${
+                isFocused || isMain ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-900 dark:text-zinc-100'
+              }`}>
+                {title}
+              </h3>
+              {tooltipContent && <Tooltip content={tooltipContent} />}
+            </div>
             <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1">{subtitle}</p>
           </div>
         </div>
@@ -217,6 +224,7 @@ export const BusinessModelCanvas: React.FC<BusinessModelCanvasProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'keyPartners'}
           onToggleListening={() => toggleListening('keyPartners')}
+          tooltipContent={BMC_GUIDANCE.keyPartners}
         />
         <BmcCell
           className="col-span-1 md:col-span-1 lg:col-span-2"
@@ -228,6 +236,7 @@ export const BusinessModelCanvas: React.FC<BusinessModelCanvasProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'keyActivities'}
           onToggleListening={() => toggleListening('keyActivities')}
+          tooltipContent={BMC_GUIDANCE.keyActivities}
         />
         <BmcCell
           className="col-span-1 md:col-span-1 lg:col-span-2 row-span-1 md:row-span-1 lg:row-span-2 relative"
@@ -240,6 +249,7 @@ export const BusinessModelCanvas: React.FC<BusinessModelCanvasProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'valuePropositions'}
           onToggleListening={() => toggleListening('valuePropositions')}
+          tooltipContent={BMC_GUIDANCE.valuePropositions}
         />
         <BmcCell
           className="col-span-1 md:col-span-1 lg:col-span-2"
@@ -251,6 +261,7 @@ export const BusinessModelCanvas: React.FC<BusinessModelCanvasProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'customerRelationships'}
           onToggleListening={() => toggleListening('customerRelationships')}
+          tooltipContent={BMC_GUIDANCE.customerRelationships}
         />
         <BmcCell
           className="col-span-1 md:col-span-1 lg:col-span-2 row-span-1 md:row-span-1 lg:row-span-2"
@@ -262,6 +273,7 @@ export const BusinessModelCanvas: React.FC<BusinessModelCanvasProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'customerSegments'}
           onToggleListening={() => toggleListening('customerSegments')}
+          tooltipContent={BMC_GUIDANCE.customerSegments}
         />
 
         {/* Row 2 */}
@@ -275,6 +287,7 @@ export const BusinessModelCanvas: React.FC<BusinessModelCanvasProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'keyResources'}
           onToggleListening={() => toggleListening('keyResources')}
+          tooltipContent={BMC_GUIDANCE.keyResources}
         />
         <BmcCell
           className="col-span-1 md:col-span-1 lg:col-span-2"
@@ -286,6 +299,7 @@ export const BusinessModelCanvas: React.FC<BusinessModelCanvasProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'channels'}
           onToggleListening={() => toggleListening('channels')}
+          tooltipContent={BMC_GUIDANCE.channels}
         />
 
         {/* Row 3 */}
@@ -299,6 +313,7 @@ export const BusinessModelCanvas: React.FC<BusinessModelCanvasProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'costStructure'}
           onToggleListening={() => toggleListening('costStructure')}
+          tooltipContent={BMC_GUIDANCE.costStructure}
         />
         <BmcCell
           className="col-span-1 md:col-span-1 lg:col-span-5"
@@ -310,6 +325,7 @@ export const BusinessModelCanvas: React.FC<BusinessModelCanvasProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'revenueStreams'}
           onToggleListening={() => toggleListening('revenueStreams')}
+          tooltipContent={BMC_GUIDANCE.revenueStreams}
         />
       </div>
 

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { SwotData, CanvasData } from '../types';
 import { Zap, AlertTriangle, TrendingUp, ShieldAlert, ChevronDown, Mic, MicOff, Sparkles } from 'lucide-react';
 import { SwotGuidedDrawer } from './modals/SwotGuidedDrawer';
+import { Tooltip } from './Tooltip';
+
 
 interface SwotViewProps {
   data: SwotData;
@@ -20,7 +22,47 @@ export function SwotView({
   userCanvases,
   onSelectCanvas
 }: SwotViewProps) {
+  const swotGuidance = {
+    strengths: {
+      definition: "Internal capabilities and resources that give the business a competitive advantage.",
+      questions: [
+        "What do you do exceptionally well?",
+        "What unique resources or assets do you have?",
+        "What do customers or partners see as your strengths?"
+      ],
+      example: "Proprietary real-time data sync algorithm, highly collaborative team culture."
+    },
+    weaknesses: {
+      definition: "Internal factors and limitations that hinder the business's performance.",
+      questions: [
+        "What could you improve or do better?",
+        "Where do you lack resources, staff, or experience?",
+        "What are competitor advantages that you lack?"
+      ],
+      example: "High dependency on a single product line, limited marketing budget."
+    },
+    opportunities: {
+      definition: "External trends, shifts, or market openings that the business can capitalize on.",
+      questions: [
+        "What market trends or demands can you leverage?",
+        "Are there new customer niches or geographic segments?",
+        "Are there gaps left by competitors?"
+      ],
+      example: "Surge in customer preference for privacy-first SaaS, potential strategic alliances."
+    },
+    threats: {
+      definition: "External challenges, risks, or changes that could negatively affect the business.",
+      questions: [
+        "What competitor actions or pricing models are threatening?",
+        "Are there looming changes in technology, industry standards, or laws?",
+        "Do any of your weaknesses expose you to critical risk?"
+      ],
+      example: "Tightening data privacy regulations, entry of well-funded corporate competitors."
+    }
+  };
+
   const [isGuidedOpen, setIsGuidedOpen] = useState(false);
+
   const [activeField, setActiveField] = useState<keyof SwotData | null>(null);
   const [isSupported, setIsSupported] = useState(false);
   const recognitionRef = useRef<any>(null);
@@ -181,6 +223,8 @@ export function SwotView({
             <div className="flex items-center gap-3 text-emerald-600 dark:text-emerald-400">
               <Zap className="w-6 h-6 animate-pulse" />
               <h3 className="text-lg font-black tracking-tight uppercase">Strengths</h3>
+              <Tooltip content={swotGuidance.strengths} />
+
               {isSupported && (
                 <button
                   type="button"
@@ -216,6 +260,8 @@ export function SwotView({
             <div className="flex items-center gap-3 text-amber-600 dark:text-amber-400">
               <AlertTriangle className="w-6 h-6 animate-pulse" />
               <h3 className="text-lg font-black tracking-tight uppercase">Weaknesses</h3>
+              <Tooltip content={swotGuidance.weaknesses} />
+
               {isSupported && (
                 <button
                   type="button"
@@ -251,6 +297,8 @@ export function SwotView({
             <div className="flex items-center gap-3 text-blue-600 dark:text-blue-400">
               <TrendingUp className="w-6 h-6 animate-pulse" />
               <h3 className="text-lg font-black tracking-tight uppercase">Opportunities</h3>
+              <Tooltip content={swotGuidance.opportunities} />
+
               {isSupported && (
                 <button
                   type="button"
@@ -286,6 +334,8 @@ export function SwotView({
             <div className="flex items-center gap-3 text-red-600 dark:text-red-400">
               <ShieldAlert className="w-6 h-6 animate-pulse" />
               <h3 className="text-lg font-black tracking-tight uppercase">Threats</h3>
+              <Tooltip content={swotGuidance.threats} />
+
               {isSupported && (
                 <button
                   type="button"

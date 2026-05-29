@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Star, Coins, HelpCircle, Dog, ArrowLeft, Mic, MicOff } from 'lucide-react';
 import { CanvasData } from '../types';
 import { motion } from 'framer-motion';
+import { Tooltip } from './Tooltip';
+import { BCG_GUIDANCE } from '../utils/guidance';
 
 interface BcgMatrixViewProps {
   canvasData: CanvasData;
@@ -21,6 +23,7 @@ interface BcgCellProps {
   isSupported: boolean;
   isListening: boolean;
   onToggleListening: () => void;
+  tooltipContent?: { definition: string; questions: string[]; example?: string };
 }
 
 const BcgCell: React.FC<BcgCellProps> = ({ 
@@ -34,7 +37,8 @@ const BcgCell: React.FC<BcgCellProps> = ({
   strategy,
   isSupported,
   isListening,
-  onToggleListening
+  onToggleListening,
+  tooltipContent
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
 
@@ -99,9 +103,12 @@ const BcgCell: React.FC<BcgCellProps> = ({
             {icon}
           </div>
           <div>
-            <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${
-              isFocused ? colors.text : 'text-zinc-900 dark:text-zinc-100'
-            }`}>{title}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${
+                isFocused ? colors.text : 'text-zinc-900 dark:text-zinc-100'
+              }`}>{title}</h3>
+              {tooltipContent && <Tooltip content={tooltipContent} />}
+            </div>
             <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">{subtitle}</p>
           </div>
         </div>
@@ -135,7 +142,7 @@ const BcgCell: React.FC<BcgCellProps> = ({
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className="flex-1 w-full bg-transparent resize-none outline-none text-sm leading-relaxed text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 font-semibold scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent"
+        className="flex-1 w-full bg-transparent resize-none outline-none text-sm leading-relaxed text-zinc-805 dark:text-zinc-100 font-semibold scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent"
         placeholder={`List your ${title.toLowerCase()} products...`}
       />
     </div>
@@ -287,6 +294,7 @@ export const BcgMatrixView: React.FC<BcgMatrixViewProps> = ({ canvasData, setCan
             isSupported={isSupported}
             isListening={activeField === 'stars'}
             onToggleListening={() => toggleListening('stars')}
+            tooltipContent={BCG_GUIDANCE.stars}
           />
           <BcgCell
             icon={<HelpCircle className="w-5 h-5" />}
@@ -299,6 +307,7 @@ export const BcgMatrixView: React.FC<BcgMatrixViewProps> = ({ canvasData, setCan
             isSupported={isSupported}
             isListening={activeField === 'questionMarks'}
             onToggleListening={() => toggleListening('questionMarks')}
+            tooltipContent={BCG_GUIDANCE.questionMarks}
           />
           <BcgCell
             icon={<Coins className="w-5 h-5" />}
@@ -311,6 +320,7 @@ export const BcgMatrixView: React.FC<BcgMatrixViewProps> = ({ canvasData, setCan
             isSupported={isSupported}
             isListening={activeField === 'cashCows'}
             onToggleListening={() => toggleListening('cashCows')}
+            tooltipContent={BCG_GUIDANCE.cashCows}
           />
           <BcgCell
             icon={<Dog className="w-5 h-5" />}
@@ -323,6 +333,7 @@ export const BcgMatrixView: React.FC<BcgMatrixViewProps> = ({ canvasData, setCan
             isSupported={isSupported}
             isListening={activeField === 'dogs'}
             onToggleListening={() => toggleListening('dogs')}
+            tooltipContent={BCG_GUIDANCE.dogs}
           />
         </div>
       </div>

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Target, Rocket, Map, Shuffle, ArrowLeft, Mic, MicOff } from 'lucide-react';
 import { CanvasData } from '../types';
 import { motion } from 'framer-motion';
+import { Tooltip } from './Tooltip';
+import { ANSOFF_GUIDANCE } from '../utils/guidance';
 
 interface AnsoffMatrixViewProps {
   canvasData: CanvasData;
@@ -21,6 +23,7 @@ interface AnsoffCellProps {
   isSupported: boolean;
   isListening: boolean;
   onToggleListening: () => void;
+  tooltipContent?: { definition: string; questions: string[]; example?: string };
 }
 
 const AnsoffCell: React.FC<AnsoffCellProps> = ({ 
@@ -34,7 +37,8 @@ const AnsoffCell: React.FC<AnsoffCellProps> = ({
   riskColor,
   isSupported,
   isListening,
-  onToggleListening
+  onToggleListening,
+  tooltipContent
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
 
@@ -54,9 +58,12 @@ const AnsoffCell: React.FC<AnsoffCellProps> = ({
             {icon}
           </div>
           <div>
-            <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${
-              isFocused ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-900 dark:text-zinc-100'
-            }`}>{title}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${
+                isFocused ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-900 dark:text-zinc-100'
+              }`}>{title}</h3>
+              {tooltipContent && <Tooltip content={tooltipContent} />}
+            </div>
             <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">{subtitle}</p>
           </div>
         </div>
@@ -241,6 +248,7 @@ export const AnsoffMatrixView: React.FC<AnsoffMatrixViewProps> = ({ canvasData, 
             isSupported={isSupported}
             isListening={activeField === 'marketPenetration'}
             onToggleListening={() => toggleListening('marketPenetration')}
+            tooltipContent={ANSOFF_GUIDANCE.marketPenetration}
           />
           <AnsoffCell
             icon={<Rocket className="w-5 h-5" />}
@@ -253,6 +261,7 @@ export const AnsoffMatrixView: React.FC<AnsoffMatrixViewProps> = ({ canvasData, 
             isSupported={isSupported}
             isListening={activeField === 'productDevelopment'}
             onToggleListening={() => toggleListening('productDevelopment')}
+            tooltipContent={ANSOFF_GUIDANCE.productDevelopment}
           />
           <AnsoffCell
             icon={<Map className="w-5 h-5" />}
@@ -265,6 +274,7 @@ export const AnsoffMatrixView: React.FC<AnsoffMatrixViewProps> = ({ canvasData, 
             isSupported={isSupported}
             isListening={activeField === 'marketDevelopment'}
             onToggleListening={() => toggleListening('marketDevelopment')}
+            tooltipContent={ANSOFF_GUIDANCE.marketDevelopment}
           />
           <AnsoffCell
             icon={<Shuffle className="w-5 h-5" />}
@@ -277,6 +287,7 @@ export const AnsoffMatrixView: React.FC<AnsoffMatrixViewProps> = ({ canvasData, 
             isSupported={isSupported}
             isListening={activeField === 'diversification'}
             onToggleListening={() => toggleListening('diversification')}
+            tooltipContent={ANSOFF_GUIDANCE.diversification}
           />
         </div>
       </div>

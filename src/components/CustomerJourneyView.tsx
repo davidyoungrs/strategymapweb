@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Eye, Search, CreditCard, Heart, Megaphone, ArrowLeft, ArrowRight, Mic, MicOff } from 'lucide-react';
 import { CanvasData } from '../types';
 import { motion } from 'framer-motion';
+import { Tooltip } from './Tooltip';
+import { CUSTOMER_JOURNEY_GUIDANCE, TooltipContent } from '../utils/guidance';
 
 interface CustomerJourneyViewProps {
   canvasData: CanvasData;
@@ -20,6 +22,7 @@ interface StageCellProps {
   isSupported: boolean;
   isListening: boolean;
   onToggleListening: () => void;
+  tooltipContent?: TooltipContent;
 }
 
 const StageCell: React.FC<StageCellProps> = ({ 
@@ -32,7 +35,8 @@ const StageCell: React.FC<StageCellProps> = ({
   isLast = false,
   isSupported,
   isListening,
-  onToggleListening
+  onToggleListening,
+  tooltipContent
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
 
@@ -66,6 +70,7 @@ const StageCell: React.FC<StageCellProps> = ({
                 <h3 className={`text-[10px] font-black uppercase tracking-[0.15em] leading-none transition-colors ${
                   isFocused ? c.text : 'text-zinc-900 dark:text-zinc-100'
                 }`}>{title}</h3>
+                {tooltipContent && <Tooltip content={tooltipContent} />}
               </div>
               <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">{subtitle}</p>
             </div>
@@ -234,23 +239,28 @@ export const CustomerJourneyView: React.FC<CustomerJourneyViewProps> = ({ canvas
         <StageCell stageNumber={0}
           icon={<Eye className="w-4 h-4" />} title="Awareness" subtitle="Discovery & First Impressions"
           value={cj.awareness} onChange={(val) => updateJourney('awareness', val)}
-          isSupported={isSupported} isListening={activeField === 'awareness'} onToggleListening={() => toggleListening('awareness')} />
+          isSupported={isSupported} isListening={activeField === 'awareness'} onToggleListening={() => toggleListening('awareness')}
+          tooltipContent={CUSTOMER_JOURNEY_GUIDANCE.awareness} />
         <StageCell stageNumber={1}
           icon={<Search className="w-4 h-4" />} title="Consideration" subtitle="Research & Comparison"
           value={cj.consideration} onChange={(val) => updateJourney('consideration', val)}
-          isSupported={isSupported} isListening={activeField === 'consideration'} onToggleListening={() => toggleListening('consideration')} />
+          isSupported={isSupported} isListening={activeField === 'consideration'} onToggleListening={() => toggleListening('consideration')}
+          tooltipContent={CUSTOMER_JOURNEY_GUIDANCE.consideration} />
         <StageCell stageNumber={2}
           icon={<CreditCard className="w-4 h-4" />} title="Purchase" subtitle="Decision & Conversion"
           value={cj.purchase} onChange={(val) => updateJourney('purchase', val)}
-          isSupported={isSupported} isListening={activeField === 'purchase'} onToggleListening={() => toggleListening('purchase')} />
+          isSupported={isSupported} isListening={activeField === 'purchase'} onToggleListening={() => toggleListening('purchase')}
+          tooltipContent={CUSTOMER_JOURNEY_GUIDANCE.purchase} />
         <StageCell stageNumber={3}
           icon={<Heart className="w-4 h-4" />} title="Retention" subtitle="Onboarding & Loyalty"
           value={cj.retention} onChange={(val) => updateJourney('retention', val)}
-          isSupported={isSupported} isListening={activeField === 'retention'} onToggleListening={() => toggleListening('retention')} />
+          isSupported={isSupported} isListening={activeField === 'retention'} onToggleListening={() => toggleListening('retention')}
+          tooltipContent={CUSTOMER_JOURNEY_GUIDANCE.retention} />
         <StageCell stageNumber={4} isLast
           icon={<Megaphone className="w-4 h-4" />} title="Advocacy" subtitle="Referrals & Word-of-Mouth"
           value={cj.advocacy} onChange={(val) => updateJourney('advocacy', val)}
-          isSupported={isSupported} isListening={activeField === 'advocacy'} onToggleListening={() => toggleListening('advocacy')} />
+          isSupported={isSupported} isListening={activeField === 'advocacy'} onToggleListening={() => toggleListening('advocacy')}
+          tooltipContent={CUSTOMER_JOURNEY_GUIDANCE.advocacy} />
       </div>
     </motion.div>
   );

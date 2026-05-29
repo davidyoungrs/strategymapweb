@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Shield, UserPlus, Repeat, ShoppingCart, Factory, ArrowLeft, Mic, MicOff } from 'lucide-react';
 import { CanvasData } from '../types';
 import { motion } from 'framer-motion';
+import { Tooltip } from './Tooltip';
+import { PORTER_GUIDANCE } from '../utils/guidance';
 
 interface PorterForcesViewProps {
   canvasData: CanvasData;
@@ -19,6 +21,7 @@ interface ForcesCellProps {
   isSupported: boolean;
   isListening: boolean;
   onToggleListening: () => void;
+  tooltipContent?: { definition: string; questions: string[]; example?: string };
 }
 
 const ForcesCell: React.FC<ForcesCellProps> = ({ 
@@ -30,7 +33,8 @@ const ForcesCell: React.FC<ForcesCellProps> = ({
   className = "",
   isSupported,
   isListening,
-  onToggleListening
+  onToggleListening,
+  tooltipContent
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
 
@@ -50,9 +54,12 @@ const ForcesCell: React.FC<ForcesCellProps> = ({
             {icon}
           </div>
           <div>
-            <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${
-              isFocused ? 'text-red-600 dark:text-red-400' : 'text-zinc-900 dark:text-zinc-100'
-            }`}>{title}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${
+                isFocused ? 'text-red-600 dark:text-red-400' : 'text-zinc-900 dark:text-zinc-100'
+              }`}>{title}</h3>
+              {tooltipContent && <Tooltip content={tooltipContent} />}
+            </div>
             <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">{subtitle}</p>
           </div>
         </div>
@@ -226,6 +233,7 @@ export const PorterForcesView: React.FC<PorterForcesViewProps> = ({ canvasData, 
             isSupported={isSupported}
             isListening={activeField === 'threatOfNewEntrants'}
             onToggleListening={() => toggleListening('threatOfNewEntrants')}
+            tooltipContent={PORTER_GUIDANCE.threatOfNewEntrants}
           />
         </div>
 
@@ -239,6 +247,7 @@ export const PorterForcesView: React.FC<PorterForcesViewProps> = ({ canvasData, 
           isSupported={isSupported}
           isListening={activeField === 'bargainingPowerOfSuppliers'}
           onToggleListening={() => toggleListening('bargainingPowerOfSuppliers')}
+          tooltipContent={PORTER_GUIDANCE.bargainingPowerOfSuppliers}
         />
         <ForcesCell
           icon={<Shield className="w-5 h-5" />}
@@ -249,6 +258,7 @@ export const PorterForcesView: React.FC<PorterForcesViewProps> = ({ canvasData, 
           isSupported={isSupported}
           isListening={activeField === 'competitiveRivalry'}
           onToggleListening={() => toggleListening('competitiveRivalry')}
+          tooltipContent={PORTER_GUIDANCE.competitiveRivalry}
         />
         <ForcesCell
           icon={<ShoppingCart className="w-5 h-5" />}
@@ -259,6 +269,7 @@ export const PorterForcesView: React.FC<PorterForcesViewProps> = ({ canvasData, 
           isSupported={isSupported}
           isListening={activeField === 'bargainingPowerOfBuyers'}
           onToggleListening={() => toggleListening('bargainingPowerOfBuyers')}
+          tooltipContent={PORTER_GUIDANCE.bargainingPowerOfBuyers}
         />
 
         {/* Bottom: Threat of Substitutes */}
@@ -272,6 +283,7 @@ export const PorterForcesView: React.FC<PorterForcesViewProps> = ({ canvasData, 
             isSupported={isSupported}
             isListening={activeField === 'threatOfSubstitutes'}
             onToggleListening={() => toggleListening('threatOfSubstitutes')}
+            tooltipContent={PORTER_GUIDANCE.threatOfSubstitutes}
           />
         </div>
       </div>

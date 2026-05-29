@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { CanvasData } from '../types';
 import { motion } from 'framer-motion';
+import { Tooltip } from './Tooltip';
+import { MARKET_SIZING_GUIDANCE, TooltipContent } from '../utils/guidance';
 
 interface MarketSizingViewProps {
   canvasData: CanvasData;
@@ -29,6 +31,7 @@ interface SizingCellProps {
   isSupported: boolean;
   isListening: boolean;
   onToggleListening: () => void;
+  tooltipContent?: TooltipContent;
 }
 
 const SizingCell: React.FC<SizingCellProps> = ({ 
@@ -42,7 +45,8 @@ const SizingCell: React.FC<SizingCellProps> = ({
   color,
   isSupported,
   isListening,
-  onToggleListening
+  onToggleListening,
+  tooltipContent
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
 
@@ -68,7 +72,10 @@ const SizingCell: React.FC<SizingCellProps> = ({
             {icon}
           </div>
           <div>
-            <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${isFocused ? cv.text : 'text-zinc-900 dark:text-zinc-100'}`}>{title}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${isFocused ? cv.text : 'text-zinc-900 dark:text-zinc-100'}`}>{title}</h3>
+              {tooltipContent && <Tooltip content={tooltipContent} />}
+            </div>
             <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">{subtitle}</p>
           </div>
         </div>
@@ -301,6 +308,7 @@ export const MarketSizingView: React.FC<MarketSizingViewProps> = ({
             isSupported={isSupported}
             isListening={activeField === 'tamDescription'}
             onToggleListening={() => toggleListening('tamDescription')}
+            tooltipContent={MARKET_SIZING_GUIDANCE.tamDescription}
           />
           <SizingCell
             icon={<Target className="w-6 h-6" />}
@@ -314,6 +322,7 @@ export const MarketSizingView: React.FC<MarketSizingViewProps> = ({
             isSupported={isSupported}
             isListening={activeField === 'samDescription'}
             onToggleListening={() => toggleListening('samDescription')}
+            tooltipContent={MARKET_SIZING_GUIDANCE.samDescription}
           />
           <SizingCell
             icon={<Flag className="w-6 h-6" />}
@@ -327,6 +336,7 @@ export const MarketSizingView: React.FC<MarketSizingViewProps> = ({
             isSupported={isSupported}
             isListening={activeField === 'somDescription'}
             onToggleListening={() => toggleListening('somDescription')}
+            tooltipContent={MARKET_SIZING_GUIDANCE.somDescription}
           />
         </div>
       </div>

@@ -5,6 +5,8 @@ import {
 } from 'lucide-react';
 import { CanvasData } from '../types';
 import { motion } from 'framer-motion';
+import { Tooltip } from './Tooltip';
+import { VALUE_CHAIN_GUIDANCE, TooltipContent } from '../utils/guidance';
 
 interface ValueChainViewProps {
   canvasData: CanvasData;
@@ -23,6 +25,7 @@ interface ChainCellProps {
   isSupported: boolean;
   isListening: boolean;
   onToggleListening: () => void;
+  tooltipContent?: TooltipContent;
 }
 
 const ChainCell: React.FC<ChainCellProps> = ({ 
@@ -35,7 +38,8 @@ const ChainCell: React.FC<ChainCellProps> = ({
   isPrimary = true,
   isSupported,
   isListening,
-  onToggleListening
+  onToggleListening,
+  tooltipContent
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
 
@@ -61,11 +65,14 @@ const ChainCell: React.FC<ChainCellProps> = ({
             {icon}
           </div>
           <div>
-            <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] leading-none transition-colors ${
-              isFocused 
-                ? isPrimary ? 'text-teal-600 dark:text-teal-400' : 'text-violet-600 dark:text-violet-400'
-                : 'text-zinc-900 dark:text-zinc-100'
-            }`}>{title}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] leading-none transition-colors ${
+                isFocused 
+                  ? isPrimary ? 'text-teal-600 dark:text-teal-400' : 'text-violet-600 dark:text-violet-400'
+                  : 'text-zinc-900 dark:text-zinc-100'
+              }`}>{title}</h3>
+              {tooltipContent && <Tooltip content={tooltipContent} />}
+            </div>
             <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1">{subtitle}</p>
           </div>
         </div>
@@ -237,21 +244,25 @@ export const ValueChainView: React.FC<ValueChainViewProps> = ({ canvasData, setC
               icon={<Building2 className="w-4 h-4" />} title="Firm Infrastructure" subtitle="Management & Finance"
               value={vc.firmInfrastructure} onChange={(val) => updateChain('firmInfrastructure', val)}
               isSupported={isSupported} isListening={activeField === 'firmInfrastructure'} onToggleListening={() => toggleListening('firmInfrastructure')}
+              tooltipContent={VALUE_CHAIN_GUIDANCE.firmInfrastructure}
             />
             <ChainCell isPrimary={false}
               icon={<Users className="w-4 h-4" />} title="HR Management" subtitle="Recruiting & Training"
               value={vc.hrManagement} onChange={(val) => updateChain('hrManagement', val)}
               isSupported={isSupported} isListening={activeField === 'hrManagement'} onToggleListening={() => toggleListening('hrManagement')}
+              tooltipContent={VALUE_CHAIN_GUIDANCE.hrManagement}
             />
             <ChainCell isPrimary={false}
               icon={<Cpu className="w-4 h-4" />} title="Technology Dev" subtitle="R&D & Innovation"
               value={vc.technologyDevelopment} onChange={(val) => updateChain('technologyDevelopment', val)}
               isSupported={isSupported} isListening={activeField === 'technologyDevelopment'} onToggleListening={() => toggleListening('technologyDevelopment')}
+              tooltipContent={VALUE_CHAIN_GUIDANCE.technologyDevelopment}
             />
             <ChainCell isPrimary={false}
               icon={<ShoppingBag className="w-4 h-4" />} title="Procurement" subtitle="Purchasing & Sourcing"
               value={vc.procurement} onChange={(val) => updateChain('procurement', val)}
               isSupported={isSupported} isListening={activeField === 'procurement'} onToggleListening={() => toggleListening('procurement')}
+              tooltipContent={VALUE_CHAIN_GUIDANCE.procurement}
             />
           </div>
         </div>
@@ -266,26 +277,31 @@ export const ValueChainView: React.FC<ValueChainViewProps> = ({ canvasData, setC
               icon={<Package className="w-4 h-4" />} title="Inbound Logistics" subtitle="Receiving & Storage"
               value={vc.inboundLogistics} onChange={(val) => updateChain('inboundLogistics', val)}
               isSupported={isSupported} isListening={activeField === 'inboundLogistics'} onToggleListening={() => toggleListening('inboundLogistics')}
+              tooltipContent={VALUE_CHAIN_GUIDANCE.inboundLogistics}
             />
             <ChainCell
               icon={<Settings className="w-4 h-4" />} title="Operations" subtitle="Production & Assembly"
               value={vc.operations} onChange={(val) => updateChain('operations', val)}
               isSupported={isSupported} isListening={activeField === 'operations'} onToggleListening={() => toggleListening('operations')}
+              tooltipContent={VALUE_CHAIN_GUIDANCE.operations}
             />
             <ChainCell
               icon={<Truck className="w-4 h-4" />} title="Outbound Logistics" subtitle="Distribution & Delivery"
               value={vc.outboundLogistics} onChange={(val) => updateChain('outboundLogistics', val)}
               isSupported={isSupported} isListening={activeField === 'outboundLogistics'} onToggleListening={() => toggleListening('outboundLogistics')}
+              tooltipContent={VALUE_CHAIN_GUIDANCE.outboundLogistics}
             />
             <ChainCell
               icon={<Megaphone className="w-4 h-4" />} title="Marketing & Sales" subtitle="Promotion & Pricing"
               value={vc.marketingSales} onChange={(val) => updateChain('marketingSales', val)}
               isSupported={isSupported} isListening={activeField === 'marketingSales'} onToggleListening={() => toggleListening('marketingSales')}
+              tooltipContent={VALUE_CHAIN_GUIDANCE.marketingSales}
             />
             <ChainCell
               icon={<HeadphonesIcon className="w-4 h-4" />} title="Service" subtitle="After-Sales Support"
               value={vc.service} onChange={(val) => updateChain('service', val)}
               isSupported={isSupported} isListening={activeField === 'service'} onToggleListening={() => toggleListening('service')}
+              tooltipContent={VALUE_CHAIN_GUIDANCE.service}
             />
           </div>
         </div>

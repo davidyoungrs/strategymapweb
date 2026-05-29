@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import { CanvasData } from '../types';
 import { motion } from 'framer-motion';
+import { Tooltip } from './Tooltip';
+import { PESTEL_GUIDANCE } from '../utils/guidance';
 
 interface PestelViewProps {
   canvasData: CanvasData;
@@ -30,6 +32,7 @@ interface PestelCellProps {
   isSupported: boolean;
   isListening: boolean;
   onToggleListening: () => void;
+  tooltipContent?: { definition: string; questions: string[]; example?: string };
 }
 
 const PestelCell: React.FC<PestelCellProps> = ({ 
@@ -42,7 +45,8 @@ const PestelCell: React.FC<PestelCellProps> = ({
   color,
   isSupported,
   isListening,
-  onToggleListening
+  onToggleListening,
+  tooltipContent
 }) => {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -62,11 +66,14 @@ const PestelCell: React.FC<PestelCellProps> = ({
             {icon}
           </div>
           <div>
-            <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${
-              isFocused ? `text-${color}-600 dark:text-${color}-400` : 'text-zinc-900 dark:text-zinc-100'
-            }`}>
-              {title}
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${
+                isFocused ? `text-${color}-600 dark:text-${color}-400` : 'text-zinc-900 dark:text-zinc-100'
+              }`}>
+                {title}
+              </h3>
+              {tooltipContent && <Tooltip content={tooltipContent} />}
+            </div>
             <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">{subtitle}</p>
           </div>
         </div>
@@ -252,6 +259,7 @@ export const PestelView: React.FC<PestelViewProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'political'}
           onToggleListening={() => toggleListening('political')}
+          tooltipContent={PESTEL_GUIDANCE.political}
           className=""
         />
         <PestelCell
@@ -264,6 +272,7 @@ export const PestelView: React.FC<PestelViewProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'economic'}
           onToggleListening={() => toggleListening('economic')}
+          tooltipContent={PESTEL_GUIDANCE.economic}
           className=""
         />
         <PestelCell
@@ -276,6 +285,7 @@ export const PestelView: React.FC<PestelViewProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'social'}
           onToggleListening={() => toggleListening('social')}
+          tooltipContent={PESTEL_GUIDANCE.social}
           className=""
         />
         <PestelCell
@@ -288,6 +298,7 @@ export const PestelView: React.FC<PestelViewProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'technological'}
           onToggleListening={() => toggleListening('technological')}
+          tooltipContent={PESTEL_GUIDANCE.technological}
           className=""
         />
         <PestelCell
@@ -300,6 +311,7 @@ export const PestelView: React.FC<PestelViewProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'environmental'}
           onToggleListening={() => toggleListening('environmental')}
+          tooltipContent={PESTEL_GUIDANCE.environmental}
           className=""
         />
         <PestelCell
@@ -312,6 +324,7 @@ export const PestelView: React.FC<PestelViewProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'legal'}
           onToggleListening={() => toggleListening('legal')}
+          tooltipContent={PESTEL_GUIDANCE.legal}
           className=""
         />
       </div>

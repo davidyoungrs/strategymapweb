@@ -4,6 +4,8 @@ import {
 } from 'lucide-react';
 import { CanvasData } from '../types';
 import { motion } from 'framer-motion';
+import { Tooltip } from './Tooltip';
+import { LEAN_GUIDANCE } from '../utils/guidance';
 
 interface LeanCanvasViewProps {
   canvasData: CanvasData;
@@ -22,6 +24,7 @@ interface LeanCellProps {
   isSupported: boolean;
   isListening: boolean;
   onToggleListening: () => void;
+  tooltipContent?: { definition: string; questions: string[]; example?: string };
 }
 
 const LeanCell: React.FC<LeanCellProps> = ({ 
@@ -34,7 +37,8 @@ const LeanCell: React.FC<LeanCellProps> = ({
   isMain = false,
   isSupported,
   isListening,
-  onToggleListening
+  onToggleListening,
+  tooltipContent
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
 
@@ -54,9 +58,12 @@ const LeanCell: React.FC<LeanCellProps> = ({
             {icon}
           </div>
           <div>
-            <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] leading-none transition-colors ${
-              isFocused || isMain ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-900 dark:text-zinc-100'
-            }`}>{title}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] leading-none transition-colors ${
+                isFocused || isMain ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-900 dark:text-zinc-100'
+              }`}>{title}</h3>
+              {tooltipContent && <Tooltip content={tooltipContent} />}
+            </div>
             <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1">{subtitle}</p>
           </div>
         </div>
@@ -214,7 +221,7 @@ export const LeanCanvasView: React.FC<LeanCanvasViewProps> = ({ canvasData, setC
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h2 className="text-2xl font-black text-zinc-900 dark:text-zinc-100 tracking-tight uppercase italic">Lean Canvas</h2>
+          <h2 className="text-2xl font-black text-zinc-950 dark:text-zinc-50 tracking-tight uppercase italic">Lean Canvas</h2>
           <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Startup Business Model</p>
         </div>
       </div>
@@ -225,49 +232,58 @@ export const LeanCanvasView: React.FC<LeanCanvasViewProps> = ({ canvasData, setC
           <LeanCell className="col-span-1 md:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2"
             icon={<AlertTriangle className="w-4 h-4" />} title="Problem" subtitle="Top 3 problems"
             value={lc.problem} onChange={(val) => updateLean('problem', val)}
-            isSupported={isSupported} isListening={activeField === 'problem'} onToggleListening={() => toggleListening('problem')} />
+            isSupported={isSupported} isListening={activeField === 'problem'} onToggleListening={() => toggleListening('problem')}
+            tooltipContent={LEAN_GUIDANCE.problem} />
           
           <LeanCell className="col-span-1 md:col-span-1 lg:col-span-2"
             icon={<Lightbulb className="w-4 h-4" />} title="Solution" subtitle="Top 3 features"
             value={lc.solution} onChange={(val) => updateLean('solution', val)}
-            isSupported={isSupported} isListening={activeField === 'solution'} onToggleListening={() => toggleListening('solution')} />
+            isSupported={isSupported} isListening={activeField === 'solution'} onToggleListening={() => toggleListening('solution')}
+            tooltipContent={LEAN_GUIDANCE.solution} />
           
           <LeanCell className="col-span-1 md:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2" isMain
             icon={<Diamond className="w-4 h-4" />} title="Unique Value" subtitle="What makes you different?"
             value={lc.uniqueValueProposition} onChange={(val) => updateLean('uniqueValueProposition', val)}
-            isSupported={isSupported} isListening={activeField === 'uniqueValueProposition'} onToggleListening={() => toggleListening('uniqueValueProposition')} />
+            isSupported={isSupported} isListening={activeField === 'uniqueValueProposition'} onToggleListening={() => toggleListening('uniqueValueProposition')}
+            tooltipContent={LEAN_GUIDANCE.uniqueValueProposition} />
           
           <LeanCell className="col-span-1 md:col-span-1 lg:col-span-2"
             icon={<ShieldCheck className="w-4 h-4" />} title="Unfair Advantage" subtitle="Can't be copied"
             value={lc.unfairAdvantage} onChange={(val) => updateLean('unfairAdvantage', val)}
-            isSupported={isSupported} isListening={activeField === 'unfairAdvantage'} onToggleListening={() => toggleListening('unfairAdvantage')} />
+            isSupported={isSupported} isListening={activeField === 'unfairAdvantage'} onToggleListening={() => toggleListening('unfairAdvantage')}
+            tooltipContent={LEAN_GUIDANCE.unfairAdvantage} />
           
           <LeanCell className="col-span-1 md:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2"
             icon={<Users className="w-4 h-4" />} title="Customer Segments" subtitle="Target customers"
             value={lc.lcCustomerSegments} onChange={(val) => updateLean('lcCustomerSegments', val)}
-            isSupported={isSupported} isListening={activeField === 'lcCustomerSegments'} onToggleListening={() => toggleListening('lcCustomerSegments')} />
+            isSupported={isSupported} isListening={activeField === 'lcCustomerSegments'} onToggleListening={() => toggleListening('lcCustomerSegments')}
+            tooltipContent={LEAN_GUIDANCE.lcCustomerSegments} />
 
           {/* Row 2 */}
           <LeanCell className="col-span-1 md:col-span-1 lg:col-span-2"
             icon={<BarChart3 className="w-4 h-4" />} title="Key Metrics" subtitle="Measurable KPIs"
             value={lc.keyMetrics} onChange={(val) => updateLean('keyMetrics', val)}
-            isSupported={isSupported} isListening={activeField === 'keyMetrics'} onToggleListening={() => toggleListening('keyMetrics')} />
+            isSupported={isSupported} isListening={activeField === 'keyMetrics'} onToggleListening={() => toggleListening('keyMetrics')}
+            tooltipContent={LEAN_GUIDANCE.keyMetrics} />
           
           <LeanCell className="col-span-1 md:col-span-1 lg:col-span-2"
             icon={<Truck className="w-4 h-4" />} title="Channels" subtitle="Path to customers"
             value={lc.lcChannels} onChange={(val) => updateLean('lcChannels', val)}
-            isSupported={isSupported} isListening={activeField === 'lcChannels'} onToggleListening={() => toggleListening('lcChannels')} />
+            isSupported={isSupported} isListening={activeField === 'lcChannels'} onToggleListening={() => toggleListening('lcChannels')}
+            tooltipContent={LEAN_GUIDANCE.lcChannels} />
 
           {/* Row 3 */}
           <LeanCell className="col-span-1 md:col-span-1 lg:col-span-5"
             icon={<Banknote className="w-4 h-4" />} title="Cost Structure" subtitle="Fixed & variable costs"
             value={lc.lcCostStructure} onChange={(val) => updateLean('lcCostStructure', val)}
-            isSupported={isSupported} isListening={activeField === 'lcCostStructure'} onToggleListening={() => toggleListening('lcCostStructure')} />
+            isSupported={isSupported} isListening={activeField === 'lcCostStructure'} onToggleListening={() => toggleListening('lcCostStructure')}
+            tooltipContent={LEAN_GUIDANCE.lcCostStructure} />
           
           <LeanCell className="col-span-1 md:col-span-1 lg:col-span-5"
             icon={<Wallet className="w-4 h-4" />} title="Revenue Streams" subtitle="Revenue model"
             value={lc.lcRevenueStreams} onChange={(val) => updateLean('lcRevenueStreams', val)}
-            isSupported={isSupported} isListening={activeField === 'lcRevenueStreams'} onToggleListening={() => toggleListening('lcRevenueStreams')} />
+            isSupported={isSupported} isListening={activeField === 'lcRevenueStreams'} onToggleListening={() => toggleListening('lcRevenueStreams')}
+            tooltipContent={LEAN_GUIDANCE.lcRevenueStreams} />
         </div>
 
         <div className="px-8 py-4 bg-white/40 dark:bg-zinc-950/40 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl text-[10px] text-zinc-400 dark:text-zinc-500 leading-relaxed text-center font-bold">
