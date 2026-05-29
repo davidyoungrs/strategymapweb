@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Globe2, 
   Target, 
   Flag,
   ArrowLeft,
-  DollarSign
+  DollarSign,
+  Mic,
+  MicOff
 } from 'lucide-react';
 import { CanvasData } from '../types';
 import { motion } from 'framer-motion';
@@ -24,6 +26,9 @@ interface SizingCellProps {
   onValueChange: (val: string) => void;
   onDescChange: (val: string) => void;
   color: string;
+  isSupported: boolean;
+  isListening: boolean;
+  onToggleListening: () => void;
 }
 
 const SizingCell: React.FC<SizingCellProps> = ({ 
@@ -34,44 +39,71 @@ const SizingCell: React.FC<SizingCellProps> = ({
   description, 
   onValueChange, 
   onDescChange,
-  color 
+  color,
+  isSupported,
+  isListening,
+  onToggleListening
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
 
   const colorVariants: Record<string, any> = {
-    blue: { bg: 'bg-blue-50/50', border: 'border-blue-100', text: 'text-blue-600', icon: 'bg-blue-600', shadow: 'shadow-blue-100' },
-    indigo: { bg: 'bg-indigo-50/50', border: 'border-indigo-100', text: 'text-indigo-600', icon: 'bg-indigo-600', shadow: 'shadow-indigo-100' },
-    violet: { bg: 'bg-violet-50/50', border: 'border-violet-100', text: 'text-violet-600', icon: 'bg-violet-600', shadow: 'shadow-violet-100' },
+    blue: { bg: 'bg-blue-500/5 dark:bg-blue-500/10 border-blue-500/50 dark:border-blue-400/40 ring-2 ring-blue-500/20 dark:ring-blue-400/10 shadow-lg shadow-blue-500/5', hoverShadow: 'hover:shadow-blue-500/5', hoverRing: 'hover:border-blue-500/30 dark:hover:border-blue-400/30', text: 'text-blue-600 dark:text-blue-400', icon: 'bg-blue-600' },
+    indigo: { bg: 'bg-indigo-500/5 dark:bg-indigo-500/10 border-indigo-500/50 dark:border-indigo-400/40 ring-2 ring-indigo-500/20 dark:ring-indigo-400/10 shadow-lg shadow-indigo-500/5', hoverShadow: 'hover:shadow-indigo-500/5', hoverRing: 'hover:border-indigo-500/30 dark:hover:border-indigo-400/30', text: 'text-indigo-600 dark:text-indigo-400', icon: 'bg-indigo-600' },
+    violet: { bg: 'bg-violet-500/5 dark:bg-violet-500/10 border-violet-500/50 dark:border-violet-400/40 ring-2 ring-violet-500/20 dark:ring-violet-400/10 shadow-lg shadow-violet-500/5', hoverShadow: 'hover:shadow-violet-500/5', hoverRing: 'hover:border-violet-500/30 dark:hover:border-violet-400/30', text: 'text-violet-600 dark:text-violet-400', icon: 'bg-violet-600' },
   };
 
   const cv = colorVariants[color] || colorVariants.blue;
 
   return (
-    <div className={`p-6 border border-zinc-100 dark:border-zinc-800 rounded-3xl transition-all duration-300 ${
+    <div className={`p-6 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl transition-all duration-300 ${
       isFocused 
-        ? `${cv.bg} dark:bg-zinc-900/40 ${cv.border} dark:border-zinc-700 ring-1 ring-zinc-100 dark:ring-zinc-800` 
-        : 'bg-white dark:bg-zinc-950 hover:bg-zinc-50/30 dark:hover:bg-zinc-900/30'
+        ? `${cv.bg}` 
+        : `hover:-translate-y-1.5 hover:shadow-2xl ${cv.hoverShadow} ${cv.hoverRing}`
     }`}>
-      <div className="flex items-center gap-4 mb-6">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
-          isFocused ? `${cv.icon} text-white shadow-lg` : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'
-        }`}>
-          {icon}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+            isFocused ? `${cv.icon} text-white shadow-lg scale-110` : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'
+          }`}>
+            {icon}
+          </div>
+          <div>
+            <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${isFocused ? cv.text : 'text-zinc-900 dark:text-zinc-100'}`}>{title}</h3>
+            <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">{subtitle}</p>
+          </div>
         </div>
-        <div className="flex-1">
-          <h3 className={`text-xs font-black uppercase tracking-[0.2em] ${isFocused ? cv.text : 'text-zinc-900 dark:text-zinc-100'}`}>{title}</h3>
-          <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1">{subtitle}</p>
-        </div>
-        <div className={`flex items-center gap-1 px-4 py-2 rounded-xl border ${isFocused ? cv.border : 'border-zinc-100 dark:border-zinc-800'} bg-white dark:bg-zinc-900`}>
-          <DollarSign className="w-3 h-3 text-zinc-400" />
-          <input
-            value={value}
-            onChange={(e) => onValueChange(e.target.value)}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            placeholder="0.00"
-            className="w-24 bg-transparent outline-none text-sm font-black text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-300 dark:placeholder:text-zinc-800"
-          />
+
+        <div className="flex items-center gap-2">
+          {isSupported && (
+            <button
+              type="button"
+              onClick={onToggleListening}
+              className={`p-1.5 rounded-lg transition-all duration-300 flex items-center justify-center ${
+                isListening
+                  ? 'bg-red-500/20 text-red-500 dark:text-red-400 animate-pulse ring-2 ring-red-500/40'
+                  : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
+              }`}
+              title={isListening ? `Stop recording ${title.toLowerCase()}` : `Start voice-to-text for ${title.toLowerCase()}`}
+            >
+              {isListening ? (
+                <MicOff className="w-4 h-4 text-red-500 dark:text-red-400" />
+              ) : (
+                <Mic className="w-4 h-4" />
+              )}
+            </button>
+          )}
+
+          <div className={`flex items-center gap-1 px-4 py-2 rounded-xl border ${isFocused ? 'border-zinc-300 dark:border-zinc-700' : 'border-zinc-100 dark:border-zinc-800'} bg-white dark:bg-zinc-900 transition-colors`}>
+            <DollarSign className="w-3 h-3 text-zinc-405 dark:text-zinc-600 font-bold" />
+            <input
+              value={value}
+              onChange={(e) => onValueChange(e.target.value)}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              placeholder="0.00"
+              className="w-24 bg-transparent outline-none text-sm font-black text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
+            />
+          </div>
         </div>
       </div>
       <textarea
@@ -79,8 +111,8 @@ const SizingCell: React.FC<SizingCellProps> = ({
         onChange={(e) => onDescChange(e.target.value)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        placeholder={`Describe your ${title}...`}
-        className="w-full bg-transparent resize-none outline-none text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 placeholder:text-zinc-300 dark:placeholder:text-zinc-800 font-medium h-24"
+        placeholder={`Describe your ${title.toLowerCase()}...`}
+        className="w-full bg-transparent resize-none outline-none text-sm leading-relaxed text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 font-semibold h-24 scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent transition-colors"
       />
     </div>
   );
@@ -91,6 +123,99 @@ export const MarketSizingView: React.FC<MarketSizingViewProps> = ({
   setCanvasData,
   onBack
 }) => {
+  const [activeField, setActiveField] = useState<keyof NonNullable<CanvasData['marketSizing']> | null>(null);
+  const [isSupported, setIsSupported] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const activeListeningFieldRef = useRef<keyof NonNullable<CanvasData['marketSizing']> | null>(null);
+  const initialTextRef = useRef('');
+  const canvasDataRef = useRef(canvasData);
+  const setCanvasDataRef = useRef(setCanvasData);
+
+  useEffect(() => {
+    canvasDataRef.current = canvasData;
+    setCanvasDataRef.current = setCanvasData;
+  }, [canvasData, setCanvasData]);
+
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      setIsSupported(true);
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event: any) => {
+        let sessionTranscript = '';
+        for (let i = 0; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            sessionTranscript += event.results[i][0].transcript + ' ';
+          }
+        }
+        
+        const cleanSessionTranscript = sessionTranscript.trim();
+        const currentActiveField = activeListeningFieldRef.current;
+        if (cleanSessionTranscript && currentActiveField) {
+          const baseText = initialTextRef.current.trim();
+          const formattedTranscript = `- ${cleanSessionTranscript}`;
+          const updatedValue = baseText 
+            ? `${baseText}\n${formattedTranscript}` 
+            : formattedTranscript;
+          
+          setCanvasDataRef.current(prev => ({
+            ...prev,
+            marketSizing: {
+              ...(prev.marketSizing || { tam: '', sam: '', som: '', tamDescription: '', samDescription: '', somDescription: '' }),
+              [currentActiveField]: updatedValue
+            }
+          }));
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        if (event.error !== 'aborted') {
+          console.error('Speech recognition error in Market Sizing:', event.error);
+        }
+        setActiveField(null);
+        activeListeningFieldRef.current = null;
+      };
+
+      recognition.onend = () => {
+        setActiveField(null);
+        activeListeningFieldRef.current = null;
+      };
+
+      recognitionRef.current = recognition;
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, []);
+
+  const toggleListening = (field: keyof NonNullable<CanvasData['marketSizing']>) => {
+    if (!recognitionRef.current) return;
+
+    if (activeField) {
+      recognitionRef.current.stop();
+      setActiveField(null);
+      return;
+    }
+
+    const currentSizing = canvasDataRef.current.marketSizing || { tam: '', sam: '', som: '', tamDescription: '', samDescription: '', somDescription: '' };
+    initialTextRef.current = currentSizing[field] || '';
+    activeListeningFieldRef.current = field;
+    setActiveField(field);
+    try {
+      recognitionRef.current.start();
+    } catch (error) {
+      console.error('Failed to start speech recognition in Market Sizing:', error);
+      setActiveField(null);
+    }
+  };
+
   const updateMarket = (field: keyof NonNullable<CanvasData['marketSizing']>, value: string) => {
     setCanvasData(prev => ({
       ...prev,
@@ -134,7 +259,7 @@ export const MarketSizingView: React.FC<MarketSizingViewProps> = ({
             <motion.div 
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="absolute inset-0 rounded-full bg-blue-50 dark:bg-blue-900/10 border-2 border-blue-100 dark:border-blue-900/30 flex items-start justify-center pt-8"
+              className="absolute inset-0 rounded-full bg-blue-50/50 dark:bg-blue-900/10 border-2 border-blue-100 dark:border-blue-900/30 flex items-start justify-center pt-8"
             >
               <span className="text-[10px] font-black uppercase tracking-widest text-blue-400">TAM</span>
             </motion.div>
@@ -143,7 +268,7 @@ export const MarketSizingView: React.FC<MarketSizingViewProps> = ({
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.1 }}
-              className="absolute inset-[15%] rounded-full bg-indigo-50 dark:bg-indigo-900/10 border-2 border-indigo-100 dark:border-indigo-900/30 flex items-start justify-center pt-8 shadow-inner"
+              className="absolute inset-[15%] rounded-full bg-indigo-50/50 dark:bg-indigo-900/10 border-2 border-indigo-100 dark:border-indigo-900/30 flex items-start justify-center pt-8 shadow-inner"
             >
               <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">SAM</span>
             </motion.div>
@@ -173,6 +298,9 @@ export const MarketSizingView: React.FC<MarketSizingViewProps> = ({
             onValueChange={(v) => updateMarket('tam', v)}
             onDescChange={(v) => updateMarket('tamDescription', v)}
             color="blue"
+            isSupported={isSupported}
+            isListening={activeField === 'tamDescription'}
+            onToggleListening={() => toggleListening('tamDescription')}
           />
           <SizingCell
             icon={<Target className="w-6 h-6" />}
@@ -183,6 +311,9 @@ export const MarketSizingView: React.FC<MarketSizingViewProps> = ({
             onValueChange={(v) => updateMarket('sam', v)}
             onDescChange={(v) => updateMarket('samDescription', v)}
             color="indigo"
+            isSupported={isSupported}
+            isListening={activeField === 'samDescription'}
+            onToggleListening={() => toggleListening('samDescription')}
           />
           <SizingCell
             icon={<Flag className="w-6 h-6" />}
@@ -193,6 +324,9 @@ export const MarketSizingView: React.FC<MarketSizingViewProps> = ({
             onValueChange={(v) => updateMarket('som', v)}
             onDescChange={(v) => updateMarket('somDescription', v)}
             color="violet"
+            isSupported={isSupported}
+            isListening={activeField === 'somDescription'}
+            onToggleListening={() => toggleListening('somDescription')}
           />
         </div>
       </div>
