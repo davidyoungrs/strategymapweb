@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { LlmInference } from '@mediapipe/tasks-genai';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, Loader2, Bot, ArrowRight, MessageSquare } from 'lucide-react';
+import { Sparkles, X, Loader2, Bot, ArrowRight, MessageSquare, Send, Mic, MicOff } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { CanvasData } from '../../types';
 
@@ -11,16 +11,98 @@ interface AIConsultantProps {
   onClose: () => void;
 }
 
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export const AIConsultant: React.FC<AIConsultantProps> = ({ canvasData, isOpen, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [modelLoading, setModelLoading] = useState(false);
-  const [suggestion, setSuggestion] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loadProgress, setLoadProgress] = useState(0);
   
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'assistant',
+      content: "Hi! I am Kettle AI, your strategic consultant. I've analyzed your project context. Ask me anything about your strategy, potential blindspots, or market opportunities!"
+    }
+  ]);
+  const [inputValue, setInputValue] = useState('');
+  const [isListening, setIsListening] = useState(false);
+  const [isSupported, setIsSupported] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
   const llmInferenceRef = useRef<LlmInference | null>(null);
 
-  // Initialize MediaPipe Gemma Model
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, loading]);
+
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      setIsSupported(true);
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event: any) => {
+        let sessionTranscript = '';
+        for (let i = 0; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            sessionTranscript += event.results[i][0].transcript + ' ';
+          }
+        }
+        
+        const cleanSessionTranscript = sessionTranscript.trim();
+        if (cleanSessionTranscript) {
+          setInputValue(prev => prev ? `${prev} ${cleanSessionTranscript}` : cleanSessionTranscript);
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        if (event.error !== 'aborted') {
+          console.error('Speech recognition error in AI Consultant:', event.error);
+        }
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) return;
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+      return;
+    }
+
+    setIsListening(true);
+    try {
+      recognitionRef.current.start();
+    } catch (error) {
+      console.error('Failed to start speech recognition in AI Consultant:', error);
+      setIsListening(false);
+    }
+  };
+
   const initModel = async () => {
     if (llmInferenceRef.current) return;
     
@@ -32,7 +114,6 @@ export const AIConsultant: React.FC<AIConsultantProps> = ({ canvasData, isOpen, 
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-genai/wasm"
       );
 
-      // Use local model on localhost for speed, Cloudflare R2 on production
       const isLocal = window.location.hostname === 'localhost';
       const MODEL_URL = isLocal 
         ? '/models/gemma-2b-it-gpu.bin'
@@ -63,40 +144,50 @@ export const AIConsultant: React.FC<AIConsultantProps> = ({ canvasData, isOpen, 
     }
   };
 
-  const getInsights = async () => {
-    setError(null);
-    if (!llmInferenceRef.current) {
-      await initModel();
+  const handleSendMessage = async () => {
+    const textToSend = inputValue.trim();
+    if (!textToSend || loading || modelLoading) return;
+
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
     }
 
-    if (!llmInferenceRef.current) return;
-
+    const newMessages: Message[] = [...messages, { role: 'user', content: textToSend }];
+    setMessages(newMessages);
+    setInputValue('');
     setLoading(true);
-    setSuggestion('');
+    setError(null);
+
     try {
+      if (!llmInferenceRef.current) {
+        await initModel();
+      }
+
+      if (!llmInferenceRef.current) {
+        setLoading(false);
+        return;
+      }
+
       const prompt = `
-        You are a Strategic Consultant for Kettle Strat. 
-        Review this plan and suggest 3 high-impact additions.
-        
-        PLAN: ${canvasData.title}
+        You are Kettle AI, a Strategic Consultant for Kettle Strat.
+        Below is the context of the user's strategic plan:
+        PLAN TITLE: ${canvasData.title || 'Untitled Strategic Plan'}
         Executive Summary: ${canvasData.businessPlan?.executiveSummary || 'Not provided'}
         Mission: ${canvasData.businessPlan?.mission || 'Not provided'}
         Vision: ${canvasData.businessPlan?.vision || 'Not provided'}
-        TAM: ${canvasData.marketSizing?.tam || 'Not provided'}
-        SAM: ${canvasData.marketSizing?.sam || 'Not provided'}
-        SOM: ${canvasData.marketSizing?.som || 'Not provided'}
-        Financials: ${canvasData.financials?.years.map(y => `Y${y.year}: Rev $${y.revenue}, Profit $${y.revenue - y.cogs - y.operatingExpenses}`).join('; ') || 'Not provided'}
-        Risks & Opportunities: ${canvasData.riskRegister?.map(r => `${r.type}: ${r.risk} (Prob: ${r.probability}, Impact: ${r.impact})`).join(', ') || 'None'}
-        Value Props: ${canvasData.valuePropositions}
-        Segments: ${canvasData.customerSegments}
-        Revenue: ${canvasData.revenueStreams}
+        TAM/SAM/SOM: ${canvasData.marketSizing?.tam || 'N/A'} / ${canvasData.marketSizing?.sam || 'N/A'} / ${canvasData.marketSizing?.som || 'N/A'}
+        Value Props: ${canvasData.valuePropositions || 'N/A'}
+        Segments: ${canvasData.customerSegments || 'N/A'}
         
-        Provide feedback on how well the business plan aligns with the core strategy. Provide suggestions in Markdown format. Be brief.
+        Chat History:
+        ${newMessages.map(m => `${m.role === 'user' ? 'User' : 'Consultant'}: ${m.content}`).join('\n')}
+        
+        Provide your next response to the user. Keep it strategic, concise, actionable, and formatted in clean Markdown. Do not repeat the prompt.
       `;
 
-      // MediaPipe Gemma 2B Inference
-      const result = await llmInferenceRef.current!.generateResponse(prompt);
-      setSuggestion(result);
+      const result = await llmInferenceRef.current.generateResponse(prompt);
+      setMessages([...newMessages, { role: 'assistant', content: result }]);
     } catch (err: any) {
       console.error('Inference Error:', err);
       setError('AI Inference failed. Your device might not support WebGL/WebGPU local models.');
@@ -104,12 +195,6 @@ export const AIConsultant: React.FC<AIConsultantProps> = ({ canvasData, isOpen, 
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (isOpen && !llmInferenceRef.current && !modelLoading) {
-      // We don't auto-load because it's 1.5GB. We let the user trigger it.
-    }
-  }, [isOpen]);
 
   return (
     <AnimatePresence>
@@ -136,7 +221,7 @@ export const AIConsultant: React.FC<AIConsultantProps> = ({ canvasData, isOpen, 
                   <Bot className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 uppercase">Kettle AI</h2>
+                  <h2 className="text-xl font-black tracking-tighter text-zinc-900 dark:text-zinc-55 uppercase">Kettle AI</h2>
                   <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Local Strategic Consultant</p>
                 </div>
               </div>
@@ -148,86 +233,111 @@ export const AIConsultant: React.FC<AIConsultantProps> = ({ canvasData, isOpen, 
               </button>
             </div>
 
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6">
-              {!suggestion && !loading && !modelLoading && (
-                <div className="text-center py-12">
-                  <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-3xl flex items-center justify-center mx-auto mb-6 text-zinc-400">
-                    <Sparkles className="w-10 h-10" />
+            {/* Content / Messages */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent">
+              {messages.map((m, idx) => (
+                <div key={idx} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`p-4 rounded-2xl max-w-[85%] text-sm leading-relaxed ${
+                    m.role === 'user'
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/10'
+                      : 'bg-zinc-105 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/50 dark:border-zinc-700/50'
+                  }`}>
+                    <div className="flex items-center gap-1.5 mb-1.5 opacity-60">
+                      {m.role === 'user' ? (
+                        <span className="text-[9px] font-black uppercase tracking-widest">You</span>
+                      ) : (
+                        <>
+                          <Bot className="w-3.5 h-3.5" />
+                          <span className="text-[9px] font-black uppercase tracking-widest">Kettle AI</span>
+                        </>
+                      )}
+                    </div>
+                    <ReactMarkdown className="prose dark:prose-invert max-w-none text-sm break-words">
+                      {m.content}
+                    </ReactMarkdown>
                   </div>
-                  <h3 className="text-lg font-black text-zinc-900 dark:text-zinc-50 mb-2 uppercase">Ready for Analysis?</h3>
-                  <p className="text-sm text-zinc-500 mb-8 max-w-[240px] mx-auto leading-relaxed">
-                    I'll use **Gemma 2B** running locally on your device to analyze your strategic plan. No data leaves your machine.
-                  </p>
-                  <button
-                    onClick={getInsights}
-                    className="w-full py-4 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-zinc-200 dark:shadow-black"
-                  >
-                    Generate Insights
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                  <p className="mt-4 text-[10px] text-zinc-400 uppercase font-bold tracking-widest">First run downloads ~1.5GB model</p>
                 </div>
-              )}
-
+              ))}
+              
               {modelLoading && (
-                <div className="text-center py-20">
-                  <Loader2 className="w-12 h-12 text-amber-500 animate-spin mx-auto mb-6" />
-                  <h3 className="text-sm font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-50">Waking up Gemma...</h3>
-                  <p className="text-xs text-zinc-500 mt-2 italic">Loading local AI weights into memory</p>
+                <div className="text-center py-6">
+                  <Loader2 className="w-8 h-8 text-amber-500 animate-spin mx-auto mb-2" />
+                  <h3 className="text-xs font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-50">Waking up Gemma...</h3>
+                  <p className="text-[10px] text-zinc-500 mt-1 italic">Loading model weights locally</p>
                 </div>
               )}
 
-              {loading && (
-                <div className="space-y-6">
-                  <div className="animate-pulse flex space-x-4">
-                    <div className="flex-1 space-y-4 py-1">
-                      <div className="h-4 bg-zinc-100 dark:bg-zinc-800 rounded w-3/4"></div>
-                      <div className="space-y-2">
-                        <div className="h-4 bg-zinc-100 dark:bg-zinc-800 rounded"></div>
-                        <div className="h-4 bg-zinc-100 dark:bg-zinc-800 rounded w-5/6"></div>
-                      </div>
+              {loading && !modelLoading && (
+                <div className="flex justify-start">
+                  <div className="p-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/50 dark:border-zinc-700/50 rounded-2xl animate-pulse">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Bot className="w-3.5 h-3.5" />
+                      <span className="text-[9px] font-black uppercase tracking-widest">Thinking...</span>
                     </div>
+                    <div className="h-4 bg-zinc-250 dark:bg-zinc-700 rounded w-24"></div>
                   </div>
-                  <p className="text-center text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] animate-pulse">Analyzing Strategic Blindspots...</p>
-                </div>
-              )}
-
-              {suggestion && (
-                <div className="prose prose-zinc dark:prose-invert max-w-none">
-                  <div className="p-5 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/50 rounded-2xl mb-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Bot className="w-4 h-4 text-amber-600" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-amber-600">Gemma Insights</span>
-                    </div>
-                    <div className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-                      <ReactMarkdown>
-                        {suggestion}
-                      </ReactMarkdown>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={getInsights}
-                    className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"
-                  >
-                    <Sparkles className="w-3 h-3" />
-                    Regenerate Insights
-                  </button>
                 </div>
               )}
 
               {error && (
-                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/50 rounded-xl">
-                  <p className="text-xs text-red-600 dark:text-red-400 font-medium leading-relaxed">{error}</p>
+                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/50 rounded-xl text-xs text-red-650 dark:text-red-400 font-medium">
+                  {error}
                 </div>
               )}
+              <div ref={messagesEndRef} />
             </div>
 
-            {/* Footer */}
-            <div className="p-6 border-t border-zinc-100 dark:border-zinc-800">
-              <div className="flex items-center gap-2 text-zinc-400 mb-4">
-                <Shield className="w-3 h-3" />
-                <span className="text-[9px] font-bold uppercase tracking-widest">100% On-Device • Private • Secure</span>
+            {/* Input Box with Voice Integration */}
+            <div className="p-6 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <textarea
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                  placeholder="Ask Kettle AI a question..."
+                  className="flex-1 min-h-[44px] max-h-24 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 ring-blue-500/20 text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-650 resize-none font-semibold"
+                  rows={1}
+                />
+                
+                {isSupported && (
+                  <button
+                    type="button"
+                    onClick={toggleListening}
+                    className={`p-2.5 rounded-xl transition-all duration-300 flex items-center justify-center shrink-0 border border-zinc-200 dark:border-zinc-800 ${
+                      isListening
+                        ? 'bg-red-500/20 text-red-500 dark:text-red-400 animate-pulse ring-2 ring-red-500/40 border-transparent'
+                        : 'bg-white dark:bg-zinc-950 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
+                    }`}
+                    title={isListening ? 'Stop dictating' : 'Voice search / dictate'}
+                  >
+                    {isListening ? (
+                      <MicOff className="w-4 h-4 text-red-500 dark:text-red-400" />
+                    ) : (
+                      <Mic className="w-4 h-4" />
+                    )}
+                  </button>
+                )}
+
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!inputValue.trim() || loading || modelLoading}
+                  className={`p-2.5 rounded-xl transition-all duration-300 flex items-center justify-center shrink-0 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:hover:bg-blue-600 shadow-md shadow-blue-500/10`}
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+              
+              <div className="flex items-center gap-2 text-zinc-450 dark:text-zinc-550 justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Shield className="w-3.5 h-3.5" />
+                  <span className="text-[9px] font-black uppercase tracking-widest">100% Local Model</span>
+                </div>
+                <span className="text-[9px] font-black uppercase tracking-widest">Kettle Strat v1.0</span>
               </div>
             </div>
           </motion.div>
@@ -237,7 +347,7 @@ export const AIConsultant: React.FC<AIConsultantProps> = ({ canvasData, isOpen, 
   );
 };
 
-// Mock Shield icon since I didn't import it
+// Mock Shield icon
 const Shield = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />

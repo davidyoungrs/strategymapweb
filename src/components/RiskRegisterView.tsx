@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   AlertTriangle, 
   Plus, 
   Trash2,
   ArrowLeft,
   ChevronDown,
-  Sparkles
+  Sparkles,
+  Mic,
+  MicOff
 } from 'lucide-react';
 import { CanvasData, RiskRegisterItem } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -66,6 +68,96 @@ export const RiskRegisterView: React.FC<RiskRegisterViewProps> = ({
   onBack
 }) => {
   const risks = canvasData.riskRegister || [];
+  const [activeField, setActiveField] = useState<{ id: string; field: 'risk' | 'mitigation' } | null>(null);
+  const [isSupported, setIsSupported] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const activeListeningFieldRef = useRef<{ id: string; field: 'risk' | 'mitigation' } | null>(null);
+  const initialTextRef = useRef('');
+  const canvasDataRef = useRef(canvasData);
+  const setCanvasDataRef = useRef(setCanvasData);
+
+  useEffect(() => {
+    canvasDataRef.current = canvasData;
+    setCanvasDataRef.current = setCanvasData;
+  }, [canvasData, setCanvasData]);
+
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      setIsSupported(true);
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event: any) => {
+        let sessionTranscript = '';
+        for (let i = 0; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            sessionTranscript += event.results[i][0].transcript + ' ';
+          }
+        }
+        
+        const cleanSessionTranscript = sessionTranscript.trim();
+        const currentActive = activeListeningFieldRef.current;
+        if (cleanSessionTranscript && currentActive) {
+          const baseText = initialTextRef.current.trim();
+          const updatedValue = baseText 
+            ? `${baseText} ${cleanSessionTranscript}` 
+            : cleanSessionTranscript;
+          
+          setCanvasDataRef.current(prev => ({
+            ...prev,
+            riskRegister: (prev.riskRegister || []).map(r => 
+              r.id === currentActive.id ? { ...r, [currentActive.field]: updatedValue } : r
+            )
+          }));
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        if (event.error !== 'aborted') {
+          console.error('Speech recognition error in Risk Register:', event.error);
+        }
+        setActiveField(null);
+        activeListeningFieldRef.current = null;
+      };
+
+      recognition.onend = () => {
+        setActiveField(null);
+        activeListeningFieldRef.current = null;
+      };
+
+      recognitionRef.current = recognition;
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, []);
+
+  const toggleListening = (id: string, field: 'risk' | 'mitigation') => {
+    if (!recognitionRef.current) return;
+
+    if (activeField && activeField.id === id && activeField.field === field) {
+      recognitionRef.current.stop();
+      setActiveField(null);
+      return;
+    }
+
+    const item = (canvasDataRef.current.riskRegister || []).find(r => r.id === id);
+    initialTextRef.current = item ? item[field] : '';
+    activeListeningFieldRef.current = { id, field };
+    setActiveField({ id, field });
+    try {
+      recognitionRef.current.start();
+    } catch (error) {
+      console.error('Failed to start speech recognition in Risk Register:', error);
+      setActiveField(null);
+    }
+  };
 
   const addRow = () => {
     const newRisk: RiskRegisterItem = {
@@ -138,7 +230,7 @@ export const RiskRegisterView: React.FC<RiskRegisterViewProps> = ({
         </button>
       </div>
 
-      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl overflow-hidden">
+      <div className="bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl shadow-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -178,13 +270,33 @@ export const RiskRegisterView: React.FC<RiskRegisterViewProps> = ({
                         />
                       </td>
                       <td className="px-6 py-4">
-                        <textarea
-                          value={risk.risk}
-                          onChange={(e) => updateRow(risk.id, { risk: e.target.value })}
-                          placeholder={risk.type === 'Risk' ? "Potential threat..." : "Market opportunity..."}
-                          className="w-full bg-transparent border-none outline-none resize-none text-sm font-medium text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-300 dark:placeholder:text-zinc-800"
-                          rows={2}
-                        />
+                        <div className="flex items-center gap-2">
+                          <textarea
+                            value={risk.risk}
+                            onChange={(e) => updateRow(risk.id, { risk: e.target.value })}
+                            placeholder={risk.type === 'Risk' ? "Potential threat..." : "Market opportunity..."}
+                            className="w-full bg-transparent border-none outline-none resize-none text-sm font-bold text-zinc-805 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-650"
+                            rows={2}
+                          />
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening(risk.id, 'risk')}
+                              className={`p-1.5 rounded-lg transition-all duration-300 flex items-center justify-center shrink-0 ${
+                                activeField?.id === risk.id && activeField?.field === 'risk'
+                                  ? 'bg-red-500/20 text-red-500 dark:text-red-400 animate-pulse ring-2 ring-red-500/40'
+                                  : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
+                              }`}
+                              title={activeField?.id === risk.id && activeField?.field === 'risk' ? 'Stop recording' : 'Voice-to-text'}
+                            >
+                              {activeField?.id === risk.id && activeField?.field === 'risk' ? (
+                                <MicOff className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
+                              ) : (
+                                <Mic className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-center">
                         <LevelBadge 
@@ -201,20 +313,40 @@ export const RiskRegisterView: React.FC<RiskRegisterViewProps> = ({
                         />
                       </td>
                       <td className="px-6 py-4">
-                        <textarea
-                          value={risk.mitigation}
-                          onChange={(e) => updateRow(risk.id, { mitigation: e.target.value })}
-                          placeholder={risk.type === 'Risk' ? "Mitigation plan..." : "Capture strategy..."}
-                          className={`w-full bg-transparent border-none outline-none resize-none text-sm font-medium placeholder:text-zinc-300 dark:placeholder:text-zinc-800 italic ${
-                            risk.type === 'Risk' ? 'text-zinc-600 dark:text-zinc-400' : 'text-emerald-600 dark:text-emerald-400'
-                          }`}
-                          rows={2}
-                        />
+                        <div className="flex items-center gap-2">
+                          <textarea
+                            value={risk.mitigation}
+                            onChange={(e) => updateRow(risk.id, { mitigation: e.target.value })}
+                            placeholder={risk.type === 'Risk' ? "Mitigation plan..." : "Capture strategy..."}
+                            className={`w-full bg-transparent border-none outline-none resize-none text-sm font-bold placeholder:text-zinc-400 dark:placeholder:text-zinc-650 italic ${
+                              risk.type === 'Risk' ? 'text-zinc-700 dark:text-zinc-300' : 'text-emerald-700 dark:text-emerald-450'
+                            }`}
+                            rows={2}
+                          />
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening(risk.id, 'mitigation')}
+                              className={`p-1.5 rounded-lg transition-all duration-300 flex items-center justify-center shrink-0 ${
+                                activeField?.id === risk.id && activeField?.field === 'mitigation'
+                                  ? 'bg-red-500/20 text-red-500 dark:text-red-400 animate-pulse ring-2 ring-red-500/40'
+                                  : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
+                              }`}
+                              title={activeField?.id === risk.id && activeField?.field === 'mitigation' ? 'Stop recording' : 'Voice-to-text'}
+                            >
+                              {activeField?.id === risk.id && activeField?.field === 'mitigation' ? (
+                                <MicOff className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
+                              ) : (
+                                <Mic className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <button 
                           onClick={() => removeRow(risk.id)}
-                          className="p-2 text-zinc-300 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                          className="p-2 text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

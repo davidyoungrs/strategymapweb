@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StrategyMapData, StrategyObjective, CanvasData } from '../types';
-import { Plus, Trash2, ArrowUp, ChevronDown, Activity } from 'lucide-react';
+import { Plus, Trash2, ArrowUp, ChevronDown, Activity, Mic, MicOff } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -23,6 +23,97 @@ export const StrategyMap: React.FC<StrategyMapProps> = ({
   userCanvases,
   onSelectCanvas
 }) => {
+  const [activeField, setActiveField] = useState<{ perspective: PerspectiveKey; id: string } | null>(null);
+  const [isSupported, setIsSupported] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const activeListeningFieldRef = useRef<{ perspective: PerspectiveKey; id: string } | null>(null);
+  const initialTextRef = useRef('');
+  const dataRef = useRef(data);
+  const onChangeRef = useRef(onChange);
+
+  useEffect(() => {
+    dataRef.current = data;
+    onChangeRef.current = onChange;
+  }, [data, onChange]);
+
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      setIsSupported(true);
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event: any) => {
+        let sessionTranscript = '';
+        for (let i = 0; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            sessionTranscript += event.results[i][0].transcript + ' ';
+          }
+        }
+        
+        const cleanSessionTranscript = sessionTranscript.trim();
+        const currentActive = activeListeningFieldRef.current;
+        if (cleanSessionTranscript && currentActive) {
+          const baseText = initialTextRef.current.trim();
+          const updatedValue = baseText 
+            ? `${baseText} ${cleanSessionTranscript}` 
+            : cleanSessionTranscript;
+          
+          onChangeRef.current({
+            ...dataRef.current,
+            [currentActive.perspective]: (dataRef.current[currentActive.perspective] || []).map(obj => 
+              obj.id === currentActive.id ? { ...obj, text: updatedValue } : obj
+            )
+          });
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        if (event.error !== 'aborted') {
+          console.error('Speech recognition error in Strategy Map:', event.error);
+        }
+        setActiveField(null);
+        activeListeningFieldRef.current = null;
+      };
+
+      recognition.onend = () => {
+        setActiveField(null);
+        activeListeningFieldRef.current = null;
+      };
+
+      recognitionRef.current = recognition;
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, []);
+
+  const toggleListening = (perspective: PerspectiveKey, id: string) => {
+    if (!recognitionRef.current) return;
+
+    if (activeField && activeField.perspective === perspective && activeField.id === id) {
+      recognitionRef.current.stop();
+      setActiveField(null);
+      return;
+    }
+
+    const obj = (dataRef.current[perspective] || []).find(o => o.id === id);
+    initialTextRef.current = obj ? obj.text : '';
+    activeListeningFieldRef.current = { perspective, id };
+    setActiveField({ perspective, id });
+    try {
+      recognitionRef.current.start();
+    } catch (error) {
+      console.error('Failed to start speech recognition in Strategy Map:', error);
+      setActiveField(null);
+    }
+  };
+
   const perspectives: { key: PerspectiveKey; label: string; color: string }[] = [
     { key: 'financial', label: 'Financial', color: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100' },
     { key: 'customer', label: 'Customer', color: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-100' },
@@ -93,86 +184,105 @@ export const StrategyMap: React.FC<StrategyMapProps> = ({
             placeholder="Map Subtitle"
           />
         </div>
-    </div>
-    
-    <div className="flex flex-col gap-8 relative">
-      {/* Visual Causality Line */}
-      <div className="absolute left-1/2 top-10 bottom-10 w-0.5 bg-gradient-to-b from-emerald-500/20 via-blue-500/20 to-zinc-500/20 -translate-x-1/2 hidden md:block" />
-
-
-      <div className="flex flex-col gap-4">
-        {perspectives.map((p, idx) => (
-          <motion.div 
-            key={p.key}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className={cn("relative p-8 rounded-[2rem] border-2 transition-all shadow-sm", p.color)}
-          >
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white/50 dark:bg-zinc-900/50 flex items-center justify-center border border-current/10">
-                  <Activity className="w-4 h-4 opacity-70" />
-                </div>
-                <h3 className="text-sm font-black uppercase tracking-widest">{p.label}</h3>
-              </div>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => addObjective(p.key)}
-                className="p-2 hover:bg-white/50 dark:hover:bg-zinc-800/50 rounded-xl transition-colors border border-current/10"
-              >
-                <Plus className="w-4 h-4" />
-              </motion.button>
-            </div>
-            
-            <div className="flex flex-wrap gap-4 justify-center relative z-10">
-              <AnimatePresence mode="popLayout">
-                {data[p.key].map((obj) => (
-                  <motion.div 
-                    key={obj.id}
-                    layout
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.8, opacity: 0 }}
-                    className="group relative flex items-center gap-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md px-5 py-4 rounded-2xl shadow-lg shadow-zinc-200/50 dark:shadow-none border border-zinc-200/50 dark:border-zinc-800/50 min-w-[200px] max-w-[260px] hover:border-blue-500/50 transition-colors"
-                  >
-                    <textarea
-                      value={obj.text}
-                      onChange={(e) => updateObjective(p.key, obj.id, e.target.value)}
-                      className="w-full bg-transparent border-none focus:ring-0 text-sm font-bold resize-none overflow-hidden leading-tight p-0 text-zinc-800 dark:text-zinc-200"
-                      rows={2}
-                    />
-                    <button
-                      onClick={() => removeObjective(p.key, obj.id)}
-                      className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-md hover:scale-110 active:scale-90"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-              {data[p.key].length === 0 && (
-                <div className="text-xs font-bold uppercase tracking-widest opacity-30 py-8">No objectives defined</div>
-              )}
-            </div>
-            
-            {p.key !== 'financial' && (
-              <motion.div 
-                animate={{ y: [0, -4, 0] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-                className="absolute -top-6 left-1/2 -translate-x-1/2 z-20"
-              >
-                <div className="bg-white dark:bg-zinc-900 p-2 rounded-full border-2 border-zinc-100 dark:border-zinc-800 shadow-xl">
-                  <ArrowUp className="w-4 h-4 text-blue-500" />
-                </div>
-              </motion.div>
-            )}
-          </motion.div>
-        ))}
       </div>
-    </div>
       
+      <div className="flex flex-col gap-8 relative">
+        {/* Visual Causality Line */}
+        <div className="absolute left-1/2 top-10 bottom-10 w-0.5 bg-gradient-to-b from-emerald-500/20 via-blue-500/20 to-zinc-500/20 -translate-x-1/2 hidden md:block" />
+
+        <div className="flex flex-col gap-4">
+          {perspectives.map((p, idx) => (
+            <motion.div 
+              key={p.key}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              className={cn("relative p-8 rounded-[2rem] border-2 transition-all shadow-sm", p.color)}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-white/50 dark:bg-zinc-900/50 flex items-center justify-center border border-current/10">
+                    <Activity className="w-4 h-4 opacity-70" />
+                  </div>
+                  <h3 className="text-sm font-black uppercase tracking-widest">{p.label}</h3>
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => addObjective(p.key)}
+                  className="p-2 hover:bg-white/50 dark:hover:bg-zinc-800/50 rounded-xl transition-colors border border-current/10"
+                >
+                  <Plus className="w-4 h-4" />
+                </motion.button>
+              </div>
+              
+              <div className="flex flex-wrap gap-4 justify-center relative z-10">
+                <AnimatePresence mode="popLayout">
+                  {(data[p.key] || []).map((obj) => (
+                    <motion.div 
+                      key={obj.id}
+                      layout
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.8, opacity: 0 }}
+                      className="group relative flex items-center gap-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md px-5 py-4 rounded-2xl shadow-lg shadow-zinc-200/50 dark:shadow-none border border-zinc-200/50 dark:border-zinc-800/50 min-w-[220px] max-w-[280px] hover:border-blue-500/50 transition-colors"
+                    >
+                      <textarea
+                        value={obj.text}
+                        onChange={(e) => updateObjective(p.key, obj.id, e.target.value)}
+                        className="w-full bg-transparent border-none focus:ring-0 text-sm font-bold resize-none overflow-hidden leading-tight p-0 text-zinc-805 dark:text-zinc-100"
+                        rows={2}
+                      />
+                      
+                      {isSupported && (
+                        <button
+                          type="button"
+                          onClick={() => toggleListening(p.key, obj.id)}
+                          className={`p-1 rounded-md transition-all duration-300 flex items-center justify-center shrink-0 ${
+                            activeField?.perspective === p.key && activeField?.id === obj.id
+                              ? 'bg-red-500/20 text-red-500 dark:text-red-400 animate-pulse ring-2 ring-red-500/40'
+                              : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
+                          }`}
+                          title={activeField?.perspective === p.key && activeField?.id === obj.id ? 'Stop recording' : 'Voice-to-text'}
+                        >
+                          {activeField?.perspective === p.key && activeField?.id === obj.id ? (
+                            <MicOff className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
+                          ) : (
+                            <Mic className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => removeObjective(p.key, obj.id)}
+                        className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-md hover:scale-110 active:scale-90"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+                {(data[p.key] || []).length === 0 && (
+                  <div className="text-xs font-bold uppercase tracking-widest opacity-30 py-8">No objectives defined</div>
+                )}
+              </div>
+              
+              {p.key !== 'financial' && (
+                <motion.div 
+                  animate={{ y: [0, -4, 0] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="absolute -top-6 left-1/2 -translate-x-1/2 z-20"
+                >
+                  <div className="bg-white dark:bg-zinc-900 p-2 rounded-full border-2 border-zinc-100 dark:border-zinc-800 shadow-xl">
+                    <ArrowUp className="w-4 h-4 text-blue-500" />
+                  </div>
+                </motion.div>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+        
       <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/30">
         <h4 className="text-sm font-bold text-blue-900 dark:text-blue-100 mb-2">How it works</h4>
         <p className="text-xs text-blue-800/70 dark:text-blue-200/60 leading-relaxed">
