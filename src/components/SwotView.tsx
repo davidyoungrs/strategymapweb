@@ -46,6 +46,7 @@ export function SwotView({
       recognition.lang = 'en-US';
 
       recognition.onresult = (event: any) => {
+        console.log('Speech recognition onresult triggered', event);
         let sessionTranscript = '';
         for (let i = 0; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
@@ -55,12 +56,14 @@ export function SwotView({
         
         const cleanSessionTranscript = sessionTranscript.trim();
         const currentActiveField = activeListeningFieldRef.current;
+        console.log('Session transcript:', cleanSessionTranscript, 'Active field:', currentActiveField);
         if (cleanSessionTranscript && currentActiveField) {
           const baseText = initialTextRef.current.trim();
           const formattedTranscript = `- ${cleanSessionTranscript}`;
           const updatedValue = baseText 
             ? `${baseText}\n${formattedTranscript}` 
             : formattedTranscript;
+          console.log('Updating field with value:', updatedValue);
           onChangeRef.current({
             ...dataRef.current,
             [currentActiveField]: updatedValue
@@ -69,6 +72,7 @@ export function SwotView({
       };
 
       recognition.onerror = (event: any) => {
+        console.error('Speech recognition onerror triggered:', event.error);
         if (event.error !== 'aborted') {
           console.error('Speech recognition error:', event.error);
         }
@@ -76,6 +80,7 @@ export function SwotView({
       };
 
       recognition.onend = () => {
+        console.log('Speech recognition onend triggered');
         setActiveField(null);
       };
 
@@ -90,9 +95,14 @@ export function SwotView({
   }, []);
 
   const toggleListening = (field: keyof SwotData) => {
-    if (!recognitionRef.current) return;
+    console.log('toggleListening clicked for field:', field, 'current activeField:', activeField);
+    if (!recognitionRef.current) {
+      console.warn('Speech recognition not supported or not initialized.');
+      return;
+    }
 
     if (activeField) {
+      console.log('Stopping active speech recognition');
       recognitionRef.current.stop();
       setActiveField(null);
       return;
@@ -102,6 +112,7 @@ export function SwotView({
     activeListeningFieldRef.current = field;
     setActiveField(field);
     try {
+      console.log('Starting speech recognition for:', field, 'initial text:', initialTextRef.current);
       recognitionRef.current.start();
     } catch (error) {
       console.error('Failed to start speech recognition:', error);
