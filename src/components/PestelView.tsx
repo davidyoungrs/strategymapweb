@@ -47,10 +47,10 @@ const PestelCell: React.FC<PestelCellProps> = ({
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <div className={`p-8 border border-zinc-100 dark:border-zinc-800 flex flex-col group transition-all duration-300 ${
+    <div className={`p-8 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl flex flex-col group transition-all duration-300 min-h-[300px] ${
       isFocused 
-        ? `bg-${color}-50/50 dark:bg-${color}-900/10 border-${color}-100 dark:border-${color}-900/30 ring-1 ring-${color}-100/50 dark:ring-${color}-900/20` 
-        : 'hover:bg-zinc-50/30 dark:hover:bg-zinc-900/30'
+        ? `bg-${color}-500/5 dark:bg-${color}-500/10 border-${color}-500/50 dark:border-${color}-400/40 ring-2 ring-${color}-500/20 dark:ring-${color}-400/10 shadow-lg shadow-${color}-500/5` 
+        : `hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-${color}-500/5 dark:hover:shadow-${color}-400/5 hover:border-${color}-500/30 dark:hover:border-${color}-400/30`
     } ${className}`}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
@@ -95,7 +95,7 @@ const PestelCell: React.FC<PestelCellProps> = ({
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className="flex-1 w-full bg-transparent resize-none outline-none text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 placeholder:text-zinc-300 dark:placeholder:text-zinc-800 font-medium transition-colors"
+        className="flex-1 w-full bg-transparent resize-none outline-none text-sm leading-relaxed text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 font-semibold scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent"
         placeholder={`Analyze ${title.toLowerCase()} factors...`}
       />
     </div>
@@ -241,7 +241,7 @@ export const PestelView: React.FC<PestelViewProps> = ({
         </div>
       </div>
 
-      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 min-h-[700px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <PestelCell
           icon={<Gavel className="w-5 h-5" />}
           title="Political"
@@ -252,7 +252,7 @@ export const PestelView: React.FC<PestelViewProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'political'}
           onToggleListening={() => toggleListening('political')}
-          className="border-b md:border-r"
+          className=""
         />
         <PestelCell
           icon={<TrendingUp className="w-5 h-5" />}
@@ -264,7 +264,7 @@ export const PestelView: React.FC<PestelViewProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'economic'}
           onToggleListening={() => toggleListening('economic')}
-          className="border-b lg:border-r"
+          className=""
         />
         <PestelCell
           icon={<Users className="w-5 h-5" />}
@@ -276,7 +276,7 @@ export const PestelView: React.FC<PestelViewProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'social'}
           onToggleListening={() => toggleListening('social')}
-          className="border-b md:border-r lg:border-r-0"
+          className=""
         />
         <PestelCell
           icon={<Cpu className="w-5 h-5" />}
@@ -288,7 +288,7 @@ export const PestelView: React.FC<PestelViewProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'technological'}
           onToggleListening={() => toggleListening('technological')}
-          className="border-b md:border-b-0 md:border-r lg:border-b-0 lg:border-r"
+          className=""
         />
         <PestelCell
           icon={<Leaf className="w-5 h-5" />}
@@ -300,7 +300,7 @@ export const PestelView: React.FC<PestelViewProps> = ({
           isSupported={isSupported}
           isListening={activeField === 'environmental'}
           onToggleListening={() => toggleListening('environmental')}
-          className="border-b md:border-b-0 lg:border-b-0 lg:border-r"
+          className=""
         />
         <PestelCell
           icon={<Scale className="w-5 h-5" />}
