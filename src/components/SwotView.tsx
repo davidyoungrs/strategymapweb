@@ -19,17 +19,22 @@ export function SwotView({
   userCanvases,
   onSelectCanvas
 }: SwotViewProps) {
-  const [isListening, setIsListening] = useState(false);
+  const [activeField, setActiveField] = useState<keyof SwotData | null>(null);
   const [isSupported, setIsSupported] = useState(false);
   const recognitionRef = useRef<any>(null);
   const dataRef = useRef(data);
   const onChangeRef = useRef(onChange);
   const initialTextRef = useRef('');
+  const activeListeningFieldRef = useRef<keyof SwotData | null>(null);
 
   useEffect(() => {
     dataRef.current = data;
     onChangeRef.current = onChange;
   }, [data, onChange]);
+
+  useEffect(() => {
+    activeListeningFieldRef.current = activeField;
+  }, [activeField]);
 
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -49,15 +54,16 @@ export function SwotView({
         }
         
         const cleanSessionTranscript = sessionTranscript.trim();
-        if (cleanSessionTranscript) {
+        const currentActiveField = activeListeningFieldRef.current;
+        if (cleanSessionTranscript && currentActiveField) {
           const baseText = initialTextRef.current.trim();
           const formattedTranscript = `- ${cleanSessionTranscript}`;
-          const updatedStrengths = baseText 
+          const updatedValue = baseText 
             ? `${baseText}\n${formattedTranscript}` 
             : formattedTranscript;
           onChangeRef.current({
             ...dataRef.current,
-            strengths: updatedStrengths
+            [currentActiveField]: updatedValue
           });
         }
       };
@@ -66,11 +72,11 @@ export function SwotView({
         if (event.error !== 'aborted') {
           console.error('Speech recognition error:', event.error);
         }
-        setIsListening(false);
+        setActiveField(null);
       };
 
       recognition.onend = () => {
-        setIsListening(false);
+        setActiveField(null);
       };
 
       recognitionRef.current = recognition;
@@ -83,20 +89,23 @@ export function SwotView({
     };
   }, []);
 
-  const toggleListening = () => {
+  const toggleListening = (field: keyof SwotData) => {
     if (!recognitionRef.current) return;
 
-    if (isListening) {
+    if (activeField) {
       recognitionRef.current.stop();
-      setIsListening(false);
-    } else {
-      initialTextRef.current = dataRef.current.strengths || '';
-      try {
-        recognitionRef.current.start();
-        setIsListening(true);
-      } catch (error) {
-        console.error('Failed to start speech recognition:', error);
-      }
+      setActiveField(null);
+      return;
+    }
+
+    initialTextRef.current = dataRef.current[field] || '';
+    activeListeningFieldRef.current = field;
+    setActiveField(field);
+    try {
+      recognitionRef.current.start();
+    } catch (error) {
+      console.error('Failed to start speech recognition:', error);
+      setActiveField(null);
     }
   };
 
@@ -157,15 +166,15 @@ export function SwotView({
               {isSupported && (
                 <button
                   type="button"
-                  onClick={toggleListening}
+                  onClick={() => toggleListening('strengths')}
                   className={`p-1.5 rounded-lg transition-all duration-300 flex items-center justify-center ${
-                    isListening
+                    activeField === 'strengths'
                       ? 'bg-red-500/20 text-red-500 dark:text-red-400 animate-pulse ring-2 ring-red-500/40'
                       : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
                   }`}
-                  title={isListening ? 'Stop recording strengths' : 'Start voice-to-text strengths'}
+                  title={activeField === 'strengths' ? 'Stop recording strengths' : 'Start voice-to-text strengths'}
                 >
-                  {isListening ? (
+                  {activeField === 'strengths' ? (
                     <MicOff className="w-4 h-4 text-red-500 dark:text-red-400" />
                   ) : (
                     <Mic className="w-4 h-4" />
@@ -189,6 +198,24 @@ export function SwotView({
             <div className="flex items-center gap-3 text-amber-600 dark:text-amber-400">
               <AlertTriangle className="w-6 h-6" />
               <h3 className="text-lg font-black tracking-tight uppercase">Weaknesses</h3>
+              {isSupported && (
+                <button
+                  type="button"
+                  onClick={() => toggleListening('weaknesses')}
+                  className={`p-1.5 rounded-lg transition-all duration-300 flex items-center justify-center ${
+                    activeField === 'weaknesses'
+                      ? 'bg-red-500/20 text-red-500 dark:text-red-400 animate-pulse ring-2 ring-red-500/40'
+                      : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
+                  }`}
+                  title={activeField === 'weaknesses' ? 'Stop recording weaknesses' : 'Start voice-to-text weaknesses'}
+                >
+                  {activeField === 'weaknesses' ? (
+                    <MicOff className="w-4 h-4 text-red-500 dark:text-red-400" />
+                  ) : (
+                    <Mic className="w-4 h-4" />
+                  )}
+                </button>
+              )}
             </div>
             <span className="text-[8px] font-bold text-zinc-300 dark:text-zinc-700 uppercase tracking-widest">Internal / Negative</span>
           </div>
@@ -206,6 +233,24 @@ export function SwotView({
             <div className="flex items-center gap-3 text-blue-600 dark:text-blue-400">
               <TrendingUp className="w-6 h-6" />
               <h3 className="text-lg font-black tracking-tight uppercase">Opportunities</h3>
+              {isSupported && (
+                <button
+                  type="button"
+                  onClick={() => toggleListening('opportunities')}
+                  className={`p-1.5 rounded-lg transition-all duration-300 flex items-center justify-center ${
+                    activeField === 'opportunities'
+                      ? 'bg-red-500/20 text-red-500 dark:text-red-400 animate-pulse ring-2 ring-red-500/40'
+                      : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
+                  }`}
+                  title={activeField === 'opportunities' ? 'Stop recording opportunities' : 'Start voice-to-text opportunities'}
+                >
+                  {activeField === 'opportunities' ? (
+                    <MicOff className="w-4 h-4 text-red-500 dark:text-red-400" />
+                  ) : (
+                    <Mic className="w-4 h-4" />
+                  )}
+                </button>
+              )}
             </div>
             <span className="text-[8px] font-bold text-zinc-300 dark:text-zinc-700 uppercase tracking-widest">External / Positive</span>
           </div>
@@ -223,6 +268,24 @@ export function SwotView({
             <div className="flex items-center gap-3 text-red-600 dark:text-red-400">
               <ShieldAlert className="w-6 h-6" />
               <h3 className="text-lg font-black tracking-tight uppercase">Threats</h3>
+              {isSupported && (
+                <button
+                  type="button"
+                  onClick={() => toggleListening('threats')}
+                  className={`p-1.5 rounded-lg transition-all duration-300 flex items-center justify-center ${
+                    activeField === 'threats'
+                      ? 'bg-red-500/20 text-red-500 dark:text-red-400 animate-pulse ring-2 ring-red-500/40'
+                      : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
+                  }`}
+                  title={activeField === 'threats' ? 'Stop recording threats' : 'Start voice-to-text threats'}
+                >
+                  {activeField === 'threats' ? (
+                    <MicOff className="w-4 h-4 text-red-500 dark:text-red-400" />
+                  ) : (
+                    <Mic className="w-4 h-4" />
+                  )}
+                </button>
+              )}
             </div>
             <span className="text-[8px] font-bold text-zinc-300 dark:text-zinc-700 uppercase tracking-widest">External / Negative</span>
           </div>
