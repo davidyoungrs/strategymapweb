@@ -30,7 +30,7 @@ const Methodology: React.FC = () => {
           <div className="p-10 hover:bg-zinc-900 transition-colors group">
             <div className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-6">STEP // 03</div>
             <h3 className="text-xl font-black text-zinc-100 mb-4 uppercase">Execute & Optimize</h3>
-            <p className="text-base text-zinc-400 mb-6">Implementation of actionable outcomes with continuous technical oversight to ensure long-term stability.</p>
+            <p className="text-base text-zinc-400 mb-6">Implementation of actionable outcomes for each idetifed problem with continuous technical oversight to ensure long-term stability.</p>
             <div className="w-12 h-px bg-zinc-700 group-hover:w-full transition-all duration-500"></div>
           </div>
         </div>
