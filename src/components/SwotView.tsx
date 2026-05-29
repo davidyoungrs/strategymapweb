@@ -49,9 +49,10 @@ export function SwotView({
         
         if (newTranscript.trim()) {
           const currentStrengths = dataRef.current.strengths || '';
+          const formattedTranscript = `- ${newTranscript.trim()}`;
           const updatedStrengths = currentStrengths.trim() 
-            ? `${currentStrengths.trim()} ${newTranscript.trim()}` 
-            : newTranscript.trim();
+            ? `${currentStrengths.trim()}\n${formattedTranscript}` 
+            : formattedTranscript;
           onChangeRef.current({
             ...dataRef.current,
             strengths: updatedStrengths
