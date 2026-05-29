@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SwotData, CanvasData } from '../types';
-import { Zap, AlertTriangle, TrendingUp, ShieldAlert, ChevronDown, Mic, MicOff } from 'lucide-react';
+import { Zap, AlertTriangle, TrendingUp, ShieldAlert, ChevronDown, Mic, MicOff, Sparkles } from 'lucide-react';
+import { SwotGuidedDrawer } from './modals/SwotGuidedDrawer';
 
 interface SwotViewProps {
   data: SwotData;
@@ -19,6 +20,7 @@ export function SwotView({
   userCanvases,
   onSelectCanvas
 }: SwotViewProps) {
+  const [isGuidedOpen, setIsGuidedOpen] = useState(false);
   const [activeField, setActiveField] = useState<keyof SwotData | null>(null);
   const [isSupported, setIsSupported] = useState(false);
   const recognitionRef = useRef<any>(null);
@@ -161,7 +163,14 @@ export function SwotView({
           />
         </div>
         <div className="text-right hidden md:block pt-4">
-          <p className="text-[10px] text-zinc-400 font-medium tracking-widest uppercase">Internal vs External Factors</p>
+          <p className="text-[10px] text-zinc-400 font-medium tracking-widest uppercase mb-2">Internal vs External Factors</p>
+          <button
+            onClick={() => setIsGuidedOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-md shadow-blue-500/10"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-blue-100" />
+            Guided SWOT
+          </button>
         </div>
       </div>
 
@@ -306,6 +315,12 @@ export function SwotView({
           />
         </div>
       </div>
+      <SwotGuidedDrawer
+        isOpen={isGuidedOpen}
+        onClose={() => setIsGuidedOpen(false)}
+        onApply={(distilledData) => onChange(distilledData)}
+        currentData={data}
+      />
     </div>
   );
 }
