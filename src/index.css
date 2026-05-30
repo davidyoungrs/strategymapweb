@@ -72,6 +72,59 @@
   --radius-xl: 0.5rem;
   --radius-2xl: 0.75rem;
   --radius-3xl: 1rem;
+
+  /* Additional Industrial Tokens from DESIGN2.md */
+  --color-surface: #111417;
+  --color-surface-dim: #111417;
+  --color-surface-bright: #37393d;
+  --color-surface-container-lowest: #0b0f11;
+  --color-surface-container-low: #191c1f;
+  --color-surface-container: #1d2023;
+  --color-surface-container-high: #272a2d;
+  --color-surface-container-highest: #323538;
+  --color-on-surface: #e1e2e6;
+  --color-on-surface-variant: #bdcab6;
+  --color-inverse-surface: #e1e2e6;
+  --color-inverse-on-surface: #2e3134;
+  --color-outline: #889482;
+  --color-outline-variant: #3e4a3b;
+  --color-surface-tint: #6adf61;
+  
+  --color-primary-container: #7ef473;
+  --color-on-primary: #003a04;
+  --color-on-primary-container: #006f10;
+  --color-inverse-primary: #006e10;
+  --color-secondary-container: #24522d;
+  --color-on-secondary: #073916;
+  --color-on-secondary-container: #92c595;
+  --color-tertiary-container: #dddad6;
+  --color-on-tertiary: #31302e;
+  --color-on-tertiary-container: #605f5c;
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+  --color-primary-fixed: #86fc7a;
+  --color-primary-fixed-dim: #6adf61;
+  --color-on-primary-fixed: #002202;
+  --color-on-primary-fixed-variant: #005309;
+  --color-secondary-fixed: #bbf0bd;
+  --color-secondary-fixed-dim: #a0d3a2;
+  --color-on-secondary-fixed: #002109;
+  --color-on-secondary-fixed-variant: #22502b;
+  --color-tertiary-fixed: #e5e2de;
+  --color-tertiary-fixed-dim: #c8c6c2;
+  --color-on-tertiary-fixed: #1c1c19;
+  --color-on-tertiary-fixed-variant: #474744;
+  --color-background: #111417;
+  --color-on-background: #e1e2e6;
+  --color-surface-variant: #323538;
+
+  --spacing-gutter: 24px;
+  --spacing-margin-desktop: 64px;
+  --spacing-margin-tablet: 32px;
+  --spacing-margin-mobile: 16px;
+  --spacing-container-max: 1280px;
 }
 
 @layer base {
@@ -134,4 +187,80 @@
 
 .animate-subtle-float {
   animation: subtle-float 3s ease-in-out infinite;
+}
+
+@layer utilities {
+  .font-display-lg {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 56px;
+    letter-spacing: -0.02em;
+  }
+  .font-headline-lg {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 40px;
+    letter-spacing: -0.01em;
+  }
+  .font-headline-lg-mobile {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 36px;
+  }
+  .font-headline-md {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 32px;
+  }
+  .font-body-lg {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 28px;
+  }
+  .font-body-md {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+  }
+  .font-label-technical {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 0.05em;
+  }
+  .font-label-sm {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+  }
+
+  /* Text utility mappings for compatibility */
+  .text-headline-lg {
+    font-size: 32px;
+    line-height: 40px;
+  }
+  .text-headline-md {
+    font-size: 24px;
+    line-height: 32px;
+  }
+  .text-body-lg {
+    font-size: 18px;
+    line-height: 28px;
+  }
+  .text-body-md {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .text-label-technical {
+    font-size: 13px;
+    line-height: 16px;
+  }
 }

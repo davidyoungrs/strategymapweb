@@ -1,8 +1,32 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Hero: React.FC = () => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.12,
+        delayChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: [0.16, 1, 0.3, 1] as const
+      }
+    }
+  };
+
   return (
     <section className="relative min-h-[550px] flex items-center overflow-hidden border-b border-zinc-700 bg-zinc-950">
       <div className="absolute inset-0 z-0 opacity-40">
@@ -13,27 +37,39 @@ const Hero: React.FC = () => {
         />
       </div>
       <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent z-10"></div>
-      <div className="relative z-20 px-4 md:px-8 max-w-7xl mx-auto w-full py-20">
+      
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="relative z-20 px-4 md:px-8 max-w-7xl mx-auto w-full py-20"
+      >
         <div className="max-w-2xl">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest bg-blue-500/10 px-2 py-1 rounded">SYS: OP_READY</span>
+          <motion.div variants={itemVariants} className="flex items-center gap-2 mb-4">
+            <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest bg-blue-500/10 px-2 py-1 rounded animate-pulse">SYS: OP_READY</span>
             <div className="h-px flex-1 bg-zinc-800"></div>
-          </div>
-          <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight uppercase tracking-tighter text-zinc-100">Boiling Down Complexity.</h1>
-          <p className="text-lg font-medium text-zinc-400 mb-8 max-w-xl">
+          </motion.div>
+          
+          <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-black mb-6 leading-tight uppercase tracking-tighter text-zinc-100">
+            Boiling Down Complexity.
+          </motion.h1>
+          
+          <motion.p variants={itemVariants} className="text-lg font-medium text-zinc-400 mb-8 max-w-xl">
             Precision industrial consultancy for high-stakes environments. We simplify complex problems into actionable outcomes.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link to="/bookings" className="bg-primary text-primary-content px-8 py-4 font-bold uppercase tracking-wide rounded-xl shadow-lg shadow-primary/20 hover:brightness-110 transition-all flex items-center justify-center gap-2 text-sm">
+          </motion.p>
+          
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4">
+            <Link to="/bookings" className="bg-primary text-primary-content px-8 py-4 font-bold uppercase tracking-wide rounded-xl shadow-lg shadow-primary/20 hover:brightness-110 hover:shadow-primary/30 transition-all flex items-center justify-center gap-2 text-sm active:scale-95">
               Request a Technical Consultation
               <ArrowRight className="w-5 h-5" />
             </Link>
-            <a href="#methodology" className="border border-zinc-700 text-zinc-100 px-8 py-4 font-bold uppercase tracking-wide rounded-xl hover:bg-zinc-800 transition-all inline-block text-center flex items-center justify-center text-sm">
+            <a href="#methodology" className="border border-zinc-700 text-zinc-100 px-8 py-4 font-bold uppercase tracking-wide rounded-xl hover:bg-zinc-800 transition-all inline-block text-center flex items-center justify-center text-sm active:scale-95">
               View Methodology
             </a>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
+
       <div className="absolute bottom-8 right-8 hidden lg:block text-right z-20">
         <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
           COORD: 42.0 // SYS: PWR_STRAT<br/>
