@@ -39,11 +39,11 @@ Here is how each section of the Word template maps to our existing strategic fra
 To generate a complete, production-ready Business Plan matching the document template, the following gaps in the current database schema (`types.ts`) and frontend UI must be addressed:
 
 ### Gaps in 2. Business Details & Personnel
-- [ ] **Address & Contact Info**: No fields exist for physical address or telephone number.
-- [ ] **Legal Status & Registration**: Need fields for legal structure (e.g. LLC, Corp, Sole Proprietor), date established, and Business Registration Number.
-- [ ] **Advisers**: Need a list of legal/financial advisers.
-- [ ] **VAT Status & Web Presence**: Gaps for VAT registration indicator and online URLs.
-- [ ] **Personnel / Owner Backgrounds**: The template demands a structured table of Key Personnel:
+- [x] **Address & Contact Info**: No fields exist for physical address or telephone number.
+- [x] **Legal Status & Registration**: Need fields for legal structure (e.g. LLC, Corp, Sole Proprietor), date established, and Business Registration Number.
+- [x] **Advisers**: Need a list of legal/financial advisers.
+- [x] **VAT Status & Web Presence**: Gaps for VAT registration indicator and online URLs.
+- [x] **Personnel / Owner Backgrounds**: The template demands a structured table of Key Personnel:
   - Owner names, positions, industry experience, previous employment, key skills, qualifications, and most recent salary.
 
 ### Gaps in Product, Market & Competitor Tables
@@ -58,11 +58,11 @@ To generate a complete, production-ready Business Plan matching the document tem
 - [ ] **Equipment Table**: Operational resource details (timing, funding source, cost per unit).
 
 ### Gaps in Strategic Policy
-- [ ] **Fair Work Practices**: Detailed practices regarding modern, flexible, and diverse workforce requirements.
-- [ ] **Sustainability Policy**: Explicit details of carbon reduction, local sourcing, or circular economy practices.
+- [x] **Fair Work Practices**: Detailed practices regarding modern, flexible, and diverse workforce requirements.
+- [x] **Sustainability Policy**: Explicit details of carbon reduction, local sourcing, or circular economy practices.
 
 ### Gaps in Financial Projections
-- [ ] **Pre-trading Start-up Costs**: Detailed categories (IT/computers, stock, tools, professional fees, insurance, rent deposit, licenses, wages/recruitment).
-- [ ] **Personal Survival Budget**: Detailed calculator representing personal mortgage/rent, utilities, food, taxes, and other monthly personal expenditure vs. personal income sources.
-- [ ] **P&L Cost Breakdown**: Current projections focus on high-level Revenue, COGS, and OpEx. The business plan requires splitting out salaries, rent, banking charges, insurances, stock, depreciation, and a calculated breakeven forecast.
-- [ ] **Sourcing Finance Table**: Tracking total borrowing requirements, start-up contributions, and assets available as security.
+- [x] **Pre-trading Start-up Costs**: Detailed categories (IT/computers, stock, tools, professional fees, insurance, rent deposit, licenses, wages/recruitment).
+- [x] **Personal Survival Budget**: Detailed calculator representing personal mortgage/rent, utilities, food, taxes, and other monthly personal expenditure vs. personal income sources.
+- [x] **P&L Cost Breakdown**: Current projections focus on high-level Revenue, COGS, and OpEx. The business plan requires splitting out salaries, rent, banking charges, insurances, stock, depreciation, and a calculated breakeven forecast.
+- [x] **Sourcing Finance Table**: Tracking total borrowing requirements, start-up contributions, and assets available as security.

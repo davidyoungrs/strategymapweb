@@ -705,6 +705,14 @@ export default function App() {
                         onBack={() => navigate('/')} 
                       />
                     } />
+                    <Route path="/strategic-policy" element={
+                      <BusinessPlanView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        type="policy"
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
                   </>
                 )}
                 <Route path="/strategy-map" element={

@@ -553,5 +553,23 @@ export const BUSINESS_PLAN_GUIDANCE: Record<string, TooltipContent> = {
       "What standards guide our product development and business conduct?"
     ],
     example: "1. Privacy First (on-device AI), 2. Actionable Insights, 3. Absolute Transparency."
+  },
+  fairWorkPractices: {
+    definition: "Details of your modern, flexible, and diverse workforce requirements and fair employment practices.",
+    questions: [
+      "What is your stance on flexible, remote, or hybrid work arrangements?",
+      "How do you ensure equal opportunity, fair pay, and diversity within your team?",
+      "What measures do you have in place to support employee wellbeing and mental health?"
+    ],
+    example: "We support fully remote/flexible hybrid patterns and conduct annual pay equity audits to ensure equal compensation across all demographics."
+  },
+  sustainabilityPolicy: {
+    definition: "Explicit details regarding carbon reduction, local sourcing, and circular economy practices.",
+    questions: [
+      "What strategies do you use to measure and reduce your carbon footprint?",
+      "Do you prioritize local sourcing, fair trade, or ethical vendors in your supply chain?",
+      "How does your business incorporate circular economy principles, recycling, or waste reduction?"
+    ],
+    example: "We minimize server energy consumption through green hosting partners and source all physical materials from certified local suppliers."
   }
 };

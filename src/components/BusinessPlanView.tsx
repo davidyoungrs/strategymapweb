@@ -11,7 +11,8 @@ import {
   Trash2,
   Users,
   Check,
-  Building2
+  Building2,
+  Shield
 } from 'lucide-react';
 import { CanvasData, KeyPerson, BusinessPlanData } from '../types';
 import { motion } from 'framer-motion';
@@ -22,7 +23,7 @@ interface BusinessPlanViewProps {
   canvasData: CanvasData;
   setCanvasData: React.Dispatch<React.SetStateAction<CanvasData>>;
   onBack: () => void;
-  type: 'summary' | 'identity' | 'details';
+  type: 'summary' | 'identity' | 'details' | 'policy';
 }
 
 interface EditorSectionProps {
@@ -158,10 +159,10 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
         const cleanSessionTranscript = sessionTranscript.trim();
         const target = activeTargetRef.current;
         if (cleanSessionTranscript && target) {
-          const defaultPlan: BusinessPlanData = { executiveSummary: '', mission: '', vision: '', values: '' };
+          const defaultPlan: BusinessPlanData = { executiveSummary: '', mission: '', vision: '', values: '', fairWorkPractices: '', sustainabilityPolicy: '' };
           if (target.type === 'plan') {
             const baseText = initialTextRef.current.trim();
-            const isLongForm = ['executiveSummary', 'mission', 'vision', 'values'].includes(target.field);
+            const isLongForm = ['executiveSummary', 'mission', 'vision', 'values', 'fairWorkPractices', 'sustainabilityPolicy'].includes(target.field);
             const updatedValue = isLongForm
               ? (baseText ? `${baseText}\n- ${cleanSessionTranscript}` : `- ${cleanSessionTranscript}`)
               : (initialTextRef.current ? `${initialTextRef.current} ${cleanSessionTranscript}` : cleanSessionTranscript);
@@ -231,7 +232,14 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
       if (activeField === identifier) return; // Toggle off if clicked active button
     }
 
-    const currentPlan = canvasDataRef.current.businessPlan || { executiveSummary: '', mission: '', vision: '', values: '' };
+    const currentPlan = canvasDataRef.current.businessPlan || { 
+      executiveSummary: '', 
+      mission: '', 
+      vision: '', 
+      values: '',
+      fairWorkPractices: 'We are committed to fostering a fair, flexible, and inclusive workplace. This includes supporting modern hybrid working arrangements, maintaining clear diversity and equal opportunity policies, ensuring transparent career progression, and offering competitive, fair remuneration. We regularly review employee satisfaction and wellness initiatives to support work-life balance.',
+      sustainabilityPolicy: 'Our sustainability strategy is focused on reducing our carbon footprint and encouraging circular economy practices. We prioritize local sourcing, utilize energy-efficient technologies across our operations, actively minimize single-use waste, and partner with suppliers who align with our environmental and ethical standards.'
+    };
     
     let baseVal = '';
     if (targetType === 'plan') {
@@ -258,7 +266,14 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
 
   const updatePlan = (field: keyof NonNullable<CanvasData['businessPlan']>, value: any) => {
     setCanvasData(prev => {
-      const defaultPlan: BusinessPlanData = { executiveSummary: '', mission: '', vision: '', values: '' };
+      const defaultPlan: BusinessPlanData = { 
+        executiveSummary: '', 
+        mission: '', 
+        vision: '', 
+        values: '',
+        fairWorkPractices: 'We are committed to fostering a fair, flexible, and inclusive workplace. This includes supporting modern hybrid working arrangements, maintaining clear diversity and equal opportunity policies, ensuring transparent career progression, and offering competitive, fair remuneration. We regularly review employee satisfaction and wellness initiatives to support work-life balance.',
+        sustainabilityPolicy: 'Our sustainability strategy is focused on reducing our carbon footprint and encouraging circular economy practices. We prioritize local sourcing, utilize energy-efficient technologies across our operations, actively minimize single-use waste, and partner with suppliers who align with our environmental and ethical standards.'
+      };
       return {
         ...prev,
         businessPlan: {
@@ -269,11 +284,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
     });
   };
 
-  const plan = canvasData.businessPlan || { 
-    executiveSummary: '', 
-    mission: '', 
-    vision: '', 
-    values: '' 
+  const plan = {
+    executiveSummary: canvasData.businessPlan?.executiveSummary || '',
+    mission: canvasData.businessPlan?.mission || '',
+    vision: canvasData.businessPlan?.vision || '',
+    values: canvasData.businessPlan?.values || '',
+    businessName: canvasData.businessPlan?.businessName || '',
+    address: canvasData.businessPlan?.address || '',
+    telephone: canvasData.businessPlan?.telephone || '',
+    legalStatus: canvasData.businessPlan?.legalStatus || '',
+    dateEstablished: canvasData.businessPlan?.dateEstablished || '',
+    registrationNumber: canvasData.businessPlan?.registrationNumber || '',
+    onlinePresence: canvasData.businessPlan?.onlinePresence || '',
+    advisers: canvasData.businessPlan?.advisers || '',
+    isVatRegistered: canvasData.businessPlan?.isVatRegistered || false,
+    keyPersonnel: canvasData.businessPlan?.keyPersonnel || [],
+    fairWorkPractices: canvasData.businessPlan?.fairWorkPractices ?? 'We are committed to fostering a fair, flexible, and inclusive workplace. This includes supporting modern hybrid working arrangements, maintaining clear diversity and equal opportunity policies, ensuring transparent career progression, and offering competitive, fair remuneration. We regularly review employee satisfaction and wellness initiatives to support work-life balance.',
+    sustainabilityPolicy: canvasData.businessPlan?.sustainabilityPolicy ?? 'Our sustainability strategy is focused on reducing our carbon footprint and encouraging circular economy practices. We prioritize local sourcing, utilize energy-efficient technologies across our operations, actively minimize single-use waste, and partner with suppliers who align with our environmental and ethical standards.'
   };
 
   const addPerson = () => {
@@ -323,6 +350,8 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               ? 'Executive Summary' 
               : type === 'identity' 
               ? 'Mission, Vision & Values' 
+              : type === 'policy'
+              ? 'Strategic Policies'
               : 'Business Details & Personnel'}
           </h2>
           <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">Your Business Foundation</p>
@@ -384,6 +413,35 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               isListening={activeField === 'values'}
               onToggleListening={() => toggleListening('values')}
               tooltipContent={BUSINESS_PLAN_GUIDANCE.values}
+            />
+          </div>
+        ) : type === 'policy' ? (
+          <div className="grid grid-cols-1 gap-6">
+            <EditorSection
+              icon={<Shield className="w-6 h-6" />}
+              title="Fair Work Practices"
+              subtitle="Flexible, remote, and diverse workforce practices"
+              value={plan.fairWorkPractices}
+              onChange={(val) => updatePlan('fairWorkPractices', val)}
+              placeholder="Detail your fair work, flexible hybrid patterns, equal opportunity, and workforce strategies..."
+              minHeight="200px"
+              isSupported={isSupported}
+              isListening={activeField === 'fairWorkPractices'}
+              onToggleListening={() => toggleListening('fairWorkPractices')}
+              tooltipContent={BUSINESS_PLAN_GUIDANCE.fairWorkPractices}
+            />
+            <EditorSection
+              icon={<Shield className="w-6 h-6" />}
+              title="Sustainability Policy"
+              subtitle="Carbon reduction, local sourcing, and circular economy"
+              value={plan.sustainabilityPolicy}
+              onChange={(val) => updatePlan('sustainabilityPolicy', val)}
+              placeholder="Detail your sustainability practices, carbon offsetting, and green hosting policies..."
+              minHeight="200px"
+              isSupported={isSupported}
+              isListening={activeField === 'sustainabilityPolicy'}
+              onToggleListening={() => toggleListening('sustainabilityPolicy')}
+              tooltipContent={BUSINESS_PLAN_GUIDANCE.sustainabilityPolicy}
             />
           </div>
         ) : (
@@ -878,7 +936,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
           <div>
             <h4 className="text-sm font-bold text-amber-900 dark:text-amber-100 uppercase tracking-tight">AI Strategist Ready</h4>
             <p className="text-xs text-amber-700 dark:text-amber-400 mt-1 leading-relaxed">
-              Open the AI Strategist in the sidebar to have Gemma review your {type === 'summary' ? 'summary' : type === 'identity' ? 'mission and values' : 'business details and personnel configurations'}. It will provide feedback on completeness, structure, and strategic gaps.
+              Open the AI Strategist in the sidebar to have Gemma review your {type === 'summary' ? 'summary' : type === 'identity' ? 'mission and values' : type === 'policy' ? 'strategic policies' : 'business details and personnel configurations'}. It will provide feedback on completeness, structure, and strategic gaps.
             </p>
           </div>
         </div>

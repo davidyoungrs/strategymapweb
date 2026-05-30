@@ -117,11 +117,48 @@ export interface FinancialYear {
   year: number;
   revenue: number;
   cogs: number;
+  salaries?: number;
+  rent?: number;
+  bankingCharges?: number;
+  insurances?: number;
+  stock?: number;
+  depreciation?: number;
+  otherOpEx?: number;
   operatingExpenses: number;
+}
+
+export interface StartupCosts {
+  itComputers: number;
+  stock: number;
+  tools: number;
+  professionalFees: number;
+  insurance: number;
+  rentDeposit: number;
+  licenses: number;
+  wagesRecruitment: number;
+  other: number;
+}
+
+export interface PersonalBudget {
+  mortgageRent: number;
+  utilities: number;
+  food: number;
+  taxes: number;
+  otherExpenditure: number;
+  personalIncome: number;
+}
+
+export interface SourcingFinance {
+  borrowingRequirements: number;
+  startupContributions: number;
+  assetsSecurity: string;
 }
 
 export interface FinancialProjectionsData {
   years: FinancialYear[];
+  startupCosts?: StartupCosts;
+  personalBudget?: PersonalBudget;
+  sourcingFinance?: SourcingFinance;
 }
 
 export interface KeyPerson {
@@ -150,6 +187,8 @@ export interface BusinessPlanData {
   isVatRegistered?: boolean;
   onlinePresence?: string;
   keyPersonnel?: KeyPerson[];
+  fairWorkPractices?: string;
+  sustainabilityPolicy?: string;
 }
 
 export interface CanvasData {
