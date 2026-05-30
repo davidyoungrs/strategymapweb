@@ -88,6 +88,8 @@ const BmcGuidedDrawer = lazy(() => import('./components/modals/BmcGuidedDrawer')
 import { useCanvasData } from './hooks/useCanvasData';
 import { Routes, Route, Navigate, useLocation, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 // Landing Pages (Lazy Loaded)
 const LandingHome = lazy(() => import('./landing/pages/Home'));
@@ -273,8 +275,6 @@ export default function App() {
     if (!canvasRef.current) return;
     
     try {
-      const { default: html2canvas } = await import('html2canvas');
-      const { jsPDF } = await import('jspdf');
       const element = canvasRef.current;
       const canvas = await html2canvas(element, {
         scale: 2,
@@ -324,8 +324,6 @@ export default function App() {
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     try {
-      const { default: html2canvas } = await import('html2canvas');
-      const { jsPDF } = await import('jspdf');
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'px',
