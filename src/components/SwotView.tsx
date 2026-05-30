@@ -218,12 +218,11 @@ export function SwotView({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Strengths */}
-        <div className="bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 flex flex-col group min-h-[320px] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-emerald-500/5 dark:hover:shadow-emerald-400/5 hover:border-emerald-500/30 dark:hover:border-emerald-400/30 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500/50 dark:focus-within:ring-emerald-400/10 dark:focus-within:border-emerald-400/40">
+        <div className="relative bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 flex flex-col group min-h-[320px] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-emerald-500/5 dark:hover:shadow-emerald-400/5 hover:border-emerald-500/30 dark:hover:border-emerald-400/30 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500/50 dark:focus-within:ring-emerald-400/10 dark:focus-within:border-emerald-400/40">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3 text-emerald-600 dark:text-emerald-400">
               <Zap className="w-6 h-6 animate-pulse" />
               <h3 className="text-lg font-black tracking-tight uppercase">Strengths</h3>
-              <Tooltip content={swotGuidance.strengths} />
 
               {isSupported && (
                 <button
@@ -252,15 +251,15 @@ export function SwotView({
             className="flex-1 w-full bg-transparent resize-none outline-none text-sm text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 leading-relaxed font-semibold scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent"
             placeholder="What do we do well? What unique resources can we draw on? What do others see as our strengths?"
           />
+          <Tooltip content={swotGuidance.strengths} />
         </div>
 
         {/* Weaknesses */}
-        <div className="bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 flex flex-col group min-h-[320px] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-amber-500/5 dark:hover:shadow-amber-400/5 hover:border-amber-500/30 dark:hover:border-amber-400/30 focus-within:ring-2 focus-within:ring-amber-500/20 focus-within:border-amber-500/50 dark:focus-within:ring-amber-400/10 dark:focus-within:border-amber-400/40">
+        <div className="relative bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 flex flex-col group min-h-[320px] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-amber-500/5 dark:hover:shadow-amber-400/5 hover:border-amber-500/30 dark:hover:border-amber-400/30 focus-within:ring-2 focus-within:ring-amber-500/20 focus-within:border-amber-500/50 dark:focus-within:ring-amber-400/10 dark:focus-within:border-amber-400/40">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3 text-amber-600 dark:text-amber-400">
               <AlertTriangle className="w-6 h-6 animate-pulse" />
               <h3 className="text-lg font-black tracking-tight uppercase">Weaknesses</h3>
-              <Tooltip content={swotGuidance.weaknesses} />
 
               {isSupported && (
                 <button
@@ -289,15 +288,15 @@ export function SwotView({
             className="flex-1 w-full bg-transparent resize-none outline-none text-sm text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 leading-relaxed font-semibold scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent"
             placeholder="What could we improve? Where do we have fewer resources than others? What are others likely to see as weaknesses?"
           />
+          <Tooltip content={swotGuidance.weaknesses} />
         </div>
 
         {/* Opportunities */}
-        <div className="bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 flex flex-col group min-h-[320px] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-blue-500/5 dark:hover:shadow-blue-400/5 hover:border-blue-500/30 dark:hover:border-blue-400/30 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50 dark:focus-within:ring-blue-400/10 dark:focus-within:border-blue-400/40">
+        <div className="relative bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 flex flex-col group min-h-[320px] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-blue-500/5 dark:hover:shadow-blue-400/5 hover:border-blue-500/30 dark:hover:border-blue-400/30 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50 dark:focus-within:ring-blue-400/10 dark:focus-within:border-blue-400/40">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3 text-blue-600 dark:text-blue-400">
               <TrendingUp className="w-6 h-6 animate-pulse" />
               <h3 className="text-lg font-black tracking-tight uppercase">Opportunities</h3>
-              <Tooltip content={swotGuidance.opportunities} />
 
               {isSupported && (
                 <button
@@ -326,15 +325,15 @@ export function SwotView({
             className="flex-1 w-full bg-transparent resize-none outline-none text-sm text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 leading-relaxed font-semibold scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent"
             placeholder="What good opportunities are open to us? What trends can we take advantage of? How can we turn strengths into opportunities?"
           />
+          <Tooltip content={swotGuidance.opportunities} />
         </div>
 
         {/* Threats */}
-        <div className="bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 flex flex-col group min-h-[320px] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-red-500/5 dark:hover:shadow-red-400/5 hover:border-red-500/30 dark:hover:border-red-400/30 focus-within:ring-2 focus-within:ring-red-500/20 focus-within:border-red-500/50 dark:focus-within:ring-red-400/10 dark:focus-within:border-red-400/40">
+        <div className="relative bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 flex flex-col group min-h-[320px] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-red-500/5 dark:hover:shadow-red-400/5 hover:border-red-500/30 dark:hover:border-red-400/30 focus-within:ring-2 focus-within:ring-red-500/20 focus-within:border-red-500/50 dark:focus-within:ring-red-400/10 dark:focus-within:border-red-400/40">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3 text-red-600 dark:text-red-400">
               <ShieldAlert className="w-6 h-6 animate-pulse" />
               <h3 className="text-lg font-black tracking-tight uppercase">Threats</h3>
-              <Tooltip content={swotGuidance.threats} />
 
               {isSupported && (
                 <button
@@ -363,6 +362,7 @@ export function SwotView({
             className="flex-1 w-full bg-transparent resize-none outline-none text-sm text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 leading-relaxed font-semibold scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent"
             placeholder="What threats could harm us? What is our competition doing? What threats do our weaknesses expose us to?"
           />
+          <Tooltip content={swotGuidance.threats} />
         </div>
       </div>
       <SwotGuidedDrawer

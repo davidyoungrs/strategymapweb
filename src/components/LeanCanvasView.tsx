@@ -43,7 +43,7 @@ const LeanCell: React.FC<LeanCellProps> = ({
   const [isFocused, setIsFocused] = React.useState(false);
 
   return (
-    <div className={`p-6 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl flex flex-col group transition-all duration-300 ${
+    <div className={`relative p-6 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl flex flex-col group transition-all duration-300 ${
       isFocused
         ? 'bg-indigo-500/5 dark:bg-indigo-500/10 border-indigo-500/50 dark:border-indigo-400/40 ring-2 ring-indigo-500/20 dark:ring-indigo-400/10 shadow-lg shadow-indigo-500/5'
         : 'hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-indigo-500/5 dark:hover:shadow-indigo-400/5 hover:border-indigo-500/30 dark:hover:border-indigo-400/30'
@@ -62,7 +62,6 @@ const LeanCell: React.FC<LeanCellProps> = ({
               <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] leading-none transition-colors ${
                 isFocused || isMain ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-900 dark:text-zinc-100'
               }`}>{title}</h3>
-              {tooltipContent && <Tooltip content={tooltipContent} />}
             </div>
             <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1">{subtitle}</p>
           </div>
@@ -97,6 +96,7 @@ const LeanCell: React.FC<LeanCellProps> = ({
         }`}
         placeholder={`Define ${title.toLowerCase()}...`}
       />
+      {tooltipContent && <Tooltip content={tooltipContent} />}
     </div>
   );
 };

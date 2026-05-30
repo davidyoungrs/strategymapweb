@@ -43,7 +43,7 @@ const AnsoffCell: React.FC<AnsoffCellProps> = ({
   const [isFocused, setIsFocused] = React.useState(false);
 
   return (
-    <div className={`p-8 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl flex flex-col group transition-all duration-300 min-h-[350px] ${
+    <div className={`relative p-8 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl flex flex-col group transition-all duration-300 min-h-[350px] ${
       isFocused
         ? 'bg-blue-500/5 dark:bg-blue-500/10 border-blue-500/50 dark:border-blue-400/40 ring-2 ring-blue-500/20 dark:ring-blue-400/10 shadow-lg shadow-blue-500/5'
         : 'hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-blue-500/5 dark:hover:shadow-blue-400/5 hover:border-blue-500/30 dark:hover:border-blue-400/30'
@@ -62,7 +62,6 @@ const AnsoffCell: React.FC<AnsoffCellProps> = ({
               <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${
                 isFocused ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-900 dark:text-zinc-100'
               }`}>{title}</h3>
-              {tooltipContent && <Tooltip content={tooltipContent} />}
             </div>
             <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">{subtitle}</p>
           </div>
@@ -99,6 +98,7 @@ const AnsoffCell: React.FC<AnsoffCellProps> = ({
         className="flex-1 w-full bg-transparent resize-none outline-none text-sm leading-relaxed text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 font-semibold scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent"
         placeholder={`Plan ${title.toLowerCase()} strategy...`}
       />
+      {tooltipContent && <Tooltip content={tooltipContent} />}
     </div>
   );
 };

@@ -50,7 +50,7 @@ const EditorSection: React.FC<EditorSectionProps> = ({
   const [isFocused, setIsFocused] = React.useState(false);
 
   return (
-    <div className={`p-8 border border-zinc-100 dark:border-zinc-800 flex flex-col group transition-all duration-300 rounded-3xl bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl ${
+    <div className={`relative p-8 border border-zinc-100 dark:border-zinc-800 flex flex-col group transition-all duration-300 rounded-3xl bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl ${
       isFocused 
         ? 'bg-blue-500/5 dark:bg-blue-500/10 border-blue-500/50 dark:border-blue-400/40 ring-2 ring-blue-500/20 dark:ring-blue-400/10 shadow-lg shadow-blue-500/5' 
         : 'hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-blue-500/5 dark:hover:shadow-blue-400/5 hover:border-blue-500/30 dark:hover:border-blue-400/30'
@@ -69,7 +69,6 @@ const EditorSection: React.FC<EditorSectionProps> = ({
               <h3 className={`text-xs font-black uppercase tracking-[0.2em] transition-colors ${
                 isFocused ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-900 dark:text-zinc-100'
               }`}>{title}</h3>
-              {tooltipContent && <Tooltip content={tooltipContent} />}
             </div>
             <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">{subtitle}</p>
           </div>
@@ -103,6 +102,7 @@ const EditorSection: React.FC<EditorSectionProps> = ({
         style={{ minHeight }}
         placeholder={placeholder}
       />
+      {tooltipContent && <Tooltip content={tooltipContent} />}
     </div>
   );
 };

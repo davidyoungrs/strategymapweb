@@ -39,7 +39,7 @@ const ForcesCell: React.FC<ForcesCellProps> = ({
   const [isFocused, setIsFocused] = React.useState(false);
 
   return (
-    <div className={`p-8 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl flex flex-col group transition-all duration-300 min-h-[300px] ${
+    <div className={`relative p-8 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl flex flex-col group transition-all duration-300 min-h-[300px] ${
       isFocused
         ? 'bg-red-500/5 dark:bg-red-500/10 border-red-500/50 dark:border-red-400/40 ring-2 ring-red-500/20 dark:ring-red-400/10 shadow-lg shadow-red-500/5'
         : 'hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-red-500/5 dark:hover:shadow-red-400/5 hover:border-red-500/30 dark:hover:border-red-400/30'
@@ -58,7 +58,6 @@ const ForcesCell: React.FC<ForcesCellProps> = ({
               <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${
                 isFocused ? 'text-red-600 dark:text-red-400' : 'text-zinc-900 dark:text-zinc-100'
               }`}>{title}</h3>
-              {tooltipContent && <Tooltip content={tooltipContent} />}
             </div>
             <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">{subtitle}</p>
           </div>
@@ -91,6 +90,7 @@ const ForcesCell: React.FC<ForcesCellProps> = ({
         className="flex-1 w-full bg-transparent resize-none outline-none text-sm leading-relaxed text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 font-semibold scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent"
         placeholder={`Analyze ${title.toLowerCase()}...`}
       />
+      {tooltipContent && <Tooltip content={tooltipContent} />}
     </div>
   );
 };

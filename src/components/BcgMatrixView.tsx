@@ -88,7 +88,7 @@ const BcgCell: React.FC<BcgCellProps> = ({
   const colors = colorMap[accentColor] || colorMap.zinc;
 
   return (
-    <div className={`p-8 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl flex flex-col group transition-all duration-300 min-h-[350px] ${
+    <div className={`relative p-8 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl flex flex-col group transition-all duration-300 min-h-[350px] ${
       isFocused
         ? `${colors.bg} ${colors.ring}`
         : `hover:-translate-y-1.5 hover:shadow-2xl ${colors.hoverShadow} ${colors.hoverBg} ${colors.hoverRing}`
@@ -107,7 +107,6 @@ const BcgCell: React.FC<BcgCellProps> = ({
               <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${
                 isFocused ? colors.text : 'text-zinc-900 dark:text-zinc-100'
               }`}>{title}</h3>
-              {tooltipContent && <Tooltip content={tooltipContent} />}
             </div>
             <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">{subtitle}</p>
           </div>
@@ -142,9 +141,10 @@ const BcgCell: React.FC<BcgCellProps> = ({
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className="flex-1 w-full bg-transparent resize-none outline-none text-sm leading-relaxed text-zinc-805 dark:text-zinc-100 font-semibold scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent"
+        className="flex-1 w-full bg-transparent resize-none outline-none text-sm leading-relaxed text-zinc-850 dark:text-zinc-100 font-semibold scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent"
         placeholder={`List your ${title.toLowerCase()} products...`}
       />
+      {tooltipContent && <Tooltip content={tooltipContent} />}
     </div>
   );
 };

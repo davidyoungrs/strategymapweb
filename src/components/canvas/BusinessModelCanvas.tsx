@@ -52,7 +52,7 @@ const BmcCell: React.FC<BmcCellProps> = ({
   const [isFocused, setIsFocused] = React.useState(false);
 
   return (
-    <div className={`p-6 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl flex flex-col group transition-all duration-300 ${
+    <div className={`relative p-6 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl flex flex-col group transition-all duration-300 ${
       isFocused 
         ? 'bg-blue-500/5 dark:bg-blue-500/10 border-blue-500/50 dark:border-blue-400/40 ring-2 ring-blue-500/20 dark:ring-blue-400/10 shadow-lg shadow-blue-500/5' 
         : 'hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-blue-500/5 dark:hover:shadow-blue-400/5 hover:border-blue-500/30 dark:hover:border-blue-400/30'
@@ -73,7 +73,6 @@ const BmcCell: React.FC<BmcCellProps> = ({
               }`}>
                 {title}
               </h3>
-              {tooltipContent && <Tooltip content={tooltipContent} />}
             </div>
             <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1">{subtitle}</p>
           </div>
@@ -108,6 +107,7 @@ const BmcCell: React.FC<BmcCellProps> = ({
         }`}
         placeholder="Click to start typing..."
       />
+      {tooltipContent && <Tooltip content={tooltipContent} />}
     </div>
   );
 };

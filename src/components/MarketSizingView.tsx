@@ -59,7 +59,7 @@ const SizingCell: React.FC<SizingCellProps> = ({
   const cv = colorVariants[color] || colorVariants.blue;
 
   return (
-    <div className={`p-6 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl transition-all duration-300 ${
+    <div className={`relative p-6 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl transition-all duration-300 ${
       isFocused 
         ? `${cv.bg}` 
         : `hover:-translate-y-1.5 hover:shadow-2xl ${cv.hoverShadow} ${cv.hoverRing}`
@@ -74,7 +74,6 @@ const SizingCell: React.FC<SizingCellProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${isFocused ? cv.text : 'text-zinc-900 dark:text-zinc-100'}`}>{title}</h3>
-              {tooltipContent && <Tooltip content={tooltipContent} />}
             </div>
             <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">{subtitle}</p>
           </div>
@@ -121,6 +120,7 @@ const SizingCell: React.FC<SizingCellProps> = ({
         placeholder={`Describe your ${title.toLowerCase()}...`}
         className="w-full bg-transparent resize-none outline-none text-sm leading-relaxed text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 font-semibold h-24 scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent transition-colors"
       />
+      {tooltipContent && <Tooltip content={tooltipContent} />}
     </div>
   );
 };

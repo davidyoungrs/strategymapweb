@@ -44,7 +44,7 @@ const ChainCell: React.FC<ChainCellProps> = ({
   const [isFocused, setIsFocused] = React.useState(false);
 
   return (
-    <div className={`p-6 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl flex flex-col group transition-all duration-300 ${
+    <div className={`relative p-6 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl flex flex-col group transition-all duration-300 ${
       isFocused
         ? isPrimary 
           ? 'bg-teal-500/5 dark:bg-teal-500/10 border-teal-500/50 dark:border-teal-400/40 ring-2 ring-teal-500/20 dark:ring-teal-400/10 shadow-lg shadow-teal-500/5'
@@ -71,7 +71,6 @@ const ChainCell: React.FC<ChainCellProps> = ({
                   ? isPrimary ? 'text-teal-600 dark:text-teal-400' : 'text-violet-600 dark:text-violet-400'
                   : 'text-zinc-900 dark:text-zinc-100'
               }`}>{title}</h3>
-              {tooltipContent && <Tooltip content={tooltipContent} />}
             </div>
             <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1">{subtitle}</p>
           </div>
@@ -104,6 +103,7 @@ const ChainCell: React.FC<ChainCellProps> = ({
         className="flex-1 w-full bg-transparent resize-none outline-none text-sm leading-relaxed text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 font-semibold scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent"
         placeholder={`Describe ${title.toLowerCase()}...`}
       />
+      {tooltipContent && <Tooltip content={tooltipContent} />}
     </div>
   );
 };

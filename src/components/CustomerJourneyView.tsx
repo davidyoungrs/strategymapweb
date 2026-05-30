@@ -52,7 +52,7 @@ const StageCell: React.FC<StageCellProps> = ({
 
   return (
     <div className="flex items-stretch w-full">
-      <div className={`flex-1 p-6 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl flex flex-col group transition-all duration-300 min-h-[320px] ${
+      <div className={`relative flex-1 p-6 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl flex flex-col group transition-all duration-300 min-h-[320px] ${
         isFocused 
           ? `${c.bg}` 
           : `hover:-translate-y-1.5 hover:shadow-2xl ${c.hoverShadow} ${c.hoverRing}`
@@ -70,7 +70,6 @@ const StageCell: React.FC<StageCellProps> = ({
                 <h3 className={`text-[10px] font-black uppercase tracking-[0.15em] leading-none transition-colors ${
                   isFocused ? c.text : 'text-zinc-900 dark:text-zinc-100'
                 }`}>{title}</h3>
-                {tooltipContent && <Tooltip content={tooltipContent} />}
               </div>
               <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">{subtitle}</p>
             </div>
@@ -103,6 +102,7 @@ const StageCell: React.FC<StageCellProps> = ({
           className="flex-1 w-full bg-transparent resize-none outline-none text-sm leading-relaxed text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 font-semibold scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent"
           placeholder={`Touchpoints, actions & emotions...`}
         />
+        {tooltipContent && <Tooltip content={tooltipContent} />}
       </div>
       {!isLast && (
         <div className="hidden lg:flex items-center px-2 text-zinc-300 dark:text-zinc-700">
