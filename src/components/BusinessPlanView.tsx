@@ -130,6 +130,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
   }
   
   const activeTargetRef = useRef<ListeningTarget | null>(null);
+  const pendingTargetRef = useRef<ListeningTarget | null>(null);
   const initialTextRef = useRef('');
   const canvasDataRef = useRef(canvasData);
   const setCanvasDataRef = useRef(setCanvasData);
@@ -139,24 +140,64 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
     setCanvasDataRef.current = setCanvasData;
   }, [canvasData, setCanvasData]);
 
+  const startSpeech = (field: string, targetType: 'plan' | 'person', personId?: string) => {
+    if (!recognitionRef.current) return;
+
+    const identifier = targetType === 'plan' ? field : `${personId}_${field}`;
+    const currentPlan = canvasDataRef.current.businessPlan || { 
+      executiveSummary: '', 
+      mission: '', 
+      vision: '', 
+      values: '',
+      fairWorkPractices: '',
+      sustainabilityPolicy: ''
+    };
+    
+    let baseVal = '';
+    if (targetType === 'plan') {
+      const val = currentPlan[field as keyof BusinessPlanData];
+      baseVal = typeof val === 'string' ? val : '';
+    } else if (targetType === 'person' && personId) {
+      const person = (currentPlan.keyPersonnel || []).find(p => p.id === personId);
+      if (person) {
+        baseVal = person[field as keyof KeyPerson] || '';
+      }
+    }
+
+    initialTextRef.current = baseVal;
+    activeTargetRef.current = { type: targetType, field, personId };
+    setActiveField(identifier);
+    try {
+      recognitionRef.current.start();
+    } catch (error) {
+      console.error('Failed to start speech recognition in Business Plan:', error);
+      setActiveField(null);
+      activeTargetRef.current = null;
+    }
+  };
+
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
       setIsSupported(true);
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
-      recognition.interimResults = false;
+      recognition.interimResults = true;
       recognition.lang = 'en-US';
 
       recognition.onresult = (event: any) => {
-        let sessionTranscript = '';
+        let sessionFinal = '';
+        let sessionInterim = '';
         for (let i = 0; i < event.results.length; ++i) {
+          const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
-            sessionTranscript += event.results[i][0].transcript + ' ';
+            sessionFinal += transcript + ' ';
+          } else {
+            sessionInterim += transcript;
           }
         }
         
-        const cleanSessionTranscript = sessionTranscript.trim();
+        const cleanSessionTranscript = (sessionFinal + sessionInterim).trim();
         const target = activeTargetRef.current;
         if (cleanSessionTranscript && target) {
           const defaultPlan: BusinessPlanData = { executiveSummary: '', mission: '', vision: '', values: '', fairWorkPractices: '', sustainabilityPolicy: '' };
@@ -203,11 +244,18 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
         }
         setActiveField(null);
         activeTargetRef.current = null;
+        pendingTargetRef.current = null;
       };
 
       recognition.onend = () => {
         setActiveField(null);
         activeTargetRef.current = null;
+        
+        if (pendingTargetRef.current) {
+          const next = pendingTargetRef.current;
+          pendingTargetRef.current = null;
+          startSpeech(next.field, next.type, next.personId);
+        }
       };
 
       recognitionRef.current = recognition;
@@ -226,42 +274,17 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
     const identifier = targetType === 'plan' ? field : `${personId}_${field}`;
 
     if (activeField) {
-      recognitionRef.current.stop();
-      setActiveField(null);
-      activeTargetRef.current = null;
-      if (activeField === identifier) return; // Toggle off if clicked active button
-    }
-
-    const currentPlan = canvasDataRef.current.businessPlan || { 
-      executiveSummary: '', 
-      mission: '', 
-      vision: '', 
-      values: '',
-      fairWorkPractices: 'We are committed to fostering a fair, flexible, and inclusive workplace. This includes supporting modern hybrid working arrangements, maintaining clear diversity and equal opportunity policies, ensuring transparent career progression, and offering competitive, fair remuneration. We regularly review employee satisfaction and wellness initiatives to support work-life balance.',
-      sustainabilityPolicy: 'Our sustainability strategy is focused on reducing our carbon footprint and encouraging circular economy practices. We prioritize local sourcing, utilize energy-efficient technologies across our operations, actively minimize single-use waste, and partner with suppliers who align with our environmental and ethical standards.'
-    };
-    
-    let baseVal = '';
-    if (targetType === 'plan') {
-      const val = currentPlan[field as keyof BusinessPlanData];
-      baseVal = typeof val === 'string' ? val : '';
-    } else if (targetType === 'person' && personId) {
-      const person = (currentPlan.keyPersonnel || []).find(p => p.id === personId);
-      if (person) {
-        baseVal = person[field as keyof KeyPerson] || '';
+      if (activeField === identifier) {
+        recognitionRef.current.stop();
+        return;
       }
+      
+      pendingTargetRef.current = { type: targetType, field, personId };
+      recognitionRef.current.stop();
+      return;
     }
 
-    initialTextRef.current = baseVal;
-    activeTargetRef.current = { type: targetType, field, personId };
-    setActiveField(identifier);
-    try {
-      recognitionRef.current.start();
-    } catch (error) {
-      console.error('Failed to start speech recognition in Business Plan:', error);
-      setActiveField(null);
-      activeTargetRef.current = null;
-    }
+    startSpeech(field, targetType, personId);
   };
 
   const updatePlan = (field: keyof NonNullable<CanvasData['businessPlan']>, value: any) => {
