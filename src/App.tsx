@@ -284,15 +284,52 @@ export default function App() {
         onclone: (clonedDoc) => {
           const elements = clonedDoc.getElementsByTagName('*');
           const defaultView = clonedDoc.defaultView || window;
+          
+          // Setup canvas color converter in cloned document context
+          const helperCanvas = clonedDoc.createElement('canvas');
+          helperCanvas.width = 1;
+          helperCanvas.height = 1;
+          const helperCtx = helperCanvas.getContext('2d', { willReadFrequently: true });
+
+          const convertOklToRgb = (colorStr: string): string => {
+            if (!helperCtx) return 'transparent';
+            helperCtx.clearRect(0, 0, 1, 1);
+            helperCtx.fillStyle = colorStr;
+            helperCtx.fillRect(0, 0, 1, 1);
+            const imgData = helperCtx.getImageData(0, 0, 1, 1).data;
+            if (imgData[3] === 0) return 'rgba(0,0,0,0)';
+            return `rgba(${imgData[0]}, ${imgData[1]}, ${imgData[2]}, ${(imgData[3] / 255).toFixed(3)})`;
+          };
+
+          const replaceOklColors = (val: string): string => {
+            const oklRegex = /(oklab|oklch)\([^)]+\)/g;
+            return val.replace(oklRegex, (match) => {
+              try {
+                return convertOklToRgb(match);
+              } catch (e) {
+                return 'transparent';
+              }
+            });
+          };
+
+          const colorProps = [
+            'color', 'backgroundColor', 
+            'borderTopColor', 'borderBottomColor', 'borderLeftColor', 'borderRightColor',
+            'fill', 'stroke', 'outlineColor', 'boxShadow', 'backgroundImage'
+          ];
+
           for (let i = 0; i < elements.length; i++) {
             const el = elements[i] as HTMLElement;
             const style = defaultView.getComputedStyle(el);
             if (!style) continue;
-            if (typeof style.color === 'string' && style.color.includes('okl')) el.style.color = 'currentColor';
-            if (typeof style.backgroundColor === 'string' && style.backgroundColor.includes('okl')) el.style.backgroundColor = 'transparent';
-            if (typeof style.borderColor === 'string' && style.borderColor.includes('okl')) el.style.borderColor = 'currentColor';
-            if (typeof style.fill === 'string' && style.fill.includes('okl')) el.style.fill = 'currentColor';
-            if (typeof style.stroke === 'string' && style.stroke.includes('okl')) el.style.stroke = 'currentColor';
+            
+            for (const prop of colorProps) {
+              const val = (style as any)[prop];
+              if (typeof val === 'string' && val.includes('okl')) {
+                const cleanedVal = replaceOklColors(val);
+                el.style.setProperty(prop.replace(/[A-Z]/g, m => '-' + m.toLowerCase()), cleanedVal);
+              }
+            }
           }
         }
       });
@@ -344,15 +381,52 @@ export default function App() {
           onclone: (clonedDoc) => {
             const elements = clonedDoc.getElementsByTagName('*');
             const defaultView = clonedDoc.defaultView || window;
+            
+            // Setup canvas color converter in cloned document context
+            const helperCanvas = clonedDoc.createElement('canvas');
+            helperCanvas.width = 1;
+            helperCanvas.height = 1;
+            const helperCtx = helperCanvas.getContext('2d', { willReadFrequently: true });
+
+            const convertOklToRgb = (colorStr: string): string => {
+              if (!helperCtx) return 'transparent';
+              helperCtx.clearRect(0, 0, 1, 1);
+              helperCtx.fillStyle = colorStr;
+              helperCtx.fillRect(0, 0, 1, 1);
+              const imgData = helperCtx.getImageData(0, 0, 1, 1).data;
+              if (imgData[3] === 0) return 'rgba(0,0,0,0)';
+              return `rgba(${imgData[0]}, ${imgData[1]}, ${imgData[2]}, ${(imgData[3] / 255).toFixed(3)})`;
+            };
+
+            const replaceOklColors = (val: string): string => {
+              const oklRegex = /(oklab|oklch)\([^)]+\)/g;
+              return val.replace(oklRegex, (match) => {
+                try {
+                  return convertOklToRgb(match);
+                } catch (e) {
+                  return 'transparent';
+                }
+              });
+            };
+
+            const colorProps = [
+              'color', 'backgroundColor', 
+              'borderTopColor', 'borderBottomColor', 'borderLeftColor', 'borderRightColor',
+              'fill', 'stroke', 'outlineColor', 'boxShadow', 'backgroundImage'
+            ];
+
             for (let i = 0; i < elements.length; i++) {
               const el = elements[i] as HTMLElement;
               const style = defaultView.getComputedStyle(el);
               if (!style) continue;
-              if (typeof style.color === 'string' && style.color.includes('okl')) el.style.color = 'currentColor';
-              if (typeof style.backgroundColor === 'string' && style.backgroundColor.includes('okl')) el.style.backgroundColor = 'transparent';
-              if (typeof style.borderColor === 'string' && style.borderColor.includes('okl')) el.style.borderColor = 'currentColor';
-              if (typeof style.fill === 'string' && style.fill.includes('okl')) el.style.fill = 'currentColor';
-              if (typeof style.stroke === 'string' && style.stroke.includes('okl')) el.style.stroke = 'currentColor';
+              
+              for (const prop of colorProps) {
+                const val = (style as any)[prop];
+                if (typeof val === 'string' && val.includes('okl')) {
+                  const cleanedVal = replaceOklColors(val);
+                  el.style.setProperty(prop.replace(/[A-Z]/g, m => '-' + m.toLowerCase()), cleanedVal);
+                }
+              }
             }
           }
         });
