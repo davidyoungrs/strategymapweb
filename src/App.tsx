@@ -283,14 +283,16 @@ export default function App() {
         logging: false,
         onclone: (clonedDoc) => {
           const elements = clonedDoc.getElementsByTagName('*');
+          const defaultView = clonedDoc.defaultView || window;
           for (let i = 0; i < elements.length; i++) {
             const el = elements[i] as HTMLElement;
-            const style = window.getComputedStyle(el);
-            if (style.color.includes('okl')) el.style.color = 'currentColor';
-            if (style.backgroundColor.includes('okl')) el.style.backgroundColor = 'transparent';
-            if (style.borderColor.includes('okl')) el.style.borderColor = 'currentColor';
-            if (style.fill.includes('okl')) el.style.fill = 'currentColor';
-            if (style.stroke.includes('okl')) el.style.stroke = 'currentColor';
+            const style = defaultView.getComputedStyle(el);
+            if (!style) continue;
+            if (typeof style.color === 'string' && style.color.includes('okl')) el.style.color = 'currentColor';
+            if (typeof style.backgroundColor === 'string' && style.backgroundColor.includes('okl')) el.style.backgroundColor = 'transparent';
+            if (typeof style.borderColor === 'string' && style.borderColor.includes('okl')) el.style.borderColor = 'currentColor';
+            if (typeof style.fill === 'string' && style.fill.includes('okl')) el.style.fill = 'currentColor';
+            if (typeof style.stroke === 'string' && style.stroke.includes('okl')) el.style.stroke = 'currentColor';
           }
         }
       });
@@ -343,14 +345,16 @@ export default function App() {
           backgroundColor: darkMode ? '#09090b' : '#ffffff',
           onclone: (clonedDoc) => {
             const elements = clonedDoc.getElementsByTagName('*');
+            const defaultView = clonedDoc.defaultView || window;
             for (let i = 0; i < elements.length; i++) {
               const el = elements[i] as HTMLElement;
-              const style = window.getComputedStyle(el);
-              if (style.color.includes('okl')) el.style.color = 'currentColor';
-              if (style.backgroundColor.includes('okl')) el.style.backgroundColor = 'transparent';
-              if (style.borderColor.includes('okl')) el.style.borderColor = 'currentColor';
-              if (style.fill.includes('okl')) el.style.fill = 'currentColor';
-              if (style.stroke.includes('okl')) el.style.stroke = 'currentColor';
+              const style = defaultView.getComputedStyle(el);
+              if (!style) continue;
+              if (typeof style.color === 'string' && style.color.includes('okl')) el.style.color = 'currentColor';
+              if (typeof style.backgroundColor === 'string' && style.backgroundColor.includes('okl')) el.style.backgroundColor = 'transparent';
+              if (typeof style.borderColor === 'string' && style.borderColor.includes('okl')) el.style.borderColor = 'currentColor';
+              if (typeof style.fill === 'string' && style.fill.includes('okl')) el.style.fill = 'currentColor';
+              if (typeof style.stroke === 'string' && style.stroke.includes('okl')) el.style.stroke = 'currentColor';
             }
           }
         });
