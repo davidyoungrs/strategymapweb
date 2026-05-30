@@ -126,6 +126,10 @@ export const BmcGuidedDrawer: React.FC<BmcGuidedDrawerProps> = ({ isOpen, onClos
   const recognitionRef = useRef<any>(null);
   const initialSpeechTextRef = useRef('');
 
+  // AI Suggestion states
+  const [suggesting, setSuggesting] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
+
   const llmInferenceRef = useRef<LlmInference | null>(null);
   const initModelPromise = useRef<Promise<void> | null>(null);
 
@@ -143,6 +147,7 @@ export const BmcGuidedDrawer: React.FC<BmcGuidedDrawerProps> = ({ isOpen, onClos
         costStructure: currentData.costStructure || '',
         revenueStreams: currentData.revenueStreams || ''
       });
+      setAiSuggestion(null);
     }
   }, [isOpen, currentData]);
 
@@ -259,6 +264,92 @@ export const BmcGuidedDrawer: React.FC<BmcGuidedDrawerProps> = ({ isOpen, onClos
 
     initModelPromise.current = promise;
     return promise;
+  };
+
+  // Generate Suggestion from Gemma Agent
+  const generateAiSuggestion = async () => {
+    setSuggesting(true);
+    setError(null);
+    setAiSuggestion(null);
+    try {
+      if (!llmInferenceRef.current) {
+        await initModel();
+      }
+      if (!llmInferenceRef.current) {
+        throw new Error("Local AI model could not be initialized.");
+      }
+
+      const stepInfo = STEPS[currentStep];
+      const contextParts: string[] = [];
+
+      // Gather existing grid values
+      Object.entries(currentData).forEach(([key, val]) => {
+        if (val && val.trim()) {
+          contextParts.push(`Current BMC ${key.toUpperCase()}: ${val}`);
+        }
+      });
+
+      // Gather current drawer answers
+      Object.entries(answers).forEach(([key, val]) => {
+        if (val.trim() && key !== stepInfo.key) {
+          contextParts.push(`Known ${key.toUpperCase()} for this session: ${val}`);
+        }
+      });
+
+      const contextText = contextParts.length > 0
+        ? `Here is the current business model context:\n${contextParts.join('\n')}`
+        : `No prior context has been entered. Generate standard Business Model Canvas strategic ideas.`;
+
+      const prompt = `
+        You are a highly capable strategic startup consultant acting as an AI agent.
+        Suggest 2 to 3 logical points for the "${stepInfo.title}" building block of the Business Model Canvas.
+        
+        ${contextText}
+
+        Formatting Rules:
+        - Output EXACTLY 2 to 3 bullet points.
+        - Prefix each bullet point with "*** - " (three asterisks, space, hyphen, space).
+        - Do not output introductory text, greetings, headers, or explanations.
+      `;
+
+      const response = await llmInferenceRef.current.generateResponse(prompt);
+
+      let processed = response.trim();
+      processed = processed
+        .split('\n')
+        .map(line => {
+          const trimmed = line.trim();
+          if (!trimmed) return '';
+          if (trimmed.startsWith('***')) {
+            return trimmed;
+          }
+          if (trimmed.startsWith('-')) {
+            return `*** ${trimmed}`;
+          }
+          return `*** - ${trimmed}`;
+        })
+        .filter(Boolean)
+        .join('\n');
+
+      setAiSuggestion(processed);
+    } catch (err: any) {
+      console.error("AI Suggestion failed:", err);
+      setError(`AI Suggestion failed: ${err.message || 'Unknown error'}`);
+    } finally {
+      setSuggesting(false);
+    }
+  };
+
+  const handleInsertSuggestion = () => {
+    if (!aiSuggestion) return;
+    setAnswers(prev => {
+      const prevVal = prev[STEPS[currentStep].key] || '';
+      const newVal = prevVal.trim()
+        ? `${prevVal}\n${aiSuggestion}`
+        : aiSuggestion;
+      return { ...prev, [STEPS[currentStep].key]: newVal };
+    });
+    setAiSuggestion(null);
   };
 
   // Distill all inputs using Gemma at the end of the guided flow
@@ -397,6 +488,43 @@ export const BmcGuidedDrawer: React.FC<BmcGuidedDrawerProps> = ({ isOpen, onClos
                   </div>
                 )}
 
+                {/* Direct Navigation Tabs (horizontal scrollable badges for 9 blocks) */}
+                {currentStep >= 0 && (
+                  <div className="mb-6">
+                    <div className="flex gap-1 overflow-x-auto pb-2 scrollbar-none snap-x bg-zinc-100 dark:bg-zinc-950 p-1 rounded-xl">
+                      {STEPS.map((s, idx) => (
+                        <button
+                          key={s.key}
+                          onClick={() => {
+                            if (isListening) recognitionRef.current?.stop();
+                            setCurrentStep(idx);
+                          }}
+                          className={`flex-none py-1.5 px-3 text-xs font-black uppercase tracking-tight rounded-lg transition-all snap-start ${
+                            currentStep === idx
+                              ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-sm border border-zinc-200 dark:border-zinc-850'
+                              : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
+                          }`}
+                        >
+                          {s.title}
+                        </button>
+                      ))}
+                      <button
+                        onClick={async () => {
+                          if (isListening) recognitionRef.current?.stop();
+                          await generateAllDistillations();
+                        }}
+                        className={`flex-none py-1.5 px-3 text-xs font-black uppercase tracking-tight rounded-lg transition-all snap-start ${
+                          currentStep === 9
+                            ? 'bg-emerald-600 text-white shadow-sm'
+                            : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
+                        }`}
+                      >
+                        Review
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* STEP -1: Welcome Intro */}
                 {currentStep === -1 && (
                   <div className="space-y-6 py-4">
@@ -463,29 +591,49 @@ export const BmcGuidedDrawer: React.FC<BmcGuidedDrawerProps> = ({ isOpen, onClos
                         <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
                           Your Input
                         </label>
-                        {isSpeechSupported && (
+                        <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={toggleVoiceInput}
-                            className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
-                              isListening 
-                                ? 'bg-red-500/20 text-red-500 animate-pulse ring-1 ring-red-500/30'
-                                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
-                            }`}
+                            onClick={generateAiSuggestion}
+                            disabled={suggesting}
+                            className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-all flex items-center gap-1.5"
                           >
-                            {isListening ? (
+                            {suggesting ? (
                               <>
-                                <MicOff className="w-3.5 h-3.5" />
-                                Stop Voice
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                Analyzing...
                               </>
                             ) : (
                               <>
-                                <Mic className="w-3.5 h-3.5" />
-                                Use Microphone
+                                <Sparkles className="w-3.5 h-3.5" />
+                                AI Suggest
                               </>
                             )}
                           </button>
-                        )}
+                          {isSpeechSupported && (
+                            <button
+                              type="button"
+                              onClick={toggleVoiceInput}
+                              className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
+                                isListening 
+                                  ? 'bg-red-500/20 text-red-500 animate-pulse ring-1 ring-red-500/30'
+                                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
+                              }`}
+                            >
+                              {isListening ? (
+                                <>
+                                  <MicOff className="w-3.5 h-3.5" />
+                                  Stop Voice
+                                </>
+                              ) : (
+                                <>
+                                  <Mic className="w-3.5 h-3.5" />
+                                  Use Microphone
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <textarea
                         value={answers[STEPS[currentStep].key]}
@@ -493,6 +641,28 @@ export const BmcGuidedDrawer: React.FC<BmcGuidedDrawerProps> = ({ isOpen, onClos
                         className="w-full h-40 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200/50 dark:border-zinc-800 rounded-xl p-4 text-sm text-zinc-905 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-blue-500/40 resize-none leading-relaxed font-semibold scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent"
                         placeholder={STEPS[currentStep].placeholder}
                       />
+
+                      {/* AI Suggestion Preview Box */}
+                      {aiSuggestion && (
+                        <div className="p-4 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 rounded-xl mt-3 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+                              <Bot className="w-3.5 h-3.5" />
+                              AI Agent Suggestion
+                            </span>
+                            <button
+                              type="button"
+                              onClick={handleInsertSuggestion}
+                              className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
+                            >
+                              Insert Suggestion
+                            </button>
+                          </div>
+                          <div className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold whitespace-pre-wrap leading-relaxed">
+                            {aiSuggestion}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -542,7 +712,7 @@ export const BmcGuidedDrawer: React.FC<BmcGuidedDrawerProps> = ({ isOpen, onClos
                   {currentStep < 9 ? (
                     <button
                       onClick={handleNext}
-                      disabled={loadingInsights || !answers[STEPS[currentStep].key].trim()}
+                      disabled={loadingInsights}
                       className="flex-1 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:hover:scale-100 text-white rounded-xl font-bold text-sm uppercase tracking-tight flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-95"
                     >
                       {loadingInsights ? (
@@ -552,7 +722,11 @@ export const BmcGuidedDrawer: React.FC<BmcGuidedDrawerProps> = ({ isOpen, onClos
                         </>
                       ) : (
                         <>
-                          {currentStep === 8 ? 'Generate Canvas' : 'Next Question'}
+                          {answers[STEPS[currentStep].key].trim() ? (
+                            currentStep === 8 ? 'Generate Canvas' : 'Next Question'
+                          ) : (
+                            currentStep === 8 ? 'Generate Canvas (Skip empty)' : 'Skip / Next Question'
+                          )}
                           <ArrowRight className="w-4 h-4" />
                         </>
                       )}

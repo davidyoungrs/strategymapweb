@@ -70,8 +70,25 @@ export const SwotGuidedDrawer: React.FC<SwotGuidedDrawerProps> = ({ isOpen, onCl
   const recognitionRef = useRef<any>(null);
   const initialSpeechTextRef = useRef('');
 
+  // AI Suggestion states
+  const [suggesting, setSuggesting] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
+
   const llmInferenceRef = useRef<LlmInference | null>(null);
   const initModelPromise = useRef<Promise<void> | null>(null);
+
+  // Sync current data to inputs on open
+  useEffect(() => {
+    if (isOpen) {
+      setAnswers({
+        strengths: currentData.strengths || '',
+        weaknesses: currentData.weaknesses || '',
+        opportunities: currentData.opportunities || '',
+        threats: currentData.threats || ''
+      });
+      setAiSuggestion(null);
+    }
+  }, [isOpen, currentData]);
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -186,6 +203,91 @@ export const SwotGuidedDrawer: React.FC<SwotGuidedDrawerProps> = ({ isOpen, onCl
 
     initModelPromise.current = promise;
     return promise;
+  };
+
+  // Generate Suggestion from Gemma Agent
+  const generateAiSuggestion = async () => {
+    setSuggesting(true);
+    setError(null);
+    setAiSuggestion(null);
+    try {
+      if (!llmInferenceRef.current) {
+        await initModel();
+      }
+      if (!llmInferenceRef.current) {
+        throw new Error("Local AI model could not be initialized.");
+      }
+
+      const stepInfo = STEPS[currentStep];
+      const contextParts: string[] = [];
+
+      // Gather existing grid values
+      if (currentData.strengths) contextParts.push(`Current SWOT Strengths: ${currentData.strengths}`);
+      if (currentData.weaknesses) contextParts.push(`Current SWOT Weaknesses: ${currentData.weaknesses}`);
+      if (currentData.opportunities) contextParts.push(`Current SWOT Opportunities: ${currentData.opportunities}`);
+      if (currentData.threats) contextParts.push(`Current SWOT Threats: ${currentData.threats}`);
+
+      // Gather current drawer answers
+      Object.entries(answers).forEach(([key, val]) => {
+        if (val.trim() && key !== stepInfo.key) {
+          contextParts.push(`Known ${key.toUpperCase()} for this session: ${val}`);
+        }
+      });
+
+      const contextText = contextParts.length > 0
+        ? `Here is the current strategic context about the company/project:\n${contextParts.join('\n')}`
+        : `No existing context is available yet. Offer standard strategic insights.`;
+
+      const prompt = `
+        You are an expert strategic business analyst thinking as an AI agent. 
+        Based on the existing context, suggest 2 to 3 relevant points specifically for the "${stepInfo.title}" section of the SWOT analysis.
+        
+        ${contextText}
+
+        Formatting Rules:
+        - Output EXACTLY 2 to 3 bullet points.
+        - Prefix each bullet point with "*** - " (three asterisks, space, hyphen, space).
+        - Do not output introductory text, headings, or friendly greetings.
+      `;
+
+      const response = await llmInferenceRef.current.generateResponse(prompt);
+      
+      let processed = response.trim();
+      processed = processed
+        .split('\n')
+        .map(line => {
+          const trimmed = line.trim();
+          if (!trimmed) return '';
+          if (trimmed.startsWith('***')) {
+            return trimmed;
+          }
+          if (trimmed.startsWith('-')) {
+            return `*** ${trimmed}`;
+          }
+          return `*** - ${trimmed}`;
+        })
+        .filter(Boolean)
+        .join('\n');
+
+      setAiSuggestion(processed);
+    } catch (err: any) {
+      console.error("AI Suggestion failed:", err);
+      setError(`AI Suggestion failed: ${err.message || 'Unknown error'}`);
+    } finally {
+      setSuggesting(false);
+    }
+  };
+
+  const handleInsertSuggestion = () => {
+    if (!aiSuggestion) return;
+    setAnswers(prev => {
+      const prevVal = prev[STEPS[currentStep].key] || '';
+      const newVal = prevVal.trim()
+        ? `${prevVal}\n${aiSuggestion}`
+        : aiSuggestion;
+      return { ...prev, [STEPS[currentStep].key]: newVal };
+    });
+    setAiSuggestion(null);
   };
 
   // Distill all inputs using Gemma at the end of the guided flow
@@ -325,6 +427,43 @@ export const SwotGuidedDrawer: React.FC<SwotGuidedDrawerProps> = ({ isOpen, onCl
                   </div>
                 )}
 
+                {/* Direct Navigation Tabs (only shown when inside the questions/summary flow) */}
+                {currentStep >= 0 && (
+                  <div className="mb-6">
+                    <div className="flex flex-wrap gap-1 bg-zinc-100 dark:bg-zinc-950 p-1 rounded-xl">
+                      {STEPS.map((s, idx) => (
+                        <button
+                          key={s.key}
+                          onClick={() => {
+                            if (isListening) recognitionRef.current?.stop();
+                            setCurrentStep(idx);
+                          }}
+                          className={`flex-1 py-1.5 px-2.5 text-xs font-black uppercase tracking-tight rounded-lg transition-all ${
+                            currentStep === idx
+                              ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-sm border border-zinc-200 dark:border-zinc-850'
+                              : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
+                          }`}
+                        >
+                          {s.title}
+                        </button>
+                      ))}
+                      <button
+                        onClick={async () => {
+                          if (isListening) recognitionRef.current?.stop();
+                          await generateAllDistillations();
+                        }}
+                        className={`flex-1 py-1.5 px-2.5 text-xs font-black uppercase tracking-tight rounded-lg transition-all ${
+                          currentStep === 4
+                            ? 'bg-emerald-600 text-white shadow-sm'
+                            : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
+                        }`}
+                      >
+                        Review
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* STEP -1: Welcome Intro */}
                 {currentStep === -1 && (
                   <div className="space-y-6 py-4">
@@ -391,29 +530,49 @@ export const SwotGuidedDrawer: React.FC<SwotGuidedDrawerProps> = ({ isOpen, onCl
                         <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
                           Your Input
                         </label>
-                        {isSpeechSupported && (
+                        <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={toggleVoiceInput}
-                            className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
-                              isListening 
-                                ? 'bg-red-500/20 text-red-500 animate-pulse ring-1 ring-red-500/30'
-                                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
-                            }`}
+                            onClick={generateAiSuggestion}
+                            disabled={suggesting}
+                            className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-all flex items-center gap-1.5"
                           >
-                            {isListening ? (
+                            {suggesting ? (
                               <>
-                                <MicOff className="w-3.5 h-3.5" />
-                                Stop Voice
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                Analyzing...
                               </>
                             ) : (
                               <>
-                                <Mic className="w-3.5 h-3.5" />
-                                Use Microphone
+                                <Sparkles className="w-3.5 h-3.5" />
+                                AI Suggest
                               </>
                             )}
                           </button>
-                        )}
+                          {isSpeechSupported && (
+                            <button
+                              type="button"
+                              onClick={toggleVoiceInput}
+                              className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
+                                isListening 
+                                  ? 'bg-red-500/20 text-red-500 animate-pulse ring-1 ring-red-500/30'
+                                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
+                              }`}
+                            >
+                              {isListening ? (
+                                <>
+                                  <MicOff className="w-3.5 h-3.5" />
+                                  Stop Voice
+                                </>
+                              ) : (
+                                <>
+                                  <Mic className="w-3.5 h-3.5" />
+                                  Use Microphone
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <textarea
                         value={answers[STEPS[currentStep].key]}
@@ -421,6 +580,28 @@ export const SwotGuidedDrawer: React.FC<SwotGuidedDrawerProps> = ({ isOpen, onCl
                         className="w-full h-40 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-blue-500/40 resize-none leading-relaxed font-semibold scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent"
                         placeholder={STEPS[currentStep].placeholder}
                       />
+
+                      {/* AI Suggestion Preview Box */}
+                      {aiSuggestion && (
+                        <div className="p-4 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 rounded-xl mt-3 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+                              <Bot className="w-3.5 h-3.5" />
+                              AI Agent Suggestion
+                            </span>
+                            <button
+                              type="button"
+                              onClick={handleInsertSuggestion}
+                              className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
+                            >
+                              Insert Suggestion
+                            </button>
+                          </div>
+                          <div className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold whitespace-pre-wrap leading-relaxed">
+                            {aiSuggestion}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -470,7 +651,7 @@ export const SwotGuidedDrawer: React.FC<SwotGuidedDrawerProps> = ({ isOpen, onCl
                   {currentStep < 4 ? (
                     <button
                       onClick={handleNext}
-                      disabled={loadingInsights || !answers[STEPS[currentStep].key].trim()}
+                      disabled={loadingInsights}
                       className="flex-1 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:hover:scale-100 text-white rounded-xl font-bold text-sm uppercase tracking-tight flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-95"
                     >
                       {loadingInsights ? (
@@ -480,7 +661,11 @@ export const SwotGuidedDrawer: React.FC<SwotGuidedDrawerProps> = ({ isOpen, onCl
                         </>
                       ) : (
                         <>
-                          {currentStep === 3 ? 'Generate SWOT' : 'Next Question'}
+                          {answers[STEPS[currentStep].key].trim() ? (
+                            currentStep === 3 ? 'Generate SWOT' : 'Next Question'
+                          ) : (
+                            currentStep === 3 ? 'Generate SWOT (Skip empty)' : 'Skip / Next Question'
+                          )}
                           <ArrowRight className="w-4 h-4" />
                         </>
                       )}
