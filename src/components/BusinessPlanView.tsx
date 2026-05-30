@@ -118,10 +118,17 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
   onBack,
   type
 }) => {
-  const [activeField, setActiveField] = useState<keyof NonNullable<CanvasData['businessPlan']> | null>(null);
+  const [activeField, setActiveField] = useState<string | null>(null);
   const [isSupported, setIsSupported] = useState(false);
   const recognitionRef = useRef<any>(null);
-  const activeListeningFieldRef = useRef<keyof NonNullable<CanvasData['businessPlan']> | null>(null);
+  
+  interface ListeningTarget {
+    type: 'plan' | 'person';
+    field: string;
+    personId?: string;
+  }
+  
+  const activeTargetRef = useRef<ListeningTarget | null>(null);
   const initialTextRef = useRef('');
   const canvasDataRef = useRef(canvasData);
   const setCanvasDataRef = useRef(setCanvasData);
@@ -149,21 +156,43 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
         }
         
         const cleanSessionTranscript = sessionTranscript.trim();
-        const currentActiveField = activeListeningFieldRef.current;
-        if (cleanSessionTranscript && currentActiveField) {
-          const baseText = initialTextRef.current.trim();
-          const formattedTranscript = `- ${cleanSessionTranscript}`;
-          const updatedValue = baseText 
-            ? `${baseText}\n${formattedTranscript}` 
-            : formattedTranscript;
-          
-          setCanvasDataRef.current(prev => ({
-            ...prev,
-            businessPlan: {
-              ...(prev.businessPlan || { executiveSummary: '', mission: '', vision: '', values: '' }),
-              [currentActiveField]: updatedValue
-            }
-          }));
+        const target = activeTargetRef.current;
+        if (cleanSessionTranscript && target) {
+          const defaultPlan: BusinessPlanData = { executiveSummary: '', mission: '', vision: '', values: '' };
+          if (target.type === 'plan') {
+            const baseText = initialTextRef.current.trim();
+            const isLongForm = ['executiveSummary', 'mission', 'vision', 'values'].includes(target.field);
+            const updatedValue = isLongForm
+              ? (baseText ? `${baseText}\n- ${cleanSessionTranscript}` : `- ${cleanSessionTranscript}`)
+              : (initialTextRef.current ? `${initialTextRef.current} ${cleanSessionTranscript}` : cleanSessionTranscript);
+
+            setCanvasDataRef.current(prev => ({
+              ...prev,
+              businessPlan: {
+                ...(prev.businessPlan || defaultPlan),
+                [target.field]: updatedValue
+              }
+            }));
+          } else if (target.type === 'person' && target.personId) {
+            setCanvasDataRef.current(prev => {
+              const currentPersonnel = prev.businessPlan?.keyPersonnel || [];
+              const updated = currentPersonnel.map(p => {
+                if (p.id === target.personId) {
+                  const baseVal = p[target.field as keyof KeyPerson] || '';
+                  const updatedValue = baseVal.trim() ? `${baseVal} ${cleanSessionTranscript}` : cleanSessionTranscript;
+                  return { ...p, [target.field]: updatedValue };
+                }
+                return p;
+              });
+              return {
+                ...prev,
+                businessPlan: {
+                  ...(prev.businessPlan || defaultPlan),
+                  keyPersonnel: updated
+                }
+              };
+            });
+          }
         }
       };
 
@@ -172,12 +201,12 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
           console.error('Speech recognition error in Business Plan:', event.error);
         }
         setActiveField(null);
-        activeListeningFieldRef.current = null;
+        activeTargetRef.current = null;
       };
 
       recognition.onend = () => {
         setActiveField(null);
-        activeListeningFieldRef.current = null;
+        activeTargetRef.current = null;
       };
 
       recognitionRef.current = recognition;
@@ -190,25 +219,40 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
     };
   }, []);
 
-  const toggleListening = (field: keyof NonNullable<CanvasData['businessPlan']>) => {
+  const toggleListening = (field: string, targetType: 'plan' | 'person' = 'plan', personId?: string) => {
     if (!recognitionRef.current) return;
+
+    const identifier = targetType === 'plan' ? field : `${personId}_${field}`;
 
     if (activeField) {
       recognitionRef.current.stop();
       setActiveField(null);
-      return;
+      activeTargetRef.current = null;
+      if (activeField === identifier) return; // Toggle off if clicked active button
     }
 
     const currentPlan = canvasDataRef.current.businessPlan || { executiveSummary: '', mission: '', vision: '', values: '' };
-    const fieldValue = currentPlan[field];
-    initialTextRef.current = typeof fieldValue === 'string' ? fieldValue : '';
-    activeListeningFieldRef.current = field;
-    setActiveField(field);
+    
+    let baseVal = '';
+    if (targetType === 'plan') {
+      const val = currentPlan[field as keyof BusinessPlanData];
+      baseVal = typeof val === 'string' ? val : '';
+    } else if (targetType === 'person' && personId) {
+      const person = (currentPlan.keyPersonnel || []).find(p => p.id === personId);
+      if (person) {
+        baseVal = person[field as keyof KeyPerson] || '';
+      }
+    }
+
+    initialTextRef.current = baseVal;
+    activeTargetRef.current = { type: targetType, field, personId };
+    setActiveField(identifier);
     try {
       recognitionRef.current.start();
     } catch (error) {
       console.error('Failed to start speech recognition in Business Plan:', error);
       setActiveField(null);
+      activeTargetRef.current = null;
     }
   };
 
@@ -357,7 +401,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               </div>
               
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Business Name</label>
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Business Name</label>
+                  {isSupported && (
+                    <button
+                      type="button"
+                      onClick={() => toggleListening('businessName')}
+                      className={`p-1 rounded-lg transition-colors ${
+                        activeField === 'businessName'
+                          ? 'bg-red-500/20 text-red-500 animate-pulse'
+                          : 'text-zinc-400 hover:text-zinc-655 dark:hover:text-zinc-350'
+                      }`}
+                      title="Speech to Text"
+                    >
+                      <Mic className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
                 <input 
                   type="text"
                   value={plan.businessName || ''}
@@ -368,7 +428,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Telephone Number</label>
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Telephone Number</label>
+                  {isSupported && (
+                    <button
+                      type="button"
+                      onClick={() => toggleListening('telephone')}
+                      className={`p-1 rounded-lg transition-colors ${
+                        activeField === 'telephone'
+                          ? 'bg-red-500/20 text-red-500 animate-pulse'
+                          : 'text-zinc-400 hover:text-zinc-655 dark:hover:text-zinc-350'
+                      }`}
+                      title="Speech to Text"
+                    >
+                      <Mic className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
                 <input 
                   type="text"
                   value={plan.telephone || ''}
@@ -379,7 +455,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               </div>
 
               <div className="md:col-span-2 space-y-1">
-                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Physical Address</label>
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Physical Address</label>
+                  {isSupported && (
+                    <button
+                      type="button"
+                      onClick={() => toggleListening('address')}
+                      className={`p-1 rounded-lg transition-colors ${
+                        activeField === 'address'
+                          ? 'bg-red-500/20 text-red-500 animate-pulse'
+                          : 'text-zinc-400 hover:text-zinc-655 dark:hover:text-zinc-350'
+                      }`}
+                      title="Speech to Text"
+                    >
+                      <Mic className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
                 <textarea 
                   value={plan.address || ''}
                   onChange={(e) => updatePlan('address', e.target.value)}
@@ -389,7 +481,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Legal Status / Structure</label>
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Legal Status / Structure</label>
+                  {isSupported && (
+                    <button
+                      type="button"
+                      onClick={() => toggleListening('legalStatus')}
+                      className={`p-1 rounded-lg transition-colors ${
+                        activeField === 'legalStatus'
+                          ? 'bg-red-500/20 text-red-500 animate-pulse'
+                          : 'text-zinc-400 hover:text-zinc-655 dark:hover:text-zinc-350'
+                      }`}
+                      title="Speech to Text"
+                    >
+                      <Mic className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
                 <input 
                   type="text"
                   value={plan.legalStatus || ''}
@@ -400,7 +508,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Date Established</label>
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Date Established</label>
+                  {isSupported && (
+                    <button
+                      type="button"
+                      onClick={() => toggleListening('dateEstablished')}
+                      className={`p-1 rounded-lg transition-colors ${
+                        activeField === 'dateEstablished'
+                          ? 'bg-red-500/20 text-red-500 animate-pulse'
+                          : 'text-zinc-400 hover:text-zinc-655 dark:hover:text-zinc-350'
+                      }`}
+                      title="Speech to Text"
+                    >
+                      <Mic className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
                 <input 
                   type="text"
                   value={plan.dateEstablished || ''}
@@ -411,7 +535,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Business Registration Number</label>
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Business Registration Number</label>
+                  {isSupported && (
+                    <button
+                      type="button"
+                      onClick={() => toggleListening('registrationNumber')}
+                      className={`p-1 rounded-lg transition-colors ${
+                        activeField === 'registrationNumber'
+                          ? 'bg-red-500/20 text-red-500 animate-pulse'
+                          : 'text-zinc-400 hover:text-zinc-655 dark:hover:text-zinc-350'
+                      }`}
+                      title="Speech to Text"
+                    >
+                      <Mic className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
                 <input 
                   type="text"
                   value={plan.registrationNumber || ''}
@@ -422,7 +562,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Online Presence (URL)</label>
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Online Presence (URL)</label>
+                  {isSupported && (
+                    <button
+                      type="button"
+                      onClick={() => toggleListening('onlinePresence')}
+                      className={`p-1 rounded-lg transition-colors ${
+                        activeField === 'onlinePresence'
+                          ? 'bg-red-500/20 text-red-500 animate-pulse'
+                          : 'text-zinc-400 hover:text-zinc-655 dark:hover:text-zinc-350'
+                      }`}
+                      title="Speech to Text"
+                    >
+                      <Mic className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
                 <input 
                   type="text"
                   value={plan.onlinePresence || ''}
@@ -433,7 +589,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               </div>
 
               <div className="space-y-1 md:col-span-2">
-                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Advisers (Accountant, Legal, etc.)</label>
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Advisers (Accountant, Legal, etc.)</label>
+                  {isSupported && (
+                    <button
+                      type="button"
+                      onClick={() => toggleListening('advisers')}
+                      className={`p-1 rounded-lg transition-colors ${
+                        activeField === 'advisers'
+                          ? 'bg-red-500/20 text-red-500 animate-pulse'
+                          : 'text-zinc-400 hover:text-zinc-655 dark:hover:text-zinc-350'
+                      }`}
+                      title="Speech to Text"
+                    >
+                      <Mic className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
                 <input 
                   type="text"
                   value={plan.advisers || ''}
@@ -502,7 +674,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
 
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                          <div className="space-y-1">
-                           <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Name</label>
+                           <div className="flex justify-between items-center">
+                             <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Name</label>
+                             {isSupported && (
+                               <button
+                                 type="button"
+                                 onClick={() => toggleListening('name', 'person', person.id)}
+                                 className={`p-1 rounded-lg transition-colors ${
+                                   activeField === `${person.id}_name`
+                                     ? 'bg-red-500/20 text-red-500 animate-pulse'
+                                     : 'text-zinc-400 hover:text-zinc-655 dark:hover:text-zinc-350'
+                                 }`}
+                                 title="Speech to Text"
+                               >
+                                 <Mic className="w-3 h-3" />
+                               </button>
+                             )}
+                           </div>
                            <input 
                              type="text"
                              value={person.name}
@@ -513,7 +701,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
                          </div>
 
                          <div className="space-y-1">
-                           <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Position / Responsibilities</label>
+                           <div className="flex justify-between items-center">
+                             <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Position / Responsibilities</label>
+                             {isSupported && (
+                               <button
+                                 type="button"
+                                 onClick={() => toggleListening('position', 'person', person.id)}
+                                 className={`p-1 rounded-lg transition-colors ${
+                                   activeField === `${person.id}_position`
+                                     ? 'bg-red-500/20 text-red-500 animate-pulse'
+                                     : 'text-zinc-400 hover:text-zinc-655 dark:hover:text-zinc-350'
+                                 }`}
+                                 title="Speech to Text"
+                               >
+                                 <Mic className="w-3 h-3" />
+                               </button>
+                             )}
+                           </div>
                            <input 
                              type="text"
                              value={person.position}
@@ -524,7 +728,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
                          </div>
 
                          <div className="space-y-1 md:col-span-2">
-                           <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Industry Experience & Knowledge</label>
+                           <div className="flex justify-between items-center">
+                             <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Industry Experience & Knowledge</label>
+                             {isSupported && (
+                               <button
+                                 type="button"
+                                 onClick={() => toggleListening('experience', 'person', person.id)}
+                                 className={`p-1 rounded-lg transition-colors ${
+                                   activeField === `${person.id}_experience`
+                                     ? 'bg-red-500/20 text-red-500 animate-pulse'
+                                     : 'text-zinc-400 hover:text-zinc-655 dark:hover:text-zinc-350'
+                                 }`}
+                                 title="Speech to Text"
+                               >
+                                 <Mic className="w-3 h-3" />
+                               </button>
+                             )}
+                           </div>
                            <textarea 
                              value={person.experience}
                              onChange={(e) => updatePerson(person.id, 'experience', e.target.value)}
@@ -534,7 +754,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
                          </div>
 
                          <div className="space-y-1">
-                           <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Previous Employment</label>
+                           <div className="flex justify-between items-center">
+                             <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Previous Employment</label>
+                             {isSupported && (
+                               <button
+                                 type="button"
+                                 onClick={() => toggleListening('previousEmployment', 'person', person.id)}
+                                 className={`p-1 rounded-lg transition-colors ${
+                                   activeField === `${person.id}_previousEmployment`
+                                     ? 'bg-red-500/20 text-red-500 animate-pulse'
+                                     : 'text-zinc-400 hover:text-zinc-655 dark:hover:text-zinc-350'
+                                 }`}
+                                 title="Speech to Text"
+                               >
+                                 <Mic className="w-3 h-3" />
+                               </button>
+                             )}
+                           </div>
                            <input 
                              type="text"
                              value={person.previousEmployment}
@@ -545,7 +781,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
                          </div>
 
                          <div className="space-y-1">
-                           <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Recent Salary (£ / $)</label>
+                           <div className="flex justify-between items-center">
+                             <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Recent Salary (£ / $)</label>
+                             {isSupported && (
+                               <button
+                                 type="button"
+                                 onClick={() => toggleListening('recentSalary', 'person', person.id)}
+                                 className={`p-1 rounded-lg transition-colors ${
+                                   activeField === `${person.id}_recentSalary`
+                                     ? 'bg-red-500/20 text-red-500 animate-pulse'
+                                     : 'text-zinc-400 hover:text-zinc-655 dark:hover:text-zinc-350'
+                                 }`}
+                                 title="Speech to Text"
+                               >
+                                 <Mic className="w-3 h-3" />
+                               </button>
+                             )}
+                           </div>
                            <input 
                              type="text"
                              value={person.recentSalary}
@@ -556,7 +808,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
                          </div>
 
                          <div className="space-y-1">
-                           <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Key Skills Brought to Business</label>
+                           <div className="flex justify-between items-center">
+                             <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Key Skills Brought to Business</label>
+                             {isSupported && (
+                               <button
+                                 type="button"
+                                 onClick={() => toggleListening('keySkills', 'person', person.id)}
+                                 className={`p-1 rounded-lg transition-colors ${
+                                   activeField === `${person.id}_keySkills`
+                                     ? 'bg-red-500/20 text-red-500 animate-pulse'
+                                     : 'text-zinc-400 hover:text-zinc-655 dark:hover:text-zinc-350'
+                                 }`}
+                                 title="Speech to Text"
+                               >
+                                 <Mic className="w-3.5 h-3.5" />
+                               </button>
+                             )}
+                           </div>
                            <input 
                              type="text"
                              value={person.keySkills}
@@ -567,7 +835,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
                          </div>
 
                          <div className="space-y-1">
-                           <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Academic & Professional Qualifications</label>
+                           <div className="flex justify-between items-center">
+                             <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Academic & Professional Qualifications</label>
+                             {isSupported && (
+                               <button
+                                 type="button"
+                                 onClick={() => toggleListening('qualifications', 'person', person.id)}
+                                 className={`p-1 rounded-lg transition-colors ${
+                                   activeField === `${person.id}_qualifications`
+                                     ? 'bg-red-500/20 text-red-500 animate-pulse'
+                                     : 'text-zinc-400 hover:text-zinc-655 dark:hover:text-zinc-350'
+                                 }`}
+                                 title="Speech to Text"
+                               >
+                                 <Mic className="w-3.5 h-3.5" />
+                               </button>
+                             )}
+                           </div>
                            <input 
                              type="text"
                              value={person.qualifications}
