@@ -11,9 +11,10 @@ interface TooltipProps {
 
 export const Tooltip: React.FC<TooltipProps> = ({ content }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [align, setAlign] = useState<'left' | 'right'>('right');
   const tooltipRef = useRef<HTMLDivElement>(null);
 
-  // Close tooltip when clicking outside
+  // Close tooltip when clicking outside and elevate parent z-index
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (tooltipRef.current && !tooltipRef.current.contains(event.target as Node)) {
@@ -21,11 +22,35 @@ export const Tooltip: React.FC<TooltipProps> = ({ content }) => {
       }
     };
 
+    const parent = tooltipRef.current?.parentElement;
+    let originalZIndex = '';
+    let originalPosition = '';
+    let isPositioned = false;
+
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      
+      if (parent) {
+        originalZIndex = parent.style.zIndex;
+        originalPosition = parent.style.position;
+        parent.style.zIndex = '50';
+
+        const computedStyle = window.getComputedStyle(parent);
+        isPositioned = ['relative', 'absolute', 'fixed', 'sticky'].includes(computedStyle.position);
+        if (!isPositioned) {
+          parent.style.position = 'relative';
+        }
+      }
     }
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      if (isOpen && parent) {
+        parent.style.zIndex = originalZIndex;
+        if (!isPositioned) {
+          parent.style.position = originalPosition;
+        }
+      }
     };
   }, [isOpen]);
 
@@ -35,6 +60,9 @@ export const Tooltip: React.FC<TooltipProps> = ({ content }) => {
         type="button"
         onClick={(e) => {
           e.stopPropagation(); // Avoid triggering any focus/click events on parent
+          const rect = e.currentTarget.getBoundingClientRect();
+          const isLeftHalf = rect.left < window.innerWidth / 2;
+          setAlign(isLeftHalf ? 'left' : 'right');
           setIsOpen(!isOpen);
         }}
         className="p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center justify-center cursor-pointer text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300"
@@ -44,7 +72,9 @@ export const Tooltip: React.FC<TooltipProps> = ({ content }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute z-[100] w-72 p-4 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-zinc-200/80 dark:border-zinc-800/80 rounded-2xl shadow-2xl text-left right-0 bottom-8 text-xs text-zinc-650 dark:text-zinc-400">
+        <div className={`absolute z-[100] w-72 max-w-[calc(100vw-32px)] p-4 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-zinc-200/80 dark:border-zinc-800/80 rounded-2xl shadow-2xl text-left bottom-8 text-xs text-zinc-650 dark:text-zinc-400 ${
+          align === 'left' ? 'left-0' : 'right-0'
+        }`}>
           <p className="font-bold text-zinc-800 dark:text-zinc-250 mb-1.5 leading-snug">{content.definition}</p>
           
           {content.questions && content.questions.length > 0 && (
