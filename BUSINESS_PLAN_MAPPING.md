@@ -11,7 +11,7 @@ Here is how each section of the Word template maps to our existing strategic fra
 | Word Document Section | Strategy Labs Canvas Data Source | Existing Field Mapping |
 | :--- | :--- | :--- |
 | **1. Executive Summary** | **Business Plan View** | `businessPlan.executiveSummary` |
-| **2. Business Details** | **App User Metadata / Canvas Info** | `canvas.title`, `canvas.userId` |
+| **2. Business Details** | **Business Plan View (Details)** | `businessPlan.businessName`, `businessPlan.address`, `businessPlan.telephone`, `businessPlan.legalStatus`, `businessPlan.dateEstablished`, `businessPlan.registrationNumber`, `businessPlan.advisers`, `businessPlan.isVatRegistered`, `businessPlan.onlinePresence`, `businessPlan.keyPersonnel` |
 | **3. Business Overview** | **Business Plan / Lean Canvas** | `businessPlan.mission` / `leanCanvas.uniqueValueProposition` |
 | **4. Business Goals** | **Strategy Map / Balanced Scorecard** | `strategyMap.financial`, `strategyMap.customer`, etc. |
 | **Product / Service Description** | **Lean Canvas / BMC** | `leanCanvas.solution` / `bmc.valuePropositions` |
@@ -28,9 +28,9 @@ Here is how each section of the Word template maps to our existing strategic fra
 | **13. Suppliers** | **BMC / Value Chain** | `bmc.keyPartners` / `valueChain.procurement` |
 | **14. Equipment** | **Value Chain** | `valueChain.technologyDevelopment` / `valueChain.operations` |
 | **15. Managing Operational Risks** | **Risk Register** | `riskRegister` |
-| **16. Fair Work** | **Value Chain** | `valueChain.hrManagement` |
-| **17. Sustainability** | **PESTEL / Value Chain** | `pestel.environmental` / `valueChain.operations` |
-| **18. Finance** | **Financial Projections** | `financials.years` (Revenue, COGS, OpEx) |
+| **16. Fair Work** | **Business Plan View (Policies)** | `businessPlan.fairWorkPractices` |
+| **17. Sustainability** | **Business Plan View (Policies)** | `businessPlan.sustainabilityPolicy` |
+| **18. Finance** | **Financial Projections View** | `financials.years` (detailed P&L and breakeven), `financials.startupCosts`, `financials.personalBudget`, `financials.sourcingFinance` |
 
 ---
 
