@@ -278,7 +278,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {/* Business Plan Dropdown */}
             {(() => {
-              const planViews = ['executive-summary', 'mission-vision', 'financials'];
+              const planViews = ['executive-summary', 'mission-vision', 'financials', 'business-details'];
               const isPlanActive = planViews.includes(currentView);
               return (
                 <div className="mt-2">
@@ -322,6 +322,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden pl-4"
                       >
+                        <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
+                          onClick={() => navigate('/business-details')}
+                          className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                            currentView === 'business-details' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                          }`}
+                        >
+                          <Building2 className="w-4 h-4" />
+                          Business Details
+                        </motion.button>
+
                         <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
                           onClick={() => navigate('/executive-summary')}
                           className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${

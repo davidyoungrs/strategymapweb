@@ -6,9 +6,14 @@ import {
   Heart,
   ArrowLeft,
   Mic,
-  MicOff
+  MicOff,
+  Plus,
+  Trash2,
+  Users,
+  Check,
+  Building2
 } from 'lucide-react';
-import { CanvasData } from '../types';
+import { CanvasData, KeyPerson, BusinessPlanData } from '../types';
 import { motion } from 'framer-motion';
 import { Tooltip } from './Tooltip';
 import { BUSINESS_PLAN_GUIDANCE, TooltipContent } from '../utils/guidance';
@@ -17,7 +22,7 @@ interface BusinessPlanViewProps {
   canvasData: CanvasData;
   setCanvasData: React.Dispatch<React.SetStateAction<CanvasData>>;
   onBack: () => void;
-  type: 'summary' | 'identity';
+  type: 'summary' | 'identity' | 'details';
 }
 
 interface EditorSectionProps {
@@ -195,7 +200,8 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
     }
 
     const currentPlan = canvasDataRef.current.businessPlan || { executiveSummary: '', mission: '', vision: '', values: '' };
-    initialTextRef.current = currentPlan[field] || '';
+    const fieldValue = currentPlan[field];
+    initialTextRef.current = typeof fieldValue === 'string' ? fieldValue : '';
     activeListeningFieldRef.current = field;
     setActiveField(field);
     try {
@@ -206,14 +212,17 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
     }
   };
 
-  const updatePlan = (field: keyof NonNullable<CanvasData['businessPlan']>, value: string) => {
-    setCanvasData(prev => ({
-      ...prev,
-      businessPlan: {
-        ...(prev.businessPlan || { executiveSummary: '', mission: '', vision: '', values: '' }),
-        [field]: value
-      }
-    }));
+  const updatePlan = (field: keyof NonNullable<CanvasData['businessPlan']>, value: any) => {
+    setCanvasData(prev => {
+      const defaultPlan: BusinessPlanData = { executiveSummary: '', mission: '', vision: '', values: '' };
+      return {
+        ...prev,
+        businessPlan: {
+          ...(prev.businessPlan || defaultPlan),
+          [field]: value
+        }
+      };
+    });
   };
 
   const plan = canvasData.businessPlan || { 
@@ -223,12 +232,39 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
     values: '' 
   };
 
+  const addPerson = () => {
+    const newPerson: KeyPerson = {
+      id: Math.random().toString(36).substring(2, 9),
+      name: '',
+      position: '',
+      experience: '',
+      previousEmployment: '',
+      keySkills: '',
+      qualifications: '',
+      recentSalary: ''
+    };
+    const currentPersonnel = plan.keyPersonnel || [];
+    updatePlan('keyPersonnel', [...currentPersonnel, newPerson]);
+  };
+
+  const updatePerson = (id: string, field: keyof KeyPerson, value: string) => {
+    const currentPersonnel = plan.keyPersonnel || [];
+    const updated = currentPersonnel.map(p => p.id === id ? { ...p, [field]: value } : p);
+    updatePlan('keyPersonnel', updated);
+  };
+
+  const removePerson = (id: string) => {
+    const currentPersonnel = plan.keyPersonnel || [];
+    const filtered = currentPersonnel.filter(p => p.id !== id);
+    updatePlan('keyPersonnel', filtered);
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="max-w-5xl mx-auto space-y-8"
+      className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-300"
     >
       <div className="flex items-center gap-4">
         <button 
@@ -239,7 +275,11 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
         </button>
         <div>
           <h2 className="text-3xl font-black text-zinc-900 dark:text-zinc-100 tracking-tight uppercase italic">
-            {type === 'summary' ? 'Executive Summary' : 'Mission, Vision & Values'}
+            {type === 'summary' 
+              ? 'Executive Summary' 
+              : type === 'identity' 
+              ? 'Mission, Vision & Values' 
+              : 'Business Details & Personnel'}
           </h2>
           <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">Your Business Foundation</p>
         </div>
@@ -260,7 +300,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
             onToggleListening={() => toggleListening('executiveSummary')}
             tooltipContent={BUSINESS_PLAN_GUIDANCE.executiveSummary}
           />
-        ) : (
+        ) : type === 'identity' ? (
           <div className="grid grid-cols-1 gap-6">
             <EditorSection
               icon={<Target className="w-6 h-6" />}
@@ -302,6 +342,247 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               tooltipContent={BUSINESS_PLAN_GUIDANCE.values}
             />
           </div>
+        ) : (
+          <div className="space-y-8">
+            {/* Part 1: Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white/80 dark:bg-zinc-950/70 p-8 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl">
+              <div className="md:col-span-2 flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">Business Information</h3>
+                  <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">Address, legal status, and registration details</p>
+                </div>
+              </div>
+              
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Business Name</label>
+                <input 
+                  type="text"
+                  value={plan.businessName || ''}
+                  onChange={(e) => updatePlan('businessName', e.target.value)}
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                  placeholder="e.g. Kettle Strat LLC"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Telephone Number</label>
+                <input 
+                  type="text"
+                  value={plan.telephone || ''}
+                  onChange={(e) => updatePlan('telephone', e.target.value)}
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                  placeholder="e.g. +44 20 7946 0192"
+                />
+              </div>
+
+              <div className="md:col-span-2 space-y-1">
+                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Physical Address</label>
+                <textarea 
+                  value={plan.address || ''}
+                  onChange={(e) => updatePlan('address', e.target.value)}
+                  className="w-full h-24 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40 resize-none"
+                  placeholder="e.g. 100 Innovation Boulevard, London, EC1A 1BB"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Legal Status / Structure</label>
+                <input 
+                  type="text"
+                  value={plan.legalStatus || ''}
+                  onChange={(e) => updatePlan('legalStatus', e.target.value)}
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                  placeholder="e.g. Private Limited Company"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Date Established</label>
+                <input 
+                  type="text"
+                  value={plan.dateEstablished || ''}
+                  onChange={(e) => updatePlan('dateEstablished', e.target.value)}
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                  placeholder="e.g. May 30, 2026"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Business Registration Number</label>
+                <input 
+                  type="text"
+                  value={plan.registrationNumber || ''}
+                  onChange={(e) => updatePlan('registrationNumber', e.target.value)}
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                  placeholder="e.g. 12345678"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Online Presence (URL)</label>
+                <input 
+                  type="text"
+                  value={plan.onlinePresence || ''}
+                  onChange={(e) => updatePlan('onlinePresence', e.target.value)}
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                  placeholder="e.g. https://kettlestrat.com"
+                />
+              </div>
+
+              <div className="space-y-1 md:col-span-2">
+                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Advisers (Accountant, Legal, etc.)</label>
+                <input 
+                  type="text"
+                  value={plan.advisers || ''}
+                  onChange={(e) => updatePlan('advisers', e.target.value)}
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                  placeholder="e.g. Legal: Smith & Partners, Finance: Jane Doe CPA"
+                />
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <input 
+                  type="checkbox"
+                  id="isVatRegistered"
+                  checked={plan.isVatRegistered || false}
+                  onChange={(e) => updatePlan('isVatRegistered', e.target.checked)}
+                  className="w-4 h-4 text-blue-600 border-zinc-300 dark:border-zinc-700 bg-transparent rounded focus:ring-blue-550 dark:focus:ring-offset-zinc-900 cursor-pointer"
+                />
+                <label htmlFor="isVatRegistered" className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider cursor-pointer select-none">VAT Registered</label>
+              </div>
+            </div>
+
+            {/* Part 2: Key Personnel */}
+            <div className="bg-white/80 dark:bg-zinc-950/70 p-8 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">Key Personnel & Owners</h3>
+                    <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">Add details about owners, directors, and critical hires</p>
+                  </div>
+                </div>
+                <button
+                  onClick={addPerson}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-blue-500/10"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Person
+                </button>
+              </div>
+
+              {(!plan.keyPersonnel || plan.keyPersonnel.length === 0) ? (
+                <div className="py-12 text-center border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
+                  <Users className="w-8 h-8 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
+                  <p className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">No key personnel added yet</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {plan.keyPersonnel.map((person, idx) => (
+                     <div key={person.id} className="p-6 border border-zinc-150 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-900/10 rounded-2xl space-y-4 relative group">
+                       <button
+                         onClick={() => removePerson(person.id)}
+                         className="absolute right-4 top-4 p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                         title="Remove Person"
+                       >
+                         <Trash2 className="w-4 h-4" />
+                       </button>
+
+                       <div className="flex items-center gap-2 mb-2">
+                         <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs">
+                           {idx + 1}
+                         </div>
+                         <h4 className="text-xs font-black uppercase tracking-wider text-zinc-850 dark:text-zinc-200">Personnel Profile</h4>
+                       </div>
+
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         <div className="space-y-1">
+                           <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Name</label>
+                           <input 
+                             type="text"
+                             value={person.name}
+                             onChange={(e) => updatePerson(person.id, 'name', e.target.value)}
+                             className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                             placeholder="Full Name"
+                           />
+                         </div>
+
+                         <div className="space-y-1">
+                           <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Position / Responsibilities</label>
+                           <input 
+                             type="text"
+                             value={person.position}
+                             onChange={(e) => updatePerson(person.id, 'position', e.target.value)}
+                             className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                             placeholder="e.g. Founder & Chief Operations Officer"
+                           />
+                         </div>
+
+                         <div className="space-y-1 md:col-span-2">
+                           <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Industry Experience & Knowledge</label>
+                           <textarea 
+                             value={person.experience}
+                             onChange={(e) => updatePerson(person.id, 'experience', e.target.value)}
+                             className="w-full h-16 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none resize-none"
+                             placeholder="Describe industry expertise or domains they excel in..."
+                           />
+                         </div>
+
+                         <div className="space-y-1">
+                           <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Previous Employment</label>
+                           <input 
+                             type="text"
+                             value={person.previousEmployment}
+                             onChange={(e) => updatePerson(person.id, 'previousEmployment', e.target.value)}
+                             className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                             placeholder="e.g. Senior VP at Google Corp"
+                           />
+                         </div>
+
+                         <div className="space-y-1">
+                           <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Recent Salary (£ / $)</label>
+                           <input 
+                             type="text"
+                             value={person.recentSalary}
+                             onChange={(e) => updatePerson(person.id, 'recentSalary', e.target.value)}
+                             className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                             placeholder="e.g. £85,000"
+                           />
+                         </div>
+
+                         <div className="space-y-1">
+                           <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Key Skills Brought to Business</label>
+                           <input 
+                             type="text"
+                             value={person.keySkills}
+                             onChange={(e) => updatePerson(person.id, 'keySkills', e.target.value)}
+                             className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                             placeholder="e.g. Product design, full-stack scaling, financial planning"
+                           />
+                         </div>
+
+                         <div className="space-y-1">
+                           <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Academic & Professional Qualifications</label>
+                           <input 
+                             type="text"
+                             value={person.qualifications}
+                             onChange={(e) => updatePerson(person.id, 'qualifications', e.target.value)}
+                             className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                             placeholder="e.g. MBA from Harvard, BSc Computer Science"
+                           />
+                         </div>
+                       </div>
+                     </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         )}
       </div>
 
@@ -313,7 +594,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
           <div>
             <h4 className="text-sm font-bold text-amber-900 dark:text-amber-100 uppercase tracking-tight">AI Strategist Ready</h4>
             <p className="text-xs text-amber-700 dark:text-amber-400 mt-1 leading-relaxed">
-              Open the AI Strategist in the sidebar to have Gemma review your {type === 'summary' ? 'summary' : 'mission and values'}. It will provide feedback on clarity, alignment, and strategic impact.
+              Open the AI Strategist in the sidebar to have Gemma review your {type === 'summary' ? 'summary' : type === 'identity' ? 'mission and values' : 'business details and personnel configurations'}. It will provide feedback on completeness, structure, and strategic gaps.
             </p>
           </div>
         </div>

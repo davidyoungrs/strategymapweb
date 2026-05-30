@@ -124,11 +124,32 @@ export interface FinancialProjectionsData {
   years: FinancialYear[];
 }
 
+export interface KeyPerson {
+  id: string;
+  name: string;
+  position: string;
+  experience: string;
+  previousEmployment: string;
+  keySkills: string;
+  qualifications: string;
+  recentSalary: string;
+}
+
 export interface BusinessPlanData {
   executiveSummary: string;
   mission: string;
   vision: string;
   values: string;
+  businessName?: string;
+  address?: string;
+  telephone?: string;
+  legalStatus?: string;
+  dateEstablished?: string;
+  registrationNumber?: string;
+  advisers?: string;
+  isVatRegistered?: boolean;
+  onlinePresence?: string;
+  keyPersonnel?: KeyPerson[];
 }
 
 export interface CanvasData {
