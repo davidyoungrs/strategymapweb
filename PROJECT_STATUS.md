@@ -1,47 +1,43 @@
 # Strategy Labs: Project Status & Handoff
 
-**Date Updated:** May 25, 2026
+**Date Updated:** May 31, 2026
 **Current Branch:** `main` (Stable State)
 
 ---
 
-## 🟢 What We Accomplished Today
+## 🟢 What We Accomplished Recently
 
-### 1. Guest-First Authentication Flow (On-Demand Login/Register)
-- **Removed Hard Login Blocker:** Eliminated the full-screen login barrier on application startup, allowing anonymous guest users to directly access the core app dashboard.
-- **On-Demand Auth Modal:** Created [AuthModal.tsx](file:///Users/davidyoung/Desktop/strategy-labs/src/components/modals/AuthModal.tsx) to provide standard email and social (Google, Apple) authentication in a slide-down modal dialog.
-- **Premium Feature Gates:** Integrated the auth modal gate across all premium entry points. Guest users are prompted to log in/register when:
-  - Clicking on locked strategic frameworks (e.g. Porter's Five Forces, Lean Canvas, BCG Matrix, Ansoff, Customer Journey, Risk Register, or the Business Planning Suite).
-  - Clicking "Save" or "Tools" (Export Options) in the Header.
-  - Clicking "Upgrade" or "Log In / Sign Up" in the Sidebar.
-- **Scrollable Modal Layout:** Optimized the modal viewport styling to handle taller forms (like email signup) without clipping the top edge on compact screens.
+### 1. Business Plan Suite Enhancements (Section 2 & Policies)
+- **Business Details & Personnel Tab**: Added detailed fields for physical address, contact telephone, legal structure, date established, registration number, and legal/financial advisers, including a VAT registration toggle.
+- **Key Personnel Management**: Built an interactive roster list system allowing owners to add, update inline, and remove key staff profiles (industry experience, previous employment, salary, skills, qualifications).
+- **Strategic Policies Tab**: Introduced "Strategic Policies" view under the Business Plan category to capture **Fair Work Practices** and **Sustainability Policies**, fully pre-populated with high-quality boilerplate templates.
 
-### 2. Strategic Views & Bundle Loading Optimization
-- **Dynamic Import for MediaPipe:** Refactored [AIConsultant.tsx](file:///Users/davidyoung/Desktop/strategy-labs/src/components/modals/AIConsultant.tsx) to dynamically load the heavy `@mediapipe/tasks-genai` library only when waken up, removing it from the initial javascript payload.
-- **React.lazy & Suspense:** Converted all strategic routing views, landing page modules, and modals to use dynamic loading via `React.lazy`, wrapping them in clean `<Suspense>` boundaries. 
-- **Production Build Results:** Reduced the main bundle size significantly. Output chunks show all strategic views separated into standalone `4KB - 9KB` files, and `html2canvas` / `jspdf` isolated into dynamic export chunks.
+### 2. Detailed Financial Projections Suite
+- **Interactive P&L Cost Splits**: Extended the 3-year P&L table to split out salaries, rent, banking charges, insurances, stock, depreciation, and other overheads. OpEx is dynamically summed, and a **Breakeven Forecast** is calculated live for each year based on gross profit margin ratios.
+- **Pre-Trading Start-up Costs**: Interactive calculator tracking capital requirements (computers, stock, tools, fees, deposits, licenses) with a live totals summary card.
+- **Personal Survival Budget**: An outgoings vs. income balance sheet calculator verifying net monthly surplus/deficit for founders.
+- **Sourcing of Finance Table**: Structured log capturing total borrowing requirements, owner cash contributions, and assets available as security.
 
-### 3. Localhost Environment
-- **Port Conflict Handling:** Configured and launched the Vite local dev server on port `3001` (avoiding conflict on port `3000` from other active processes).
-- **Google Cloud CLI & MCP Setup:** Located the downloaded GCP service account JSON key (`gen-lang-client-0199311057-firebase-adminsdk-fbsvc-c3fc7df1b8.json`), activated it locally via `gcloud auth activate-service-account`, and configured the `GOOGLE_APPLICATION_CREDENTIALS` environment variable in the IDE's `mcp_config.json` to successfully initialize the Google Developer Knowledge MCP (`gmp-code-assist`).
+### 3. Robust Real-Time Speech-to-Text (STT) Engine
+- **Interim Results (Real-Time Feedback)**: Re-architected the SpeechRecognition handler to enable `interimResults: true`, displaying live, word-by-word dictation feedback directly inside the active inputs.
+- **Transition Queue (Race-Condition Fix)**: Implemented a state queue (`pendingTargetRef` and `startSpeech`) that sequences audio operations, fully resolving the `InvalidStateError` when users quickly swap fields or double-click mic buttons.
 
 ---
 
 ## 🟡 Status of Rolled Back/Pending Features
 
-1. **User Engagement Analytics:** still to re-implement (`firstLoginAt`, `lastActiveAt`).
-2. **Apple Web Redirect Auth:** Apple Sign-in requires registering Web Client credentials (Services ID, Team ID, Key ID, and `.p8` Private Key) inside the Apple Developer portal to map redirects to the Firebase OAuth handler.
+1. **User Engagement Analytics**: still to re-implement (`firstLoginAt`, `lastActiveAt`).
+2. **Apple Web Redirect Auth**: Apple Sign-in registration requirements pending client credentials setup.
 
 ---
 
 ## 🔴 Immediate Next Steps (To-Do List)
 
-### 1. Mobile Responsiveness Overhaul
-- Implement a collapsible "Hamburger Menu" for mobile devices.
-- Refactor the `Header.tsx` action buttons for smaller screens.
+### 1. Business Plan docx Generator
+- Build a backend/frontend utility to compile the gathered business details, strategy maps, SWOT, risks, P&L, and policies directly into a downloadable `.docx` file matching the template structure.
 
-### 2. Financial Projections Completion
-- Finish styling the authorized Financial Projections route and integrate it with report templates.
+### 2. Operations cost views (Staff, Suppliers, Equipment)
+- Build out the outstanding operations tables mapping staff roles, supplier credit terms, and equipment unit check sheets as detailed in the gaps mapping.
 
-### 3. Admin Dashboard Polish
-- Restore case-insensitive `isAdmin` checks and normalize admin whitespace handling.
+### 3. Mobile Responsiveness Overhaul
+- Implement a collapsible "Hamburger Menu" for mobile devices and refactor action buttons for smaller screens.
