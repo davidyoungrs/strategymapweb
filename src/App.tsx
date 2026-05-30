@@ -83,6 +83,7 @@ const LicensesModal = lazy(() => import('./components/modals/LicensesModal').the
 const AIConsultant = lazy(() => import('./components/modals/AIConsultant').then(m => ({ default: m.AIConsultant })));
 const ReportView = lazy(() => import('./components/layout/ReportView').then(m => ({ default: m.ReportView })));
 const AuthModal = lazy(() => import('./components/modals/AuthModal').then(m => ({ default: m.AuthModal })));
+const BmcGuidedDrawer = lazy(() => import('./components/modals/BmcGuidedDrawer').then(m => ({ default: m.BmcGuidedDrawer })));
 
 import { useCanvasData } from './hooks/useCanvasData';
 import { Routes, Route, Navigate, useLocation, useNavigate, Link as RouterLink } from 'react-router-dom';
@@ -150,6 +151,7 @@ export default function App() {
   const [isLicensesOpen, setIsLicensesOpen] = useState(false);
   const [isAIConsultantOpen, setIsAIConsultantOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isBmcGuidedOpen, setIsBmcGuidedOpen] = useState(false);
 
   useEffect(() => {
     (window as any).toggleAIConsultant = () => setIsAIConsultantOpen(prev => !prev);
@@ -502,15 +504,25 @@ export default function App() {
                     transition={{ duration: 0.3, ease: "easeOut" }}
                     className="p-10"
                   >
-                    <div className="mb-8 flex justify-between items-end">
+                    <div className="mb-8 flex justify-between items-end gap-8">
                       <div className="flex-1">
                         <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400 mb-2 block">Project Workspace</span>
                         <input 
                           type="text"
                           value={canvasData.title}
                           onChange={(e) => setCanvasData(prev => ({ ...prev, title: e.target.value }))}
+                          className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 bg-transparent border-none outline-none focus:ring-0 p-0 w-full uppercase"
                           placeholder="Canvas Title"
                         />
+                      </div>
+                      <div className="text-right hidden md:block pt-4">
+                        <button
+                          onClick={() => setIsBmcGuidedOpen(true)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-md shadow-blue-500/10 cursor-pointer"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-blue-100" />
+                          Guided BMC
+                        </button>
                       </div>
                     </div>
 
@@ -804,6 +816,28 @@ export default function App() {
           <AuthModal 
             isOpen={isAuthModalOpen}
             onClose={() => setIsAuthModalOpen(false)}
+          />
+
+          <BmcGuidedDrawer 
+            isOpen={isBmcGuidedOpen}
+            onClose={() => setIsBmcGuidedOpen(false)}
+            onApply={(distilledData) => {
+              setCanvasData(prev => ({
+                ...prev,
+                ...distilledData
+              }));
+            }}
+            currentData={{
+              keyPartners: canvasData.keyPartners || '',
+              keyActivities: canvasData.keyActivities || '',
+              keyResources: canvasData.keyResources || '',
+              valuePropositions: canvasData.valuePropositions || '',
+              customerRelationships: canvasData.customerRelationships || '',
+              channels: canvasData.channels || '',
+              customerSegments: canvasData.customerSegments || '',
+              costStructure: canvasData.costStructure || '',
+              revenueStreams: canvasData.revenueStreams || ''
+            }}
           />
         </Suspense>
       </main>
