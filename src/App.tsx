@@ -314,6 +314,22 @@ export default function App() {
             return `rgba(${imgData[0]}, ${imgData[1]}, ${imgData[2]}, ${(imgData[3] / 255).toFixed(3)})`;
           };
 
+          // Translate oklch/oklab in stylesheets to prevent html2canvas parsing errors
+          const styles = Array.from(clonedDoc.getElementsByTagName('style'));
+          styles.forEach((styleTag) => {
+            let cssText = styleTag.innerHTML;
+            if (cssText.includes('okl')) {
+              cssText = cssText.replace(/(oklab|oklch)\([^)]+\)/g, (match) => {
+                try {
+                  return convertOklToRgb(match);
+                } catch (e) {
+                  return 'transparent';
+                }
+              });
+              styleTag.innerHTML = cssText;
+            }
+          });
+
           const replaceOklColors = (val: string): string => {
             const oklRegex = /(oklab|oklch)\([^)]+\)/g;
             return val.replace(oklRegex, (match) => {
@@ -420,6 +436,22 @@ export default function App() {
               if (imgData[3] === 0) return 'rgba(0,0,0,0)';
               return `rgba(${imgData[0]}, ${imgData[1]}, ${imgData[2]}, ${(imgData[3] / 255).toFixed(3)})`;
             };
+
+            // Translate oklch/oklab in stylesheets to prevent html2canvas parsing errors
+            const styles = Array.from(clonedDoc.getElementsByTagName('style'));
+            styles.forEach((styleTag) => {
+              let cssText = styleTag.innerHTML;
+              if (cssText.includes('okl')) {
+                cssText = cssText.replace(/(oklab|oklch)\([^)]+\)/g, (match) => {
+                  try {
+                    return convertOklToRgb(match);
+                  } catch (e) {
+                    return 'transparent';
+                  }
+                });
+                styleTag.innerHTML = cssText;
+              }
+            });
 
             const replaceOklColors = (val: string): string => {
               const oklRegex = /(oklab|oklch)\([^)]+\)/g;
