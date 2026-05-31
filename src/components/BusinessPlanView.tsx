@@ -12,9 +12,12 @@ import {
   Users,
   Check,
   Building2,
-  Shield
+  Shield,
+  Sparkles,
+  Globe,
+  Network
 } from 'lucide-react';
-import { CanvasData, KeyPerson, BusinessPlanData } from '../types';
+import { CanvasData, KeyPerson, BusinessPlanData, FeatureBenefit, CompetitorItem, CompetitorPrice } from '../types';
 import { motion } from 'framer-motion';
 import { Tooltip } from './Tooltip';
 import { BUSINESS_PLAN_GUIDANCE, TooltipContent } from '../utils/guidance';
@@ -23,7 +26,7 @@ interface BusinessPlanViewProps {
   canvasData: CanvasData;
   setCanvasData: React.Dispatch<React.SetStateAction<CanvasData>>;
   onBack: () => void;
-  type: 'summary' | 'identity' | 'details' | 'policy';
+  type: 'summary' | 'identity' | 'details' | 'policy' | 'products' | 'market' | 'competitors';
 }
 
 interface EditorSectionProps {
@@ -124,9 +127,10 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
   const recognitionRef = useRef<any>(null);
   
   interface ListeningTarget {
-    type: 'plan' | 'person';
+    type: 'plan' | 'person' | 'feature_benefit' | 'competitor_item' | 'competitor_price';
     field: string;
     personId?: string;
+    rowId?: string;
   }
   
   const activeTargetRef = useRef<ListeningTarget | null>(null);
@@ -140,10 +144,15 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
     setCanvasDataRef.current = setCanvasData;
   }, [canvasData, setCanvasData]);
 
-  const startSpeech = (field: string, targetType: 'plan' | 'person', personId?: string) => {
+  const startSpeech = (field: string, targetType: 'plan' | 'person' | 'feature_benefit' | 'competitor_item' | 'competitor_price', personId?: string, rowId?: string) => {
     if (!recognitionRef.current) return;
 
-    const identifier = targetType === 'plan' ? field : `${personId}_${field}`;
+    const identifier = targetType === 'plan' 
+      ? field 
+      : targetType === 'person' 
+      ? `${personId}_${field}` 
+      : `${rowId}_${field}`;
+
     const currentPlan = canvasDataRef.current.businessPlan || { 
       executiveSummary: '', 
       mission: '', 
@@ -162,10 +171,25 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
       if (person) {
         baseVal = person[field as keyof KeyPerson] || '';
       }
+    } else if (targetType === 'feature_benefit' && rowId) {
+      const row = (currentPlan.featuresBenefits || []).find(r => r.id === rowId);
+      if (row) {
+        baseVal = row[field as keyof FeatureBenefit] || '';
+      }
+    } else if (targetType === 'competitor_item' && rowId) {
+      const row = (currentPlan.competitors || []).find(r => r.id === rowId);
+      if (row) {
+        baseVal = row[field as keyof CompetitorItem] || '';
+      }
+    } else if (targetType === 'competitor_price' && rowId) {
+      const row = (currentPlan.competitorPricing || []).find(r => r.id === rowId);
+      if (row) {
+        baseVal = row[field as keyof CompetitorPrice] || '';
+      }
     }
 
     initialTextRef.current = baseVal;
-    activeTargetRef.current = { type: targetType, field, personId };
+    activeTargetRef.current = { type: targetType, field, personId, rowId };
     setActiveField(identifier);
     try {
       recognitionRef.current.start();
@@ -203,7 +227,11 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
           const defaultPlan: BusinessPlanData = { executiveSummary: '', mission: '', vision: '', values: '', fairWorkPractices: '', sustainabilityPolicy: '' };
           if (target.type === 'plan') {
             const baseText = initialTextRef.current.trim();
-            const isLongForm = ['executiveSummary', 'mission', 'vision', 'values', 'fairWorkPractices', 'sustainabilityPolicy'].includes(target.field);
+            const isLongForm = [
+              'executiveSummary', 'mission', 'vision', 'values', 'fairWorkPractices', 'sustainabilityPolicy',
+              'marketTrends', 'marketTrendsResearch', 'customerGroups', 'customerDemands', 'customerResearch',
+              'gatheredCompetitorInfo', 'competitorImprovement', 'competitiveAdvantage'
+            ].includes(target.field);
             const updatedValue = isLongForm
               ? (baseText ? `${baseText}\n- ${cleanSessionTranscript}` : `- ${cleanSessionTranscript}`)
               : (initialTextRef.current ? `${initialTextRef.current} ${cleanSessionTranscript}` : cleanSessionTranscript);
@@ -234,6 +262,63 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
                 }
               };
             });
+          } else if (target.type === 'feature_benefit' && target.rowId) {
+            setCanvasDataRef.current(prev => {
+              const rows = prev.businessPlan?.featuresBenefits || [];
+              const updated = rows.map(r => {
+                if (r.id === target.rowId) {
+                  const baseVal = r[target.field as keyof FeatureBenefit] || '';
+                  const updatedValue = baseVal.trim() ? `${baseVal} ${cleanSessionTranscript}` : cleanSessionTranscript;
+                  return { ...r, [target.field]: updatedValue };
+                }
+                return r;
+              });
+              return {
+                ...prev,
+                businessPlan: {
+                  ...(prev.businessPlan || defaultPlan),
+                  featuresBenefits: updated
+                }
+              };
+            });
+          } else if (target.type === 'competitor_item' && target.rowId) {
+            setCanvasDataRef.current(prev => {
+              const rows = prev.businessPlan?.competitors || [];
+              const updated = rows.map(r => {
+                if (r.id === target.rowId) {
+                  const baseVal = r[target.field as keyof CompetitorItem] || '';
+                  const updatedValue = baseVal.trim() ? `${baseVal} ${cleanSessionTranscript}` : cleanSessionTranscript;
+                  return { ...r, [target.field]: updatedValue };
+                }
+                return r;
+              });
+              return {
+                ...prev,
+                businessPlan: {
+                  ...(prev.businessPlan || defaultPlan),
+                  competitors: updated
+                }
+              };
+            });
+          } else if (target.type === 'competitor_price' && target.rowId) {
+            setCanvasDataRef.current(prev => {
+              const rows = prev.businessPlan?.competitorPricing || [];
+              const updated = rows.map(r => {
+                if (r.id === target.rowId) {
+                  const baseVal = r[target.field as keyof CompetitorPrice] || '';
+                  const updatedValue = baseVal.trim() ? `${baseVal} ${cleanSessionTranscript}` : cleanSessionTranscript;
+                  return { ...r, [target.field]: updatedValue };
+                }
+                return r;
+              });
+              return {
+                ...prev,
+                businessPlan: {
+                  ...(prev.businessPlan || defaultPlan),
+                  competitorPricing: updated
+                }
+              };
+            });
           }
         }
       };
@@ -254,7 +339,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
         if (pendingTargetRef.current) {
           const next = pendingTargetRef.current;
           pendingTargetRef.current = null;
-          startSpeech(next.field, next.type, next.personId);
+          startSpeech(next.field, next.type, next.personId, next.rowId);
         }
       };
 
@@ -268,10 +353,14 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
     };
   }, []);
 
-  const toggleListening = (field: string, targetType: 'plan' | 'person' = 'plan', personId?: string) => {
+  const toggleListening = (field: string, targetType: 'plan' | 'person' | 'feature_benefit' | 'competitor_item' | 'competitor_price' = 'plan', personId?: string, rowId?: string) => {
     if (!recognitionRef.current) return;
 
-    const identifier = targetType === 'plan' ? field : `${personId}_${field}`;
+    const identifier = targetType === 'plan' 
+      ? field 
+      : targetType === 'person' 
+      ? `${personId}_${field}` 
+      : `${rowId}_${field}`;
 
     if (activeField) {
       if (activeField === identifier) {
@@ -279,12 +368,12 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
         return;
       }
       
-      pendingTargetRef.current = { type: targetType, field, personId };
+      pendingTargetRef.current = { type: targetType, field, personId, rowId };
       recognitionRef.current.stop();
       return;
     }
 
-    startSpeech(field, targetType, personId);
+    startSpeech(field, targetType, personId, rowId);
   };
 
   const updatePlan = (field: keyof NonNullable<CanvasData['businessPlan']>, value: any) => {
@@ -323,7 +412,18 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
     isVatRegistered: canvasData.businessPlan?.isVatRegistered || false,
     keyPersonnel: canvasData.businessPlan?.keyPersonnel || [],
     fairWorkPractices: canvasData.businessPlan?.fairWorkPractices ?? 'We are committed to fostering a fair, flexible, and inclusive workplace. This includes supporting modern hybrid working arrangements, maintaining clear diversity and equal opportunity policies, ensuring transparent career progression, and offering competitive, fair remuneration. We regularly review employee satisfaction and wellness initiatives to support work-life balance.',
-    sustainabilityPolicy: canvasData.businessPlan?.sustainabilityPolicy ?? 'Our sustainability strategy is focused on reducing our carbon footprint and encouraging circular economy practices. We prioritize local sourcing, utilize energy-efficient technologies across our operations, actively minimize single-use waste, and partner with suppliers who align with our environmental and ethical standards.'
+    sustainabilityPolicy: canvasData.businessPlan?.sustainabilityPolicy ?? 'Our sustainability strategy is focused on reducing our carbon footprint and encouraging circular economy practices. We prioritize local sourcing, utilize energy-efficient technologies across our operations, actively minimize single-use waste, and partner with suppliers who align with our environmental and ethical standards.',
+    featuresBenefits: canvasData.businessPlan?.featuresBenefits || [],
+    marketTrends: canvasData.businessPlan?.marketTrends || '',
+    marketTrendsResearch: canvasData.businessPlan?.marketTrendsResearch || '',
+    customerGroups: canvasData.businessPlan?.customerGroups || '',
+    customerDemands: canvasData.businessPlan?.customerDemands || '',
+    customerResearch: canvasData.businessPlan?.customerResearch || '',
+    competitors: canvasData.businessPlan?.competitors || [],
+    competitorPricing: canvasData.businessPlan?.competitorPricing || [],
+    gatheredCompetitorInfo: canvasData.businessPlan?.gatheredCompetitorInfo || '',
+    competitorImprovement: canvasData.businessPlan?.competitorImprovement || '',
+    competitiveAdvantage: canvasData.businessPlan?.competitiveAdvantage || ''
   };
 
   const addPerson = () => {
@@ -351,6 +451,66 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
     const currentPersonnel = plan.keyPersonnel || [];
     const filtered = currentPersonnel.filter(p => p.id !== id);
     updatePlan('keyPersonnel', filtered);
+  };
+
+  const addFeatureBenefit = () => {
+    const newItem: FeatureBenefit = {
+      id: Math.random().toString(36).substring(2, 9),
+      feature: '',
+      benefit: ''
+    };
+    updatePlan('featuresBenefits', [...plan.featuresBenefits, newItem]);
+  };
+
+  const updateFeatureBenefit = (id: string, field: keyof FeatureBenefit, value: string) => {
+    const updated = plan.featuresBenefits.map(item => item.id === id ? { ...item, [field]: value } : item);
+    updatePlan('featuresBenefits', updated);
+  };
+
+  const removeFeatureBenefit = (id: string) => {
+    const filtered = plan.featuresBenefits.filter(item => item.id !== id);
+    updatePlan('featuresBenefits', filtered);
+  };
+
+  const addCompetitor = () => {
+    const newItem: CompetitorItem = {
+      id: Math.random().toString(36).substring(2, 9),
+      name: '',
+      strengths: '',
+      weaknesses: ''
+    };
+    updatePlan('competitors', [...plan.competitors, newItem]);
+  };
+
+  const updateCompetitor = (id: string, field: keyof CompetitorItem, value: string) => {
+    const updated = plan.competitors.map(item => item.id === id ? { ...item, [field]: value } : item);
+    updatePlan('competitors', updated);
+  };
+
+  const removeCompetitor = (id: string) => {
+    const filtered = plan.competitors.filter(item => item.id !== id);
+    updatePlan('competitors', filtered);
+  };
+
+  const addCompetitorPrice = () => {
+    const newItem: CompetitorPrice = {
+      id: Math.random().toString(36).substring(2, 9),
+      productService: '',
+      yourPrice: '',
+      competitorPriceRange: '',
+      differenceReason: ''
+    };
+    updatePlan('competitorPricing', [...plan.competitorPricing, newItem]);
+  };
+
+  const updateCompetitorPrice = (id: string, field: keyof CompetitorPrice, value: string) => {
+    const updated = plan.competitorPricing.map(item => item.id === id ? { ...item, [field]: value } : item);
+    updatePlan('competitorPricing', updated);
+  };
+
+  const removeCompetitorPrice = (id: string) => {
+    const filtered = plan.competitorPricing.filter(item => item.id !== id);
+    updatePlan('competitorPricing', filtered);
   };
 
   return (
@@ -467,7 +627,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               tooltipContent={BUSINESS_PLAN_GUIDANCE.sustainabilityPolicy}
             />
           </div>
-        ) : (
+        ) : type === 'details' ? (
           <div className="space-y-8">
             {/* Part 1: Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white/80 dark:bg-zinc-950/70 p-8 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl">
@@ -948,6 +1108,579 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               )}
             </div>
           </div>
+        ) : type === 'products' ? (
+          <div className="bg-white/80 dark:bg-zinc-950/70 p-8 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">Features & Benefits</h3>
+                  <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">Map product features directly to customer value benefits</p>
+                </div>
+              </div>
+              <button
+                onClick={addFeatureBenefit}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-blue-500/10"
+              >
+                <Plus className="w-4 h-4" />
+                Add Feature
+              </button>
+            </div>
+
+            {(!plan.featuresBenefits || plan.featuresBenefits.length === 0) ? (
+              <div className="py-12 text-center border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
+                <Sparkles className="w-8 h-8 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
+                <p className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">No features mapped yet</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {plan.featuresBenefits.map((item, idx) => (
+                  <div key={item.id} className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 border border-zinc-150 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-900/10 rounded-2xl relative group">
+                    <button
+                      onClick={() => removeFeatureBenefit(item.id)}
+                      className="absolute right-4 top-4 p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                      title="Remove Row"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Feature {idx + 1}</label>
+                        {isSupported && (
+                          <button
+                            type="button"
+                            onClick={() => toggleListening('feature', 'feature_benefit', undefined, item.id)}
+                            className={`p-1 rounded-lg transition-colors ${
+                              activeField === `${item.id}_feature` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
+                            }`}
+                          >
+                            <Mic className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                      <input 
+                        type="text"
+                        value={item.feature}
+                        onChange={(e) => updateFeatureBenefit(item.id, 'feature', e.target.value)}
+                        className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                        placeholder="e.g. Offline Local AI Processing"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Benefit</label>
+                        {isSupported && (
+                          <button
+                            type="button"
+                            onClick={() => toggleListening('benefit', 'feature_benefit', undefined, item.id)}
+                            className={`p-1 rounded-lg transition-colors ${
+                              activeField === `${item.id}_benefit` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
+                            }`}
+                          >
+                            <Mic className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                      <input 
+                        type="text"
+                        value={item.benefit}
+                        onChange={(e) => updateFeatureBenefit(item.id, 'benefit', e.target.value)}
+                        className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                        placeholder="e.g. Absolute user privacy and zero execution latency"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : type === 'market' ? (
+          <div className="grid grid-cols-1 gap-6">
+            {/* Trends Section */}
+            <div className="p-8 bg-white/80 dark:bg-zinc-950/70 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                  <Globe className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">Market Trends & Primary Research</h3>
+                  <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">Validate industry shifts and secondary research sources</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Chosen Market Trends</label>
+                    {isSupported && (
+                      <button
+                        type="button"
+                        onClick={() => toggleListening('marketTrends')}
+                        className={`p-1 rounded-lg transition-colors ${
+                          activeField === 'marketTrends' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
+                        }`}
+                      >
+                        <Mic className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <textarea 
+                    value={plan.marketTrends}
+                    onChange={(e) => updatePlan('marketTrends', e.target.value)}
+                    className="w-full h-44 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none resize-none"
+                    placeholder="Describe key trends, growth trajectory, or industry movements..."
+                  />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">How You Know This (Market Sources)</label>
+                    {isSupported && (
+                      <button
+                        type="button"
+                        onClick={() => toggleListening('marketTrendsResearch')}
+                        className={`p-1 rounded-lg transition-colors ${
+                          activeField === 'marketTrendsResearch' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
+                        }`}
+                      >
+                        <Mic className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <textarea 
+                    value={plan.marketTrendsResearch}
+                    onChange={(e) => updatePlan('marketTrendsResearch', e.target.value)}
+                    className="w-full h-44 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none resize-none"
+                    placeholder="Detail primary or secondary research evidence, industry statistics, and reports..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Customers Section */}
+            <div className="p-8 bg-white/80 dark:bg-zinc-950/70 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">Customer Research Details</h3>
+                  <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">Define target client groups and their feedback requirements</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Customer Groups</label>
+                    {isSupported && (
+                      <button
+                        type="button"
+                        onClick={() => toggleListening('customerGroups')}
+                        className={`p-1 rounded-lg transition-colors ${
+                          activeField === 'customerGroups' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
+                        }`}
+                      >
+                        <Mic className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <textarea 
+                    value={plan.customerGroups}
+                    onChange={(e) => updatePlan('customerGroups', e.target.value)}
+                    className="w-full h-40 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none resize-none"
+                    placeholder="e.g. Freelance Marketers, startup founders, consulting managers..."
+                  />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">What Customers Want</label>
+                    {isSupported && (
+                      <button
+                        type="button"
+                        onClick={() => toggleListening('customerDemands')}
+                        className={`p-1 rounded-lg transition-colors ${
+                          activeField === 'customerDemands' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
+                        }`}
+                      >
+                        <Mic className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <textarea 
+                    value={plan.customerDemands}
+                    onChange={(e) => updatePlan('customerDemands', e.target.value)}
+                    className="w-full h-40 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none resize-none"
+                    placeholder="Pain points, desired capabilities, pricing sensitivities..."
+                  />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">How You Know This (Validation)</label>
+                    {isSupported && (
+                      <button
+                        type="button"
+                        onClick={() => toggleListening('customerResearch')}
+                        className={`p-1 rounded-lg transition-colors ${
+                          activeField === 'customerResearch' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
+                        }`}
+                      >
+                        <Mic className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <textarea 
+                    value={plan.customerResearch}
+                    onChange={(e) => updatePlan('customerResearch', e.target.value)}
+                    className="w-full h-40 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none resize-none"
+                    placeholder="Summarize surveys, client interviews, focus group details, secondary sources..."
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : type === 'competitors' ? (
+          <div className="space-y-8">
+            {/* Part 1: Competitors Matrix */}
+            <div className="bg-white/80 dark:bg-zinc-950/70 p-8 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                    <Network className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">Competitor Evaluation Matrix</h3>
+                    <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">Map competitor names, strengths, and vulnerabilities</p>
+                  </div>
+                </div>
+                <button
+                  onClick={addCompetitor}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-blue-500/10"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Competitor
+                </button>
+              </div>
+
+              {(!plan.competitors || plan.competitors.length === 0) ? (
+                <div className="py-12 text-center border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
+                  <Network className="w-8 h-8 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
+                  <p className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">No competitors listed yet</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {plan.competitors.map((item, idx) => (
+                    <div key={item.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 border border-zinc-150 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-900/10 rounded-2xl relative group">
+                      <button
+                        onClick={() => removeCompetitor(item.id)}
+                        className="absolute right-4 top-4 p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                        title="Remove Competitor"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Competitor Name</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('name', 'competitor_item', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_name` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                        <input 
+                          type="text"
+                          value={item.name}
+                          onChange={(e) => updateCompetitor(item.id, 'name', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-3 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. StratCo Corp"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Key Strengths</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('strengths', 'competitor_item', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_strengths` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                        <input 
+                          type="text"
+                          value={item.strengths}
+                          onChange={(e) => updateCompetitor(item.id, 'strengths', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-3 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. Broad distribution, established brand"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Key Weaknesses</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('weaknesses', 'competitor_item', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_weaknesses` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                        <input 
+                          type="text"
+                          value={item.weaknesses}
+                          onChange={(e) => updateCompetitor(item.id, 'weaknesses', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-3 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. Expensive pricing, slow AI innovation"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Part 2: Competitor Pricing */}
+            <div className="bg-white/80 dark:bg-zinc-950/70 p-8 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                    <Building2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">Price Point Comparisons</h3>
+                    <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">Track your pricing vs. competitor ranges and difference reasons</p>
+                  </div>
+                </div>
+                <button
+                  onClick={addCompetitorPrice}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-blue-500/10"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Price Point
+                </button>
+              </div>
+
+              {(!plan.competitorPricing || plan.competitorPricing.length === 0) ? (
+                <div className="py-12 text-center border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
+                  <Building2 className="w-8 h-8 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
+                  <p className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">No price points compared yet</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {plan.competitorPricing.map((item, idx) => (
+                    <div key={item.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 border border-zinc-150 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-900/10 rounded-2xl relative group">
+                      <button
+                        onClick={() => removeCompetitorPrice(item.id)}
+                        className="absolute right-4 top-4 p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                        title="Remove Row"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Product / Service</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('productService', 'competitor_price', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_productService` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <input 
+                          type="text"
+                          value={item.productService}
+                          onChange={(e) => updateCompetitorPrice(item.id, 'productService', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. Standard SaaS plan"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Your Price (£ / $)</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('yourPrice', 'competitor_price', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_yourPrice` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <input 
+                          type="text"
+                          value={item.yourPrice}
+                          onChange={(e) => updateCompetitorPrice(item.id, 'yourPrice', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. £29/mo"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Competitor Range</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('competitorPriceRange', 'competitor_price', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_competitorPriceRange` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <input 
+                          type="text"
+                          value={item.competitorPriceRange}
+                          onChange={(e) => updateCompetitorPrice(item.id, 'competitorPriceRange', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. £49 - £99/mo"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Difference Justification</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('differenceReason', 'competitor_price', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_differenceReason` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <input 
+                          type="text"
+                          value={item.differenceReason}
+                          onChange={(e) => updateCompetitorPrice(item.id, 'differenceReason', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. Cost efficiency of secure local browser processing"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Part 3: Qualitative evaluation */}
+            <div className="p-8 bg-white/80 dark:bg-zinc-950/70 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                  <Shield className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">Competitive Strategy</h3>
+                  <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">Formulate strategies to improve on competition offerings</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Gathered Competitor Info</label>
+                    {isSupported && (
+                      <button
+                        type="button"
+                        onClick={() => toggleListening('gatheredCompetitorInfo')}
+                        className={`p-1 rounded-lg transition-colors ${
+                          activeField === 'gatheredCompetitorInfo' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
+                        }`}
+                      >
+                        <Mic className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <textarea 
+                    value={plan.gatheredCompetitorInfo}
+                    onChange={(e) => updatePlan('gatheredCompetitorInfo', e.target.value)}
+                    className="w-full h-36 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none resize-none"
+                    placeholder="Detail gathered specifications, client feedback on them, marketing focus..."
+                  />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">How You Can Improve Offer / Prices</label>
+                    {isSupported && (
+                      <button
+                        type="button"
+                        onClick={() => toggleListening('competitorImprovement')}
+                        className={`p-1 rounded-lg transition-colors ${
+                          activeField === 'competitorImprovement' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
+                        }`}
+                      >
+                        <Mic className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <textarea 
+                    value={plan.competitorImprovement}
+                    onChange={(e) => updatePlan('competitorImprovement', e.target.value)}
+                    className="w-full h-36 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none resize-none"
+                    placeholder="Strategies to deliver higher quality, faster response, or lower cost..."
+                  />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Your Competitive Advantage</label>
+                    {isSupported && (
+                      <button
+                        type="button"
+                        onClick={() => toggleListening('competitiveAdvantage')}
+                        className={`p-1 rounded-lg transition-colors ${
+                          activeField === 'competitiveAdvantage' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
+                        }`}
+                      >
+                        <Mic className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <textarea 
+                    value={plan.competitiveAdvantage}
+                    onChange={(e) => updatePlan('competitiveAdvantage', e.target.value)}
+                    className="w-full h-36 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none resize-none"
+                    placeholder="Detail unique IP, execution speed, cost structure, exclusive partnerships..."
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {/* Part 1: Details */}
+          </div>
         )}
       </div>
 
@@ -959,7 +1692,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
           <div>
             <h4 className="text-sm font-bold text-amber-900 dark:text-amber-100 uppercase tracking-tight">AI Strategist Ready</h4>
             <p className="text-xs text-amber-700 dark:text-amber-400 mt-1 leading-relaxed">
-              Open the AI Strategist in the sidebar to have Gemma review your {type === 'summary' ? 'summary' : type === 'identity' ? 'mission and values' : type === 'policy' ? 'strategic policies' : 'business details and personnel configurations'}. It will provide feedback on completeness, structure, and strategic gaps.
+              Open the AI Strategist in the sidebar to have Gemma review your {type === 'summary' ? 'summary' : type === 'identity' ? 'mission and values' : type === 'policy' ? 'strategic policies' : type === 'products' ? 'features and benefits' : type === 'market' ? 'market and customer research' : type === 'competitors' ? 'competitive landscape' : 'business details and personnel configurations'}. It will provide feedback on completeness, structure, and strategic gaps.
             </p>
           </div>
         </div>

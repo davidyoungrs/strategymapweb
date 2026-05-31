@@ -7,10 +7,15 @@
 
 ## 🟢 What We Accomplished Recently
 
-### 1. Business Plan Suite Enhancements (Section 2 & Policies)
+### 1. Business Plan Suite Enhancements (Section 2, Policies, & Gaps)
 - **Business Details & Personnel Tab**: Added detailed fields for physical address, contact telephone, legal structure, date established, registration number, and legal/financial advisers, including a VAT registration toggle.
 - **Key Personnel Management**: Built an interactive roster list system allowing owners to add, update inline, and remove key staff profiles (industry experience, previous employment, salary, skills, qualifications).
 - **Strategic Policies Tab**: Introduced "Strategic Policies" view under the Business Plan category to capture **Fair Work Practices** and **Sustainability Policies**, fully pre-populated with high-quality boilerplate templates.
+- **Product, Market & Competitor Tables**: Added three new interactive sections to "Your Business Plan":
+  - **Products & Goals**: Structured grid mapping individual features directly to customer value benefits.
+  - **Market & Customers**: Interactive fields for trends and validation of customer feedback/demand.
+  - **Competitor Analysis**: Features a competitor evaluation matrix, qualitative improvement strategy tools, and pricing comparison grids.
+- **Mission, Vision & Values**: Repositioned the Mission & Values section to the top-level of the left-hand navigation sidebar and made it completely free for all users (bypassing the premium gate).
 
 ### 2. Detailed Financial Projections Suite
 - **Interactive P&L Cost Splits**: Extended the 3-year P&L table to split out salaries, rent, banking charges, insurances, stock, depreciation, and other overheads. OpEx is dynamically summed, and a **Breakeven Forecast** is calculated live for each year based on gross profit margin ratios.

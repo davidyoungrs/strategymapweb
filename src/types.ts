@@ -172,6 +172,27 @@ export interface KeyPerson {
   recentSalary: string;
 }
 
+export interface FeatureBenefit {
+  id: string;
+  feature: string;
+  benefit: string;
+}
+
+export interface CompetitorItem {
+  id: string;
+  name: string;
+  strengths: string;
+  weaknesses: string;
+}
+
+export interface CompetitorPrice {
+  id: string;
+  productService: string;
+  yourPrice: string;
+  competitorPriceRange: string;
+  differenceReason: string;
+}
+
 export interface BusinessPlanData {
   executiveSummary: string;
   mission: string;
@@ -189,6 +210,17 @@ export interface BusinessPlanData {
   keyPersonnel?: KeyPerson[];
   fairWorkPractices?: string;
   sustainabilityPolicy?: string;
+  featuresBenefits?: FeatureBenefit[];
+  marketTrends?: string;
+  marketTrendsResearch?: string;
+  customerGroups?: string;
+  customerDemands?: string;
+  customerResearch?: string;
+  competitors?: CompetitorItem[];
+  competitorPricing?: CompetitorPrice[];
+  gatheredCompetitorInfo?: string;
+  competitorImprovement?: string;
+  competitiveAdvantage?: string;
 }
 
 export interface CanvasData {

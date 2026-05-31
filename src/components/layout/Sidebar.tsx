@@ -71,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'market-sizing', 'risk-register'].includes(currentView)
   );
   const [isBusinessPlanOpen, setIsBusinessPlanOpen] = useState(
-    ['executive-summary', 'mission-vision', 'business-details', 'strategic-policy', 'financials'].includes(currentView)
+    ['executive-summary', 'business-details', 'strategic-policy', 'business-products', 'business-market', 'business-competitors', 'financials'].includes(currentView)
   );
   return (
     <aside className="w-72 bg-white dark:bg-zinc-950 border-r border-zinc-100 dark:border-zinc-800 flex flex-col h-screen sticky top-0">
@@ -128,6 +128,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <Star className="w-5 h-5" />
               SWOT Analysis
+            </motion.button>
+
+            <motion.button 
+              whileHover={{ x: 4 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => navigate('/mission-vision')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                currentView === 'mission-vision' 
+                  ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' 
+                  : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+              }`}
+            >
+              <Target className="w-5 h-5" />
+              Mission & Values
             </motion.button>
 
             <motion.button 
@@ -343,13 +357,33 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </motion.button>
 
                         <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
-                          onClick={() => navigate('/mission-vision')}
+                          onClick={() => navigate('/business-products')}
                           className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
-                            currentView === 'mission-vision' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                            currentView === 'business-products' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
                           }`}
                         >
-                          <Target className="w-4 h-4" />
-                          Mission & Values
+                          <Sparkles className="w-4 h-4" />
+                          Products & Goals
+                        </motion.button>
+
+                        <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
+                          onClick={() => navigate('/business-market')}
+                          className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                            currentView === 'business-market' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                          }`}
+                        >
+                          <Globe className="w-4 h-4" />
+                          Market & Customers
+                        </motion.button>
+
+                        <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
+                          onClick={() => navigate('/business-competitors')}
+                          className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                            currentView === 'business-competitors' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                          }`}
+                        >
+                          <Network className="w-4 h-4" />
+                          Competitor Analysis
                         </motion.button>
 
                         <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}

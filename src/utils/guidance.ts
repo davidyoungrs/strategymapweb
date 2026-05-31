@@ -571,5 +571,46 @@ export const BUSINESS_PLAN_GUIDANCE: Record<string, TooltipContent> = {
       "How does your business incorporate circular economy principles, recycling, or waste reduction?"
     ],
     example: "We minimize server energy consumption through green hosting partners and source all physical materials from certified local suppliers."
+  },
+  featuresBenefits: {
+    definition: "A detailed breakdown mapping specific product or service features directly to customer benefits.",
+    questions: [
+      "What exact features or service capabilities do we offer?",
+      "How does each feature translate to value or solve a problem for the customer?"
+    ],
+    example: "Feature: Offline Local AI Processing -> Benefit: Zero latency and absolute user data privacy."
+  },
+  marketTrends: {
+    definition: "Analysis of major social, economic, or technological trends in your chosen industry and how you validated them.",
+    questions: [
+      "What trends are reshaping your target industry?",
+      "What primary or secondary sources verify these trends (how you know this)?"
+    ],
+    example: "We observe a 14% YoY increase in remote work software spending, verified by the Q3 Gartner Software Report."
+  },
+  customerGroups: {
+    definition: "Details of your target customer demographics and direct feedback about what they want.",
+    questions: [
+      "Who are the core customer groups buying your product?",
+      "What customer research or interviews have you conducted to verify their demands?"
+    ],
+    example: "Customer Group: Freelance Marketers. Demand: Consolidated strategy reports. Verified by 45 user interviews."
+  },
+  competitors: {
+    definition: "An evaluation matrix listing specific competitor strengths, weaknesses, and your competitive advantage.",
+    questions: [
+      "Who are your top 3 direct competitors?",
+      "What are their key strengths and weaknesses?",
+      "How will you improve on their offer or price to win market share?"
+    ],
+    example: "Competitor: StratCo. Strength: Large enterprise footprint. Weakness: Outdated UX. Our advantage: Frictionless modern interface."
+  },
+  competitorPricing: {
+    definition: "Comparison grid matching your prices against competitor price points and justifying the difference.",
+    questions: [
+      "What are the unit prices of your main competitors?",
+      "Why are your prices higher, lower, or equal (reasons for difference)?"
+    ],
+    example: "Our price: $29/mo. Competitor range: $49 - $99/mo. Difference reason: Cost efficiency from local on-device AI operations."
   }
 };

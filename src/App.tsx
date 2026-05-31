@@ -616,6 +616,14 @@ export default function App() {
                     onBack={() => navigate('/')} 
                   />
                 } />
+                <Route path="/mission-vision" element={
+                  <BusinessPlanView 
+                    canvasData={canvasData} 
+                    setCanvasData={setCanvasData} 
+                    type="identity"
+                    onBack={() => navigate('/')} 
+                  />
+                } />
                 {isPremium && (
                   <>
                     <Route path="/porter" element={
@@ -689,14 +697,6 @@ export default function App() {
                         onBack={() => navigate('/')} 
                       />
                     } />
-                    <Route path="/mission-vision" element={
-                      <BusinessPlanView 
-                        canvasData={canvasData} 
-                        setCanvasData={setCanvasData} 
-                        type="identity"
-                        onBack={() => navigate('/')} 
-                      />
-                    } />
                     <Route path="/business-details" element={
                       <BusinessPlanView 
                         canvasData={canvasData} 
@@ -710,6 +710,30 @@ export default function App() {
                         canvasData={canvasData} 
                         setCanvasData={setCanvasData} 
                         type="policy"
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                    <Route path="/business-products" element={
+                      <BusinessPlanView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        type="products"
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                    <Route path="/business-market" element={
+                      <BusinessPlanView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        type="market"
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                    <Route path="/business-competitors" element={
+                      <BusinessPlanView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        type="competitors"
                         onBack={() => navigate('/')} 
                       />
                     } />
