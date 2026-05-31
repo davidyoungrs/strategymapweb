@@ -193,6 +193,29 @@ export interface CompetitorPrice {
   differenceReason: string;
 }
 
+export interface StaffMember {
+  id: string;
+  role: string;
+  totalCost: string;
+  experience: string;
+  skillsQualifications: string;
+}
+
+export interface SupplierItem {
+  id: string;
+  name: string;
+  productServiceProvided: string;
+  creditTermsDays: string;
+}
+
+export interface EquipmentItem {
+  id: string;
+  name: string;
+  cost: string;
+  timing: string;
+  fundingSource: string;
+}
+
 export interface BusinessPlanData {
   executiveSummary: string;
   mission: string;
@@ -221,6 +244,11 @@ export interface BusinessPlanData {
   gatheredCompetitorInfo?: string;
   competitorImprovement?: string;
   competitiveAdvantage?: string;
+  staffMembers?: StaffMember[];
+  premisesStartupCosts?: string;
+  premisesFutureRequirements?: string;
+  suppliers?: SupplierItem[];
+  equipment?: EquipmentItem[];
 }
 
 export interface CanvasData {
