@@ -3,54 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useEffect, useState, useRef, FormEvent, ChangeEvent, DragEvent, lazy, Suspense } from 'react';
+import { useEffect, useState, useRef, ChangeEvent, DragEvent, lazy, Suspense } from 'react';
 import { 
   auth, 
   db, 
-  googleProvider, 
-  appleProvider, 
-  signInWithPopup, 
   signOut, 
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  updateProfile
+  onAuthStateChanged
 } from './firebase';
 import { User } from 'firebase/auth';
 import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { handleFirestoreError } from './lib/firestore-utils';
-import { OperationType, UserProfile, CanvasData } from './types';
+import { OperationType, UserProfile } from './types';
 import { 
   Users, 
   Sparkles,
-  Search, 
-  Plus, 
-  Settings, 
-  LogOut, 
-  FileText, 
-  Layout, 
-  Target, 
-  BarChart2, 
   Trash2, 
-  AlertCircle,
-  Menu,
-  X,
-  ChevronRight,
   Shield,
-  Download,
-  Share2,
-  Clock,
-  ExternalLink,
-  Sun,
-  Moon,
-  Loader2,
-  ChevronDown,
-  ChevronUp,
-  Grid3X3,
-  PieChart,
-  Link,
-  Route as RouteIcon,
-  AlertTriangle
+  Loader2
 } from 'lucide-react';
 import { Kettle } from './components/icons/Kettle';
 
@@ -117,14 +86,12 @@ export default function App() {
   
   const location = useLocation();
   const navigate = useNavigate();
-  const currentView = location.pathname.substring(1) || 'canvas';
 
   const [forceStandardMode, setForceStandardMode] = useState(false);
   const isAdmin = profile?.email === 'david.young@reallysimpleapps.com' || profile?.email === 'david.young@celerosft.com';
   const isPremium = (profile?.isPaidTier || isAdmin) && !forceStandardMode;
 
   const [viewUserId, setViewUserId] = useState<string | undefined>(undefined);
-  const [impersonatedUserEmail, setImpersonatedUserEmail] = useState<string | null>(null);
 
   const {
     userCanvases,
@@ -138,9 +105,6 @@ export default function App() {
   } = useCanvasData(user?.uid, profile, viewUserId);
 
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
-  const [isMoreModelsOpen, setIsMoreModelsOpen] = useState(
-    ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'market-sizing', 'risk-register'].includes(currentView)
-  );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [canvasToDelete, setCanvasToDelete] = useState<string | null>(null);
   const [logoUrlInput, setLogoUrlInput] = useState('');
@@ -368,7 +332,6 @@ export default function App() {
       });
 
       const pages = ['report-page-1', 'report-page-2', 'report-page-3'];
-      const moreModelViews = ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'market-sizing', 'risk-register'];
       
       for (let i = 0; i < pages.length; i++) {
         const element = document.getElementById(pages[i]);
@@ -543,7 +506,6 @@ export default function App() {
             <button 
               onClick={() => {
                 setViewUserId(undefined);
-                setImpersonatedUserEmail(null);
               }}
               className="text-[10px] font-black uppercase bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg transition-colors border border-white/30"
             >

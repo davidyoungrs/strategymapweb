@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { SwotData, CanvasData } from '../types';
 import { Zap, AlertTriangle, TrendingUp, ShieldAlert, ChevronDown, Mic, MicOff, Sparkles } from 'lucide-react';
 import { SwotGuidedDrawer } from './modals/SwotGuidedDrawer';

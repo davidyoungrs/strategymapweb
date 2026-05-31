@@ -10,7 +10,6 @@ import {
   Plus,
   Trash2,
   Users,
-  Check,
   Building2,
   Shield,
   Sparkles,
@@ -1370,7 +1369,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {plan.competitors.map((item, idx) => (
+                  {plan.competitors.map((item) => (
                     <div key={item.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 border border-zinc-150 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-900/10 rounded-2xl relative group">
                       <button
                         onClick={() => removeCompetitor(item.id)}
@@ -1485,7 +1484,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {plan.competitorPricing.map((item, idx) => (
+                  {plan.competitorPricing.map((item) => (
                     <div key={item.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 border border-zinc-150 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-900/10 rounded-2xl relative group">
                       <button
                         onClick={() => removeCompetitorPrice(item.id)}

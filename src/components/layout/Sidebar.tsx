@@ -65,7 +65,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const location = useLocation();
   const currentView = location.pathname.substring(1) || 'canvas';
 
-  const isAdmin = userProfile?.email === 'david.young@reallysimpleapps.com' || userProfile?.email === 'david.young@celerosft.com';
 
   const [isMoreModelsOpen, setIsMoreModelsOpen] = useState(
     ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'market-sizing', 'risk-register'].includes(currentView)

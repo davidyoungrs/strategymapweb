@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { LlmInference } from '@mediapipe/tasks-genai';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, Loader2, Bot, ArrowRight, MessageSquare, Send, Mic, MicOff } from 'lucide-react';
+import { X, Loader2, Bot, Send, Mic, MicOff } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { CanvasData } from '../../types';
 

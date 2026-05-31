@@ -10,7 +10,7 @@ interface ReportViewProps {
   profile: UserProfile | null;
 }
 
-export const ReportView: React.FC<ReportViewProps> = ({ canvasData, userCanvases, profile }) => {
+export const ReportView: React.FC<ReportViewProps> = ({ canvasData, userCanvases }) => {
   return (
     <div id="report-capture-container" className="bg-white dark:bg-zinc-950 p-10 space-y-20 w-[1200px]">
       <div className="border-b-4 border-zinc-900 dark:border-zinc-50 pb-8 mb-12">

@@ -8,7 +8,6 @@ import {
   Loader2,
   Cloud,
   Check,
-  AlertCircle,
   Lock
 } from 'lucide-react';
 import { motion } from 'framer-motion';

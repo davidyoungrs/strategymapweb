@@ -74,7 +74,6 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
     updatedAt: null,
   });
   const [originalTitle, setOriginalTitle] = useState('New Venture Strategy');
-  const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
   const [lastSavedData, setLastSavedData] = useState<string>('');
 
@@ -209,7 +208,6 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
       return;
     }
 
-    setIsSaving(true);
     setSaveStatus('saving');
     try {
       const isTitleChanged = canvasData.id && canvasData.title !== originalTitle;
@@ -266,8 +264,6 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
       } else {
         console.warn('Autosave failed:', error);
       }
-    } finally {
-      setIsSaving(false);
     }
   };
 

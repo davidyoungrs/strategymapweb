@@ -4,7 +4,6 @@ import {
   Plus, 
   Trash2,
   ArrowLeft,
-  ChevronDown,
   Sparkles,
   Mic,
   MicOff
