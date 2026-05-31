@@ -674,9 +674,23 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               ? 'Mission, Vision & Values' 
               : type === 'policy'
               ? 'Strategic Policies'
+              : type === 'products'
+              ? 'Products & Goals'
+              : type === 'market'
+              ? 'Market and Customers'
+              : type === 'competitors'
+              ? 'Competitor Analysis'
               : 'Business Details & Personnel'}
           </h2>
-          <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">Your Business Foundation</p>
+          {type !== 'market' && (
+            <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">
+              {type === 'products'
+                ? 'Features & Benefits'
+                : type === 'competitors'
+                ? 'Competitive Landscape'
+                : 'Your Business Foundation'}
+            </p>
+          )}
         </div>
       </div>
 
