@@ -249,6 +249,7 @@ export interface BusinessPlanData {
   premisesFutureRequirements?: string;
   suppliers?: SupplierItem[];
   equipment?: EquipmentItem[];
+  businessGoals?: string;
 }
 
 export interface CanvasData {

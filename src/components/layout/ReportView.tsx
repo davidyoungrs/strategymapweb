@@ -330,6 +330,14 @@ export const ReportView: React.FC<ReportViewProps> = ({ canvasData, userCanvases
             </div>
           )}
         </div>
+
+        {/* Business Goals & Milestones */}
+        <div className="space-y-4 pt-6 border-t border-zinc-100 dark:border-zinc-800/60">
+          <h3 className="text-xs font-black uppercase tracking-widest text-zinc-400">Business Goals & Milestones</h3>
+          <p className="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed whitespace-pre-wrap">
+            {canvasData.businessPlan?.businessGoals || 'No strategic goals or milestones configured.'}
+          </p>
+        </div>
       </div>
 
       {/* report-page-8: Market Overview & Customer Demands */}

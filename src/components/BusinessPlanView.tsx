@@ -359,7 +359,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               'executiveSummary', 'mission', 'vision', 'values', 'fairWorkPractices', 'sustainabilityPolicy',
               'marketTrends', 'marketTrendsResearch', 'customerGroups', 'customerDemands', 'customerResearch',
               'gatheredCompetitorInfo', 'competitorImprovement', 'competitiveAdvantage',
-              'premisesStartupCosts', 'premisesFutureRequirements'
+              'premisesStartupCosts', 'premisesFutureRequirements', 'businessGoals'
             ].includes(target.field);
             const updatedValue = isLongForm
               ? (baseText ? `${baseText}\n- ${cleanSessionTranscript}` : `- ${cleanSessionTranscript}`)
@@ -640,7 +640,8 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
     premisesStartupCosts: canvasData.businessPlan?.premisesStartupCosts || '',
     premisesFutureRequirements: canvasData.businessPlan?.premisesFutureRequirements || '',
     suppliers: canvasData.businessPlan?.suppliers || [],
-    equipment: canvasData.businessPlan?.equipment || []
+    equipment: canvasData.businessPlan?.equipment || [],
+    businessGoals: canvasData.businessPlan?.businessGoals || ''
   };
 
   const addPerson = () => {
@@ -1868,94 +1869,110 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
             </div>
           </div>
         ) : type === 'products' ? (
-          <div className="bg-white/80 dark:bg-zinc-950/70 p-8 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">Features & Benefits</h3>
-                  <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">Map product features directly to customer value benefits</p>
-                </div>
-              </div>
-              <button
-                onClick={addFeatureBenefit}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-blue-500/10"
-              >
-                <Plus className="w-4 h-4" />
-                Add Feature
-              </button>
-            </div>
+          <div className="grid grid-cols-1 gap-6">
+            <EditorSection
+              icon={<Target className="w-6 h-6" />}
+              title="Business Goals & Milestones"
+              subtitle="What are your short-term and long-term strategic objectives?"
+              value={plan.businessGoals}
+              onChange={(val) => updatePlan('businessGoals', val)}
+              placeholder="Detail your key milestones, goals, and metrics for success..."
+              minHeight="200px"
+              isSupported={isSupported}
+              isListening={activeField === 'businessGoals'}
+              onToggleListening={() => toggleListening('businessGoals')}
+              tooltipContent={BUSINESS_PLAN_GUIDANCE.goals}
+            />
 
-            {(!plan.featuresBenefits || plan.featuresBenefits.length === 0) ? (
-              <div className="py-12 text-center border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
-                <Sparkles className="w-8 h-8 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
-                <p className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">No features mapped yet</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {plan.featuresBenefits.map((item, idx) => (
-                  <div key={item.id} className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 border border-zinc-150 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-900/10 rounded-2xl relative group">
-                    <button
-                      onClick={() => removeFeatureBenefit(item.id)}
-                      className="absolute right-4 top-4 p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-                      title="Remove Row"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                    
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-center">
-                        <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Feature {idx + 1}</label>
-                        {isSupported && (
-                          <button
-                            type="button"
-                            onClick={() => toggleListening('feature', 'feature_benefit', undefined, item.id)}
-                            className={`p-1 rounded-lg transition-colors ${
-                              activeField === `${item.id}_feature` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
-                            }`}
-                          >
-                            <Mic className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                      <input 
-                        type="text"
-                        value={item.feature}
-                        onChange={(e) => updateFeatureBenefit(item.id, 'feature', e.target.value)}
-                        className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none"
-                        placeholder="e.g. Offline Local AI Processing"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-center">
-                        <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Benefit</label>
-                        {isSupported && (
-                          <button
-                            type="button"
-                            onClick={() => toggleListening('benefit', 'feature_benefit', undefined, item.id)}
-                            className={`p-1 rounded-lg transition-colors ${
-                              activeField === `${item.id}_benefit` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
-                            }`}
-                          >
-                            <Mic className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                      <input 
-                        type="text"
-                        value={item.benefit}
-                        onChange={(e) => updateFeatureBenefit(item.id, 'benefit', e.target.value)}
-                        className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none"
-                        placeholder="e.g. Absolute user privacy and zero execution latency"
-                      />
-                    </div>
+            <div className="bg-white/80 dark:bg-zinc-950/70 p-8 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5" />
                   </div>
-                ))}
+                  <div>
+                    <h3 className="text-sm font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">Features & Benefits</h3>
+                    <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">Map product features directly to customer value benefits</p>
+                  </div>
+                </div>
+                <button
+                  onClick={addFeatureBenefit}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-blue-500/10"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Feature
+                </button>
               </div>
-            )}
+
+              {(!plan.featuresBenefits || plan.featuresBenefits.length === 0) ? (
+                <div className="py-12 text-center border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
+                  <Sparkles className="w-8 h-8 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
+                  <p className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">No features mapped yet</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {plan.featuresBenefits.map((item, idx) => (
+                    <div key={item.id} className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 border border-zinc-150 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-900/10 rounded-2xl relative group">
+                      <button
+                        onClick={() => removeFeatureBenefit(item.id)}
+                        className="absolute right-4 top-4 p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                        title="Remove Row"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Feature {idx + 1}</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('feature', 'feature_benefit', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_feature` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
+                              }`}
+                            >
+                              <Mic className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                        <input 
+                          type="text"
+                          value={item.feature}
+                          onChange={(e) => updateFeatureBenefit(item.id, 'feature', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. Offline Local AI Processing"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Benefit</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('benefit', 'feature_benefit', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_benefit` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
+                              }`}
+                            >
+                              <Mic className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                        <input 
+                          type="text"
+                          value={item.benefit}
+                          onChange={(e) => updateFeatureBenefit(item.id, 'benefit', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. Absolute user privacy and zero execution latency"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         ) : type === 'market' ? (
           <div className="space-y-8">

@@ -527,6 +527,15 @@ export const BUSINESS_PLAN_GUIDANCE: Record<string, TooltipContent> = {
     ],
     example: "Kettle Strat is seeking $150k in seed funding to expand its B2B strategy SaaS platform, aiming to reach $1.2M ARR in 18 months."
   },
+  goals: {
+    definition: "Clear strategic goals, milestones, or key metrics for success over the next 12-24 months.",
+    questions: [
+      "What are our primary business goals (revenue, user growth, features, launch)?",
+      "What milestones must we reach in the next 6, 12, and 24 months?",
+      "How will we measure success?"
+    ],
+    example: "Launch Beta in Month 3, acquire 500 active users by Month 6, and reach monthly profitability by Month 12."
+  },
   mission: {
     definition: "A statement defining the organization's core purpose, what it does, and who it serves today.",
     questions: [
