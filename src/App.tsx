@@ -251,8 +251,52 @@ export default function App() {
         backgroundColor: darkMode ? '#09090b' : '#ffffff',
         logging: false,
         onclone: (clonedDoc) => {
-          const elements = clonedDoc.getElementsByTagName('*');
           const defaultView = clonedDoc.defaultView || window;
+          
+          // Replace textareas with divs for clean wrapping and sizing in PDF
+          const textareas = Array.from(clonedDoc.getElementsByTagName('textarea'));
+          textareas.forEach((ta) => {
+            const parent = ta.parentNode;
+            if (parent) {
+              const div = clonedDoc.createElement('div');
+              const computed = defaultView.getComputedStyle(ta);
+              for (let i = 0; i < computed.length; i++) {
+                const prop = computed[i];
+                div.style.setProperty(prop, computed.getPropertyValue(prop));
+              }
+              div.style.height = 'auto';
+              div.style.minHeight = 'unset';
+              div.style.whiteSpace = 'pre-wrap';
+              div.style.wordBreak = 'break-word';
+              div.style.overflow = 'visible';
+              div.textContent = ta.value || ta.placeholder || '';
+              parent.replaceChild(div, ta);
+            }
+          });
+
+          // Replace inputs with divs for clean wrapping in PDF
+          const inputs = Array.from(clonedDoc.getElementsByTagName('input'));
+          inputs.forEach((inp) => {
+            if (['text', 'number', 'email', 'tel', 'url'].includes(inp.type) || !inp.type) {
+              const parent = inp.parentNode;
+              if (parent) {
+                const div = clonedDoc.createElement('div');
+                const computed = defaultView.getComputedStyle(inp);
+                for (let i = 0; i < computed.length; i++) {
+                  const prop = computed[i];
+                  div.style.setProperty(prop, computed.getPropertyValue(prop));
+                }
+                div.style.height = 'auto';
+                div.style.whiteSpace = 'pre-wrap';
+                div.style.wordBreak = 'break-word';
+                div.style.overflow = 'visible';
+                div.textContent = inp.value || inp.placeholder || '';
+                parent.replaceChild(div, inp);
+              }
+            }
+          });
+
+          const elements = clonedDoc.getElementsByTagName('*');
           
           // Setup canvas color converter in cloned document context
           const helperCanvas = clonedDoc.createElement('canvas');
