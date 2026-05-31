@@ -14,12 +14,15 @@ import {
   Shield,
   Sparkles,
   Globe,
-  Network
+  Network,
+  Globe2,
+  Flag,
+  DollarSign
 } from 'lucide-react';
 import { CanvasData, KeyPerson, BusinessPlanData, FeatureBenefit, CompetitorItem, CompetitorPrice } from '../types';
 import { motion } from 'framer-motion';
 import { Tooltip } from './Tooltip';
-import { BUSINESS_PLAN_GUIDANCE, TooltipContent } from '../utils/guidance';
+import { BUSINESS_PLAN_GUIDANCE, MARKET_SIZING_GUIDANCE, TooltipContent } from '../utils/guidance';
 
 interface BusinessPlanViewProps {
   canvasData: CanvasData;
@@ -115,6 +118,112 @@ const EditorSection: React.FC<EditorSectionProps> = ({
   );
 };
 
+interface SizingCellProps {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  value: string;
+  description: string;
+  onValueChange: (val: string) => void;
+  onDescChange: (val: string) => void;
+  color: string;
+  isSupported: boolean;
+  isListening: boolean;
+  onToggleListening: () => void;
+  tooltipContent?: TooltipContent;
+}
+
+const SizingCell: React.FC<SizingCellProps> = ({ 
+  icon, 
+  title, 
+  subtitle, 
+  value, 
+  description, 
+  onValueChange, 
+  onDescChange,
+  color,
+  isSupported,
+  isListening,
+  onToggleListening,
+  tooltipContent
+}) => {
+  const [isFocused, setIsFocused] = useState(false);
+
+  const colorVariants: Record<string, any> = {
+    blue: { bg: 'bg-blue-500/5 dark:bg-blue-500/10 border-blue-500/50 dark:border-blue-400/40 ring-2 ring-blue-500/20 dark:ring-blue-400/10 shadow-lg shadow-blue-500/5', hoverShadow: 'hover:shadow-blue-500/5', hoverRing: 'hover:border-blue-500/30 dark:hover:border-blue-400/30', text: 'text-blue-600 dark:text-blue-400', icon: 'bg-blue-600' },
+    indigo: { bg: 'bg-indigo-500/5 dark:bg-indigo-500/10 border-indigo-500/50 dark:border-indigo-400/40 ring-2 ring-indigo-500/20 dark:ring-indigo-400/10 shadow-lg shadow-indigo-500/5', hoverShadow: 'hover:shadow-indigo-500/5', hoverRing: 'hover:border-indigo-500/30 dark:hover:border-indigo-400/30', text: 'text-indigo-600 dark:text-indigo-400', icon: 'bg-indigo-600' },
+    violet: { bg: 'bg-violet-500/5 dark:bg-violet-500/10 border-violet-500/50 dark:border-violet-400/40 ring-2 ring-violet-500/20 dark:ring-violet-400/10 shadow-lg shadow-violet-500/5', hoverShadow: 'hover:shadow-violet-500/5', hoverRing: 'hover:border-violet-500/30 dark:hover:border-violet-400/30', text: 'text-violet-600 dark:text-violet-400', icon: 'bg-violet-600' },
+  };
+
+  const cv = colorVariants[color] || colorVariants.blue;
+
+  return (
+    <div className={`relative p-6 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl transition-all duration-300 ${
+      isFocused 
+        ? `${cv.bg}` 
+        : `hover:-translate-y-1.5 hover:shadow-2xl ${cv.hoverShadow} ${cv.hoverRing}`
+    }`}>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+            isFocused ? `${cv.icon} text-white shadow-lg scale-110` : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'
+          }`}>
+            {icon}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className={`text-xs font-black uppercase tracking-[0.2em] leading-none transition-colors ${isFocused ? cv.text : 'text-zinc-900 dark:text-zinc-100'}`}>{title}</h3>
+            </div>
+            <p className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest mt-1.5">{subtitle}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {isSupported && (
+            <button
+              type="button"
+              onClick={onToggleListening}
+              className={`p-1.5 rounded-lg transition-all duration-300 flex items-center justify-center ${
+                isListening
+                  ? 'bg-red-500/20 text-red-500 dark:text-red-400 animate-pulse ring-2 ring-red-500/40'
+                  : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-650 dark:hover:text-zinc-300'
+              }`}
+              title={isListening ? `Stop recording ${title.toLowerCase()}` : `Start voice-to-text for ${title.toLowerCase()}`}
+            >
+              {isListening ? (
+                <MicOff className="w-4 h-4 text-red-500 dark:text-red-400" />
+              ) : (
+                <Mic className="w-4 h-4" />
+              )}
+            </button>
+          )}
+
+          <div className={`flex items-center gap-1 px-4 py-2 rounded-xl border ${isFocused ? 'border-zinc-300 dark:border-zinc-700' : 'border-zinc-100 dark:border-zinc-800'} bg-white dark:bg-zinc-900 transition-colors`}>
+            <DollarSign className="w-3 h-3 text-zinc-400 dark:text-zinc-600 font-bold" />
+            <input
+              value={value}
+              onChange={(e) => onValueChange(e.target.value)}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              placeholder="0.00"
+              className="w-24 bg-transparent outline-none text-sm font-black text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
+            />
+          </div>
+        </div>
+      </div>
+      <textarea
+        value={description}
+        onChange={(e) => onDescChange(e.target.value)}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        placeholder={`Describe your ${title.toLowerCase()}...`}
+        className="w-full bg-transparent resize-none outline-none text-sm leading-relaxed text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 font-semibold h-24 scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent transition-colors"
+      />
+      {tooltipContent && <Tooltip content={tooltipContent} />}
+    </div>
+  );
+};
+
 export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
   canvasData,
   setCanvasData,
@@ -126,7 +235,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
   const recognitionRef = useRef<any>(null);
   
   interface ListeningTarget {
-    type: 'plan' | 'person' | 'feature_benefit' | 'competitor_item' | 'competitor_price';
+    type: 'plan' | 'person' | 'feature_benefit' | 'competitor_item' | 'competitor_price' | 'market_sizing';
     field: string;
     personId?: string;
     rowId?: string;
@@ -143,13 +252,15 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
     setCanvasDataRef.current = setCanvasData;
   }, [canvasData, setCanvasData]);
 
-  const startSpeech = (field: string, targetType: 'plan' | 'person' | 'feature_benefit' | 'competitor_item' | 'competitor_price', personId?: string, rowId?: string) => {
+  const startSpeech = (field: string, targetType: 'plan' | 'person' | 'feature_benefit' | 'competitor_item' | 'competitor_price' | 'market_sizing', personId?: string, rowId?: string) => {
     if (!recognitionRef.current) return;
 
     const identifier = targetType === 'plan' 
       ? field 
       : targetType === 'person' 
       ? `${personId}_${field}` 
+      : targetType === 'market_sizing'
+      ? `marketSizing_${field}`
       : `${rowId}_${field}`;
 
     const currentPlan = canvasDataRef.current.businessPlan || { 
@@ -185,6 +296,9 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
       if (row) {
         baseVal = row[field as keyof CompetitorPrice] || '';
       }
+    } else if (targetType === 'market_sizing') {
+      const currentSizing = canvasDataRef.current.marketSizing || { tam: '', sam: '', som: '', tamDescription: '', samDescription: '', somDescription: '' };
+      baseVal = currentSizing[field as keyof NonNullable<CanvasData['marketSizing']>] || '';
     }
 
     initialTextRef.current = baseVal;
@@ -318,6 +432,20 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
                 }
               };
             });
+          } else if (target.type === 'market_sizing') {
+            const baseText = initialTextRef.current.trim();
+            const isLongForm = ['tamDescription', 'samDescription', 'somDescription'].includes(target.field);
+            const updatedValue = isLongForm
+              ? (baseText ? `${baseText}\n- ${cleanSessionTranscript}` : `- ${cleanSessionTranscript}`)
+              : (initialTextRef.current ? `${initialTextRef.current} ${cleanSessionTranscript}` : cleanSessionTranscript);
+
+            setCanvasDataRef.current(prev => ({
+              ...prev,
+              marketSizing: {
+                ...(prev.marketSizing || { tam: '', sam: '', som: '', tamDescription: '', samDescription: '', somDescription: '' }),
+                [target.field]: updatedValue
+              }
+            }));
           }
         }
       };
@@ -352,13 +480,15 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
     };
   }, []);
 
-  const toggleListening = (field: string, targetType: 'plan' | 'person' | 'feature_benefit' | 'competitor_item' | 'competitor_price' = 'plan', personId?: string, rowId?: string) => {
+  const toggleListening = (field: string, targetType: 'plan' | 'person' | 'feature_benefit' | 'competitor_item' | 'competitor_price' | 'market_sizing' = 'plan', personId?: string, rowId?: string) => {
     if (!recognitionRef.current) return;
 
     const identifier = targetType === 'plan' 
       ? field 
       : targetType === 'person' 
       ? `${personId}_${field}` 
+      : targetType === 'market_sizing'
+      ? `marketSizing_${field}`
       : `${rowId}_${field}`;
 
     if (activeField) {
@@ -393,6 +523,16 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
         }
       };
     });
+  };
+
+  const updateMarket = (field: keyof NonNullable<CanvasData['marketSizing']>, value: string) => {
+    setCanvasData(prev => ({
+      ...prev,
+      marketSizing: {
+        ...(prev.marketSizing || { tam: '', sam: '', som: '', tamDescription: '', samDescription: '', somDescription: '' }),
+        [field]: value
+      }
+    }));
   };
 
   const plan = {
@@ -1198,8 +1338,104 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
             )}
           </div>
         ) : type === 'market' ? (
-          <div className="grid grid-cols-1 gap-6">
-            {/* Trends Section */}
+          <div className="space-y-8">
+            {/* Part 1: Market Sizing */}
+            <div className="bg-white/80 dark:bg-zinc-950/70 p-8 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                  <Globe2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">Market Sizing (TAM • SAM • SOM)</h3>
+                  <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">Define your global opportunity, reachable segment, and realistic capture target</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Visualization Side */}
+                <div className="lg:col-span-5 flex justify-center py-6">
+                  <div className="relative w-72 h-72">
+                    {/* TAM Circle */}
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute inset-0 rounded-full bg-blue-50/50 dark:bg-blue-900/10 border-2 border-blue-100 dark:border-blue-900/30 flex items-start justify-center pt-6"
+                    >
+                      <span className="text-[9px] font-black uppercase tracking-widest text-blue-450 dark:text-blue-500">TAM</span>
+                    </motion.div>
+                    {/* SAM Circle */}
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.1 }}
+                      className="absolute inset-[15%] rounded-full bg-indigo-50/50 dark:bg-indigo-900/10 border-2 border-indigo-100 dark:border-indigo-900/30 flex items-start justify-center pt-6 shadow-inner"
+                    >
+                      <span className="text-[9px] font-black uppercase tracking-widest text-indigo-450 dark:text-indigo-500">SAM</span>
+                    </motion.div>
+                    {/* SOM Circle */}
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2 }}
+                      className="absolute inset-[30%] rounded-full bg-violet-600 shadow-xl flex items-center justify-center text-white"
+                    >
+                      <div className="text-center">
+                        <span className="text-[8px] font-black uppercase tracking-[0.2em] opacity-80">Your Market</span>
+                        <p className="text-base font-black tracking-tighter mt-0.5 italic">SOM</p>
+                      </div>
+                    </motion.div>
+                  </div>
+                </div>
+
+                {/* Inputs Side */}
+                <div className="lg:col-span-7 space-y-6">
+                  <SizingCell
+                    icon={<Globe2 className="w-6 h-6" />}
+                    title="Total Addressable Market"
+                    subtitle="TAM • The global opportunity"
+                    value={canvasData.marketSizing?.tam || ''}
+                    description={canvasData.marketSizing?.tamDescription || ''}
+                    onValueChange={(v) => updateMarket('tam', v)}
+                    onDescChange={(v) => updateMarket('tamDescription', v)}
+                    color="blue"
+                    isSupported={isSupported}
+                    isListening={activeField === 'marketSizing_tamDescription'}
+                    onToggleListening={() => toggleListening('tamDescription', 'market_sizing')}
+                    tooltipContent={MARKET_SIZING_GUIDANCE.tamDescription}
+                  />
+                  <SizingCell
+                    icon={<Target className="w-6 h-6" />}
+                    title="Serviceable Addressable Market"
+                    subtitle="SAM • Market segment you can reach"
+                    value={canvasData.marketSizing?.sam || ''}
+                    description={canvasData.marketSizing?.samDescription || ''}
+                    onValueChange={(v) => updateMarket('sam', v)}
+                    onDescChange={(v) => updateMarket('samDescription', v)}
+                    color="indigo"
+                    isSupported={isSupported}
+                    isListening={activeField === 'marketSizing_samDescription'}
+                    onToggleListening={() => toggleListening('samDescription', 'market_sizing')}
+                    tooltipContent={MARKET_SIZING_GUIDANCE.samDescription}
+                  />
+                  <SizingCell
+                    icon={<Flag className="w-6 h-6" />}
+                    title="Serviceable Obtainable Market"
+                    subtitle="SOM • Target you will realistically capture"
+                    value={canvasData.marketSizing?.som || ''}
+                    description={canvasData.marketSizing?.somDescription || ''}
+                    onValueChange={(v) => updateMarket('som', v)}
+                    onDescChange={(v) => updateMarket('somDescription', v)}
+                    color="violet"
+                    isSupported={isSupported}
+                    isListening={activeField === 'marketSizing_somDescription'}
+                    onToggleListening={() => toggleListening('somDescription', 'market_sizing')}
+                    tooltipContent={MARKET_SIZING_GUIDANCE.somDescription}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Part 2: Trends Section */}
             <div className="p-8 bg-white/80 dark:bg-zinc-950/70 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
@@ -1213,7 +1449,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Chosen Market Trends</label>
+                    <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Chosen Market Trends</label>
                     {isSupported && (
                       <button
                         type="button"
@@ -1235,7 +1471,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
                 </div>
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">How You Know This (Market Sources)</label>
+                    <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">How You Know This (Market Sources)</label>
                     {isSupported && (
                       <button
                         type="button"
@@ -1258,7 +1494,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               </div>
             </div>
 
-            {/* Customers Section */}
+            {/* Part 3: Customers Section */}
             <div className="p-8 bg-white/80 dark:bg-zinc-950/70 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
@@ -1272,7 +1508,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Customer Groups</label>
+                    <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Customer Groups</label>
                     {isSupported && (
                       <button
                         type="button"
@@ -1294,7 +1530,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
                 </div>
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">What Customers Want</label>
+                    <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">What Customers Want</label>
                     {isSupported && (
                       <button
                         type="button"
@@ -1316,7 +1552,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
                 </div>
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">How You Know This (Validation)</label>
+                    <label className="text-[10px] font-bold text-zinc-455 dark:text-zinc-500 uppercase tracking-widest">How You Know This (Validation)</label>
                     {isSupported && (
                       <button
                         type="button"

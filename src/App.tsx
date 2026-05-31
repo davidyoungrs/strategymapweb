@@ -37,7 +37,6 @@ const AnsoffMatrixView = lazy(() => import('./components/AnsoffMatrixView').then
 const BcgMatrixView = lazy(() => import('./components/BcgMatrixView').then(m => ({ default: m.BcgMatrixView })));
 const ValueChainView = lazy(() => import('./components/ValueChainView').then(m => ({ default: m.ValueChainView })));
 const CustomerJourneyView = lazy(() => import('./components/CustomerJourneyView').then(m => ({ default: m.CustomerJourneyView })));
-const MarketSizingView = lazy(() => import('./components/MarketSizingView').then(m => ({ default: m.MarketSizingView })));
 const RiskRegisterView = lazy(() => import('./components/RiskRegisterView').then(m => ({ default: m.RiskRegisterView })));
 const FinancialProjectionsView = lazy(() => import('./components/FinancialProjectionsView').then(m => ({ default: m.FinancialProjectionsView })));
 const BusinessPlanView = lazy(() => import('./components/BusinessPlanView').then(m => ({ default: m.BusinessPlanView })));
@@ -625,13 +624,6 @@ export default function App() {
                     } />
                     <Route path="/customer-journey" element={
                       <CustomerJourneyView 
-                        canvasData={canvasData} 
-                        setCanvasData={setCanvasData} 
-                        onBack={() => navigate('/')} 
-                      />
-                    } />
-                    <Route path="/market-sizing" element={
-                      <MarketSizingView 
                         canvasData={canvasData} 
                         setCanvasData={setCanvasData} 
                         onBack={() => navigate('/')} 
