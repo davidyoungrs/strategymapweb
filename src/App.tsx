@@ -330,7 +330,18 @@ export default function App() {
         format: 'a4'
       });
 
-      const pages = ['report-page-1', 'report-page-2', 'report-page-3'];
+      const pages = [
+        'report-page-1',
+        'report-page-2',
+        'report-page-3',
+        'report-page-4',
+        'report-page-5',
+        'report-page-6',
+        'report-page-7',
+        'report-page-8',
+        'report-page-9',
+        'report-page-10'
+      ];
       
       for (let i = 0; i < pages.length; i++) {
         const element = document.getElementById(pages[i]);

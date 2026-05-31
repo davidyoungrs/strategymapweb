@@ -144,6 +144,121 @@ export const AIConsultant: React.FC<AIConsultantProps> = ({ canvasData, isOpen, 
     }
   };
 
+const generateFallbackConsultantResponse = (
+  text: string, 
+  canvasData: CanvasData, 
+  history: Message[]
+): string => {
+  const query = text.toLowerCase();
+  const title = canvasData.title || 'your strategy project';
+  const valProps = canvasData.valuePropositions || '';
+  const segments = canvasData.customerSegments || '';
+  const execSummary = canvasData.businessPlan?.executiveSummary || '';
+  const mission = canvasData.businessPlan?.mission || '';
+  
+  let response = `### Strategic Analysis: ${title}\n\n`;
+  
+  if (query.includes('hello') || query.includes('hi') || query.includes('hey') || history.length <= 1) {
+    response += `Hello! I am your strategic consultant. Although local hardware acceleration (WebGL/WebGPU) is currently unavailable, I can still analyze your plan.\n\n`;
+    if (execSummary) {
+      response += `I see you have drafted an **Executive Summary** for **${title}**. What would you like me to review? (e.g., SWOT, target market, value propositions, or staff structures).`;
+    } else {
+      response += `To get started, tell me about your business model or type **"review"** and I will perform a completeness audit on your current canvas inputs.`;
+    }
+    return response;
+  }
+  
+  if (query.includes('review') || query.includes('audit') || query.includes('complete') || query.includes('gap')) {
+    response += `Here is a completeness audit of your strategy maps and plan details for **${title}**:\n\n`;
+    
+    if (execSummary.trim()) {
+      response += `*   **Executive Summary**: *Complete.* Good coverage of your core proposal.\n`;
+    } else {
+      response += `*   **Executive Summary**: *Missing.* I recommend drafting a summary of your strategy map and goals first.\n`;
+    }
+    
+    if (valProps.trim()) {
+      response += `*   **Value Propositions**: *Complete.* ("${valProps.substring(0, 80)}...")\n`;
+    } else {
+      response += `*   **Value Propositions**: *Missing.* Fill out the Value Propositions card in the main Business Model Canvas.\n`;
+    }
+
+    if (segments.trim()) {
+      response += `*   **Customer Segments**: *Complete.* Mapped to target group: "${segments.substring(0, 80)}..."\n`;
+    } else {
+      response += `*   **Customer Segments**: *Missing.* Define your target customer cohorts on the main canvas.\n`;
+    }
+    
+    const personnel = canvasData.businessPlan?.keyPersonnel || [];
+    if (personnel.length > 0) {
+      response += `*   **Key Personnel**: *Complete.* (${personnel.length} owner/director profiles configured).\n`;
+    } else {
+      response += `*   **Key Personnel**: *No profiles.* Add details of your founders and directors in the Business Details & Personnel page.\n`;
+    }
+
+    const staff = canvasData.businessPlan?.staffMembers || [];
+    if (staff.length > 0) {
+      response += `*   **Workforce & Staffing**: *Complete.* (${staff.length} staff member roles defined).\n`;
+    } else {
+      response += `*   **Workforce & Staffing**: *No operational staff.* Consider logging your required operational workforce in Business Details & Personnel.\n`;
+    }
+    
+    response += `\n**Next Steps Recommendation:**\n`;
+    if (!execSummary) {
+      response += `1. Draft your **Executive Summary** to unify your vision.\n`;
+    }
+    if (!valProps || !segments) {
+      response += `2. Link your **Value Propositions** to your **Customer Segments** for product-market fit.\n`;
+    } else {
+      response += `Your strategic foundation is looking solid! Let me know if you would like me to review specific pricing or competitor parameters.`;
+    }
+    return response;
+  }
+  
+  if (query.includes('market') || query.includes('tam') || query.includes('sam') || query.includes('som')) {
+    const tam = canvasData.marketSizing?.tam || '';
+    const sam = canvasData.marketSizing?.sam || '';
+    const som = canvasData.marketSizing?.som || '';
+    response += `**Market Sizing & Customer Segment Audit:**\n\n`;
+    if (tam || sam || som) {
+      response += `You have configured the following metrics:\n`;
+      if (tam) response += `*   **TAM (Total Addressable Market)**: ${tam}\n`;
+      if (sam) response += `*   **SAM (Serviceable Addressable Market)**: ${sam}\n`;
+      if (som) response += `*   **SOM (Serviceable Obtainable Market)**: ${som}\n`;
+      response += `\nEnsure your SAM represents the segment you can realistically target with your current channels, and SOM reflects your immediate capture capacity within 1-2 years.`;
+    } else {
+      response += `You haven't entered market sizing metrics yet. Head over to the **Market & Customers** tab and input values for TAM, SAM, and SOM to calculate your addressable audience.`;
+    }
+    return response;
+  }
+
+  if (query.includes('staff') || query.includes('personnel') || query.includes('hire') || query.includes('workforce') || query.includes('salary')) {
+    const staff = canvasData.businessPlan?.staffMembers || [];
+    const personnel = canvasData.businessPlan?.keyPersonnel || [];
+    response += `**Human Resources & Staffing Analysis:**\n\n`;
+    if (staff.length > 0 || personnel.length > 0) {
+      response += `Current workforce footprint:\n`;
+      if (personnel.length > 0) {
+        response += `*   **Key Personnel / Management**: ${personnel.map(p => `${p.name} (${p.position})`).join(', ')}\n`;
+      }
+      if (staff.length > 0) {
+        response += `*   **Operational Staff**: ${staff.map(s => `${s.role} (Cost: ${s.totalCost})`).join(', ')}\n`;
+      }
+    } else {
+      response += `No personnel or operational staff details have been logged yet. Please head to **Business Details & Personnel** to populate your leadership team and operational workforce.`;
+    }
+    return response;
+  }
+
+  response += `Thank you for your message. Since local WebGPU/WebGL model inference is inactive on your browser/device, I have generated feedback based on your plan:\n\n`;
+  response += `*   **Project Title**: ${title}\n`;
+  if (mission) response += `*   **Mission**: "${mission}"\n`;
+  if (valProps) response += `*   **Core Value Proposition**: "${valProps}"\n\n`;
+  response += `I can help you audit your business plan elements. Type **\"review\"** to check for missing items, **\"market\"** to audit market sizes, or **\"staff\"** to review staffing models.`;
+  
+  return response;
+};
+
   const handleSendMessage = async () => {
     const textToSend = inputValue.trim();
     if (!textToSend || loading || modelLoading) return;
@@ -165,6 +280,9 @@ export const AIConsultant: React.FC<AIConsultantProps> = ({ canvasData, isOpen, 
       }
 
       if (!llmInferenceRef.current) {
+        const fallbackResult = generateFallbackConsultantResponse(textToSend, canvasData, newMessages);
+        setMessages([...newMessages, { role: 'assistant', content: fallbackResult }]);
+        setError('Note: Running in compatibility fallback mode due to local model loading error.');
         setLoading(false);
         return;
       }
@@ -190,7 +308,9 @@ export const AIConsultant: React.FC<AIConsultantProps> = ({ canvasData, isOpen, 
       setMessages([...newMessages, { role: 'assistant', content: result }]);
     } catch (err: any) {
       console.error('Inference Error:', err);
-      setError('AI Inference failed. Your device might not support WebGL/WebGPU local models.');
+      const fallbackResult = generateFallbackConsultantResponse(textToSend, canvasData, newMessages);
+      setMessages([...newMessages, { role: 'assistant', content: fallbackResult }]);
+      setError('Note: Running in compatibility fallback mode due to model execution failure.');
     } finally {
       setLoading(false);
     }
