@@ -44,6 +44,7 @@ interface SidebarProps {
   onShowTour: () => void;
   isPremium: boolean;
   onAuthRequired: () => void;
+  handleExportReport?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -58,7 +59,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   handleLoadTemplate,
   onShowTour,
   isPremium,
-  onAuthRequired
+  onAuthRequired,
+  handleExportReport
 }) => {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const navigate = useNavigate();
@@ -395,6 +397,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           <Calculator className="w-4 h-4" />
                           Financial Projections
                         </motion.button>
+
+                        <div className="pt-2 mt-2 border-t border-zinc-100 dark:border-zinc-800/60">
+                          <motion.button 
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => handleExportReport?.()}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 dark:from-emerald-600 dark:to-teal-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all font-black uppercase tracking-wider text-[11px]"
+                          >
+                            <FileText className="w-4 h-4" />
+                            Build your Business Plan
+                          </motion.button>
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>

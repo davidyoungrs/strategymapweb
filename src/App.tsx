@@ -476,6 +476,7 @@ export default function App() {
         onShowTour={() => setIsTourOpen(true)}
         isPremium={isPremium}
         onAuthRequired={() => setIsAuthModalOpen(true)}
+        handleExportReport={handleExportReport}
       />
 
       <main className="flex-1 flex flex-col overflow-hidden relative">
