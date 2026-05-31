@@ -36,17 +36,17 @@ Here is how each section of the Word template maps to our existing strategic fra
 
 ## 2. Gaps & Missing Information Checklist
 
-To generate a complete, production-ready Business Plan matching the document template, the following gaps in the current database schema (`types.ts`) and frontend UI must be addressed:
+To generate a complete, production-ready Business Plan matching the document template, the following gaps in the database schema (`types.ts`) and frontend UI have been fully addressed:
 
 ### Gaps in Product, Market & Competitor Tables
 
-- [x] **Features & Benefits**: Lean Canvas captures a simple "Solution" string, but the plan requires a structured table mapping Features directly to customer Benefits.
-- [x] **Customer Groups Research**: Gaps for customer feedback details ("What your customers want" and "How you know this").
-- [x] **Competitor Table**: We lack a structured table matching specific competitors to their Strengths, Weaknesses, price ranges, and comparative price points.
+- [x] **Features & Benefits**: Lean Canvas captures a simple "Solution" string, but the plan requires a structured table mapping Features directly to customer Benefits. (Completed: mapped to `businessPlan.featuresBenefits`)
+- [x] **Customer Groups Research**: Gaps for customer feedback details ("What your customers want" and "How you know this"). (Completed: mapped to `businessPlan.marketTrends`, `businessPlan.customerResearch`, etc.)
+- [x] **Competitor Table**: We lack a structured table matching specific competitors to their Strengths, Weaknesses, price ranges, and comparative price points. (Completed: mapped to `businessPlan.competitors` and `businessPlan.competitorPricing`)
 
 ### Gaps in Operations, Procurement & Staff Costs
 
-- [ ] **Staff Details**: The plan requires an operational staff list detailing: Role, Total Cost, Experience, and specialist skills/qualifications.
-- [ ] **Premises Details**: Gaps for startup premises costs vs. future requirements.
-- [ ] **Suppliers Credit Terms**: BMC key partners does not capture supplier specific products or payment credit terms (number of days credit).
-- [ ] **Equipment Table**: Operational resource details (timing, funding source, cost per unit).
+- [x] **Staff Details**: The plan requires an operational staff list detailing: Role, Total Cost, Experience, and specialist skills/qualifications. (Completed: mapped to `businessPlan.staffMembers`)
+- [x] **Premises Details**: Gaps for startup premises costs vs. future requirements. (Completed: mapped to `businessPlan.premisesStartupCosts` and `businessPlan.premisesFutureRequirements`)
+- [x] **Suppliers Credit Terms**: BMC key partners does not capture supplier specific products or payment credit terms (number of days credit). (Completed: mapped to `businessPlan.suppliers`)
+- [x] **Equipment Table**: Operational resource details (timing, funding source, cost per unit). (Completed: mapped to `businessPlan.equipment`)
