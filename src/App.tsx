@@ -125,6 +125,12 @@ export default function App() {
 
   // --- 2. EFFECTS ---
   useEffect(() => {
+    if (canvasRef.current) {
+      canvasRef.current.scrollTop = 0;
+    }
+  }, [location.pathname, location.search, canvasData.id]);
+
+  useEffect(() => {
     const hasCompletedTour = localStorage.getItem('hasCompletedTour');
     if (user && !hasCompletedTour) {
       const timer = setTimeout(() => setIsTourOpen(true), 2000);
