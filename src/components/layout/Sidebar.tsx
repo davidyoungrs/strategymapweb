@@ -430,45 +430,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             )}
 
-            <div className="pt-2">
-              <motion.button 
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setTemplatesOpen(!templatesOpen)}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100"
-              >
-                <LayoutTemplate className="w-5 h-5" />
-                <span className="flex-1">Examples</span>
-                <motion.div
-                  animate={{ rotate: templatesOpen ? 90 : 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </motion.div>
-              </motion.button>
-              
-              <AnimatePresence>
-                {templatesOpen && (
-                  <motion.div 
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="mt-1 ml-4 space-y-1 overflow-hidden"
-                  >
-                    {TEMPLATES.map(t => (
-                      <motion.button 
-                        key={t.id}
-                        whileHover={{ x: 4 }}
-                        onClick={() => handleLoadTemplate(t.id)}
-                        className="w-full text-left px-4 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all uppercase tracking-tighter"
-                      >
-                        {t.name}
-                      </motion.button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+
           </nav>
         </div>
 
