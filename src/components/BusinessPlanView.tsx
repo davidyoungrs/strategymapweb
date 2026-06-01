@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { isSafeKey } from '../utils/security';
+
 import { 
   FileText, 
   Target, 
@@ -17,7 +19,8 @@ import {
   Network,
   Globe2,
   Flag,
-  DollarSign
+  DollarSign,
+  Box
 } from 'lucide-react';
 import { CanvasData, KeyPerson, BusinessPlanData, FeatureBenefit, CompetitorItem, CompetitorPrice, StaffMember, SupplierItem, EquipmentItem } from '../types';
 import { motion } from 'framer-motion';
@@ -28,7 +31,7 @@ interface BusinessPlanViewProps {
   canvasData: CanvasData;
   setCanvasData: React.Dispatch<React.SetStateAction<CanvasData>>;
   onBack: () => void;
-  type: 'summary' | 'identity' | 'details' | 'policy' | 'products' | 'market' | 'competitors';
+  type: 'summary' | 'identity' | 'details' | 'policy' | 'products' | 'market' | 'competitors' | 'operations';
 }
 
 interface EditorSectionProps {
@@ -661,7 +664,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
 
   const updatePerson = (id: string, field: keyof KeyPerson, value: string) => {
     const currentPersonnel = plan.keyPersonnel || [];
-    const updated = currentPersonnel.map(p => p.id === id ? { ...p, [field]: value } : p);
+    const updated = currentPersonnel.map(p => p.id === id ? (!isSafeKey(field) ? p : { ...p, [field]: value }) : p);
     updatePlan('keyPersonnel', updated);
   };
 
@@ -683,7 +686,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
   };
 
   const updateStaffMember = (id: string, field: keyof StaffMember, value: string) => {
-    const updated = plan.staffMembers.map(item => item.id === id ? { ...item, [field]: value } : item);
+    const updated = plan.staffMembers.map(item => item.id === id ? (!isSafeKey(field) ? item : { ...item, [field]: value }) : item);
     updatePlan('staffMembers', updated);
   };
 
@@ -703,7 +706,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
   };
 
   const updateSupplier = (id: string, field: keyof SupplierItem, value: string) => {
-    const updated = plan.suppliers.map(item => item.id === id ? { ...item, [field]: value } : item);
+    const updated = plan.suppliers.map(item => item.id === id ? (!isSafeKey(field) ? item : { ...item, [field]: value }) : item);
     updatePlan('suppliers', updated);
   };
 
@@ -724,7 +727,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
   };
 
   const updateEquipmentItem = (id: string, field: keyof EquipmentItem, value: string) => {
-    const updated = plan.equipment.map(item => item.id === id ? { ...item, [field]: value } : item);
+    const updated = plan.equipment.map(item => item.id === id ? (!isSafeKey(field) ? item : { ...item, [field]: value }) : item);
     updatePlan('equipment', updated);
   };
 
@@ -743,7 +746,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
   };
 
   const updateFeatureBenefit = (id: string, field: keyof FeatureBenefit, value: string) => {
-    const updated = plan.featuresBenefits.map(item => item.id === id ? { ...item, [field]: value } : item);
+    const updated = plan.featuresBenefits.map(item => item.id === id ? (!isSafeKey(field) ? item : { ...item, [field]: value }) : item);
     updatePlan('featuresBenefits', updated);
   };
 
@@ -763,7 +766,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
   };
 
   const updateCompetitor = (id: string, field: keyof CompetitorItem, value: string) => {
-    const updated = plan.competitors.map(item => item.id === id ? { ...item, [field]: value } : item);
+    const updated = plan.competitors.map(item => item.id === id ? (!isSafeKey(field) ? item : { ...item, [field]: value }) : item);
     updatePlan('competitors', updated);
   };
 
@@ -784,7 +787,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
   };
 
   const updateCompetitorPrice = (id: string, field: keyof CompetitorPrice, value: string) => {
-    const updated = plan.competitorPricing.map(item => item.id === id ? { ...item, [field]: value } : item);
+    const updated = plan.competitorPricing.map(item => item.id === id ? (!isSafeKey(field) ? item : { ...item, [field]: value }) : item);
     updatePlan('competitorPricing', updated);
   };
 
@@ -821,6 +824,8 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               ? 'Market and Customers'
               : type === 'competitors'
               ? 'Competitor Analysis'
+              : type === 'operations'
+              ? 'Operations & Costs'
               : 'Business Details & Personnel'}
           </h2>
           {type !== 'market' && (
@@ -829,6 +834,8 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
                 ? 'Features & Benefits'
                 : type === 'competitors'
                 ? 'Competitive Landscape'
+                : type === 'operations'
+                ? 'Staff · Suppliers · Equipment'
                 : 'Your Business Foundation'}
             </p>
           )}
@@ -2549,6 +2556,472 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
               </div>
             </div>
           </div>
+        ) : type === 'operations' ? (
+          <div className="space-y-8">
+
+            {/* ── 1. Staff Table ── */}
+            <div className="bg-white/80 dark:bg-zinc-950/70 p-8 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">Staff & Labour Costs</h3>
+                    <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">Add each role, annual cost, experience level, and required skills</p>
+                  </div>
+                </div>
+                <button
+                  onClick={addStaffMember}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-blue-500/10"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Role
+                </button>
+              </div>
+
+              {(!plan.staffMembers || plan.staffMembers.length === 0) ? (
+                <div className="py-12 text-center border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
+                  <Users className="w-8 h-8 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
+                  <p className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">No staff roles added yet</p>
+                  <p className="text-[10px] text-zinc-400 dark:text-zinc-600 mt-1">Click "Add Role" to list your team members and labour costs</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {plan.staffMembers.map((item) => (
+                    <div key={item.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 border border-zinc-150 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-900/10 rounded-2xl relative group">
+                      <button
+                        onClick={() => removeStaffMember(item.id)}
+                        className="absolute right-4 top-4 p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                        title="Remove Role"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Role / Job Title</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('role', 'staff_member', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_role` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={item.role}
+                          onChange={(e) => updateStaffMember(item.id, 'role', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. Head of Marketing"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Total Annual Cost (£/$)</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('totalCost', 'staff_member', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_totalCost` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={item.totalCost}
+                          onChange={(e) => updateStaffMember(item.id, 'totalCost', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. £42,000"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Years Experience</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('experience', 'staff_member', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_experience` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={item.experience}
+                          onChange={(e) => updateStaffMember(item.id, 'experience', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. 8 years"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Key Skills / Qualifications</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('skillsQualifications', 'staff_member', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_skillsQualifications` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={item.skillsQualifications}
+                          onChange={(e) => updateStaffMember(item.id, 'skillsQualifications', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. CIM, Google Analytics, HubSpot"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Staff cost summary chip */}
+              {plan.staffMembers && plan.staffMembers.length > 0 && (
+                <div className="flex items-center gap-3 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{plan.staffMembers.length} role{plan.staffMembers.length !== 1 ? 's' : ''} listed</span>
+                </div>
+              )}
+            </div>
+
+            {/* ── 2. Premises ── */}
+            <div className="p-8 bg-white/80 dark:bg-zinc-950/70 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">Premises</h3>
+                  <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">Startup costs and future requirements for your premises</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Startup / Setup Costs</label>
+                    {isSupported && (
+                      <button
+                        type="button"
+                        onClick={() => toggleListening('premisesStartupCosts')}
+                        className={`p-1 rounded-lg transition-colors ${
+                          activeField === 'premisesStartupCosts' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
+                        }`}
+                      >
+                        <Mic className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <textarea
+                    value={plan.premisesStartupCosts}
+                    onChange={(e) => updatePlan('premisesStartupCosts', e.target.value)}
+                    className="w-full h-36 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none resize-none"
+                    placeholder="e.g. Office deposit £5,000, fit-out £12,000, initial lease £18,000/yr..."
+                  />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Future Premises Requirements</label>
+                    {isSupported && (
+                      <button
+                        type="button"
+                        onClick={() => toggleListening('premisesFutureRequirements')}
+                        className={`p-1 rounded-lg transition-colors ${
+                          activeField === 'premisesFutureRequirements' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400 hover:text-zinc-655'
+                        }`}
+                      >
+                        <Mic className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <textarea
+                    value={plan.premisesFutureRequirements}
+                    onChange={(e) => updatePlan('premisesFutureRequirements', e.target.value)}
+                    className="w-full h-36 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none resize-none"
+                    placeholder="e.g. Expand to second location in Year 2, warehouse space by Q3..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* ── 3. Suppliers Table ── */}
+            <div className="bg-white/80 dark:bg-zinc-950/70 p-8 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                    <Globe2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">Key Suppliers</h3>
+                    <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">Track supplier names, what they provide, and your credit terms</p>
+                  </div>
+                </div>
+                <button
+                  onClick={addSupplier}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-blue-500/10"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Supplier
+                </button>
+              </div>
+
+              {(!plan.suppliers || plan.suppliers.length === 0) ? (
+                <div className="py-12 text-center border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
+                  <Globe2 className="w-8 h-8 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
+                  <p className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">No suppliers listed yet</p>
+                  <p className="text-[10px] text-zinc-400 dark:text-zinc-600 mt-1">Add your key suppliers and the terms you operate on</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {plan.suppliers.map((item) => (
+                    <div key={item.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 border border-zinc-150 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-900/10 rounded-2xl relative group">
+                      <button
+                        onClick={() => removeSupplier(item.id)}
+                        className="absolute right-4 top-4 p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                        title="Remove Supplier"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Supplier Name</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('name', 'supplier_item', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_name` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={item.name}
+                          onChange={(e) => updateSupplier(item.id, 'name', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. AWS, Stripe, Print Co."
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Product / Service Provided</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('productServiceProvided', 'supplier_item', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_productServiceProvided` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={item.productServiceProvided}
+                          onChange={(e) => updateSupplier(item.id, 'productServiceProvided', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. Cloud hosting, payment processing"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Credit Terms (Days)</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('creditTermsDays', 'supplier_item', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_creditTermsDays` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={item.creditTermsDays}
+                          onChange={(e) => updateSupplier(item.id, 'creditTermsDays', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. 30 days / Upfront / Monthly"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* ── 4. Equipment Table ── */}
+            <div className="bg-white/80 dark:bg-zinc-950/70 p-8 border border-zinc-100 dark:border-zinc-800 rounded-3xl backdrop-blur-xl space-y-6">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                    <Box className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">Equipment & Assets</h3>
+                    <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1.5">List capital equipment, purchase timing, and how each is funded</p>
+                  </div>
+                </div>
+                <button
+                  onClick={addEquipmentItem}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-blue-500/10"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Equipment
+                </button>
+              </div>
+
+              {(!plan.equipment || plan.equipment.length === 0) ? (
+                <div className="py-12 text-center border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
+                  <Box className="w-8 h-8 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
+                  <p className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">No equipment listed yet</p>
+                  <p className="text-[10px] text-zinc-400 dark:text-zinc-600 mt-1">Add machinery, technology, vehicles, or other capital assets</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {plan.equipment.map((item) => (
+                    <div key={item.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 border border-zinc-150 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-900/10 rounded-2xl relative group">
+                      <button
+                        onClick={() => removeEquipmentItem(item.id)}
+                        className="absolute right-4 top-4 p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                        title="Remove Equipment"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Equipment / Asset Name</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('name', 'equipment_item', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_name` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={item.name}
+                          onChange={(e) => updateEquipmentItem(item.id, 'name', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. MacBook Pro fleet, CNC machine"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Cost (£/$)</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('cost', 'equipment_item', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_cost` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={item.cost}
+                          onChange={(e) => updateEquipmentItem(item.id, 'cost', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. £8,500"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Purchase Timing</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('timing', 'equipment_item', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_timing` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={item.timing}
+                          onChange={(e) => updateEquipmentItem(item.id, 'timing', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. Month 1, Q2 Year 2"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">Funding Source</label>
+                          {isSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleListening('fundingSource', 'equipment_item', undefined, item.id)}
+                              className={`p-1 rounded-lg transition-colors ${
+                                activeField === `${item.id}_fundingSource` ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-zinc-400'
+                              }`}
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={item.fundingSource}
+                          onChange={(e) => updateEquipmentItem(item.id, 'fundingSource', e.target.value)}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none"
+                          placeholder="e.g. Own funds, bank loan, grant"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+          </div>
         ) : (
           <div className="space-y-8">
             {/* Part 1: Details */}
@@ -2564,7 +3037,7 @@ export const BusinessPlanView: React.FC<BusinessPlanViewProps> = ({
           <div>
             <h4 className="text-sm font-bold text-amber-900 dark:text-amber-100 uppercase tracking-tight">AI Strategist Ready</h4>
             <p className="text-xs text-amber-700 dark:text-amber-400 mt-1 leading-relaxed">
-              Open the AI Strategist in the sidebar to have Gemma review your {type === 'summary' ? 'summary' : type === 'identity' ? 'mission and values' : type === 'policy' ? 'strategic policies' : type === 'products' ? 'features and benefits' : type === 'market' ? 'market and customer research' : type === 'competitors' ? 'competitive landscape' : 'business details and personnel configurations'}. It will provide feedback on completeness, structure, and strategic gaps.
+              Open the AI Strategist in the sidebar to have Gemma review your {type === 'summary' ? 'summary' : type === 'identity' ? 'mission and values' : type === 'policy' ? 'strategic policies' : type === 'products' ? 'features and benefits' : type === 'market' ? 'market and customer research' : type === 'competitors' ? 'competitive landscape' : type === 'operations' ? 'operations, staff costs, suppliers, and equipment' : 'business details and personnel configurations'}. It will provide feedback on completeness, structure, and strategic gaps.
             </p>
           </div>
         </div>

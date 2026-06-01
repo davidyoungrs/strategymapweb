@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { isSafeKey } from '../utils/security';
+
 import { SwotData, CanvasData } from '../types';
 import { Zap, AlertTriangle, TrendingUp, ShieldAlert, ChevronDown, Mic, MicOff, Sparkles } from 'lucide-react';
 import { SwotGuidedDrawer } from './modals/SwotGuidedDrawer';
@@ -97,7 +99,7 @@ export function SwotView({
         const cleanSessionTranscript = sessionTranscript.trim();
         const currentActiveField = activeListeningFieldRef.current;
         console.log('Session transcript:', cleanSessionTranscript, 'Active field:', currentActiveField);
-        if (cleanSessionTranscript && currentActiveField) {
+        if (cleanSessionTranscript && currentActiveField && isSafeKey(currentActiveField)) {
           const baseText = initialTextRef.current.trim();
           const formattedTranscript = `- ${cleanSessionTranscript}`;
           const updatedValue = baseText 

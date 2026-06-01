@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { isSafeKey } from '../utils/security';
+
 import { 
   AlertTriangle, 
   Plus, 
@@ -99,7 +101,7 @@ export const RiskRegisterView: React.FC<RiskRegisterViewProps> = ({
         
         const cleanSessionTranscript = sessionTranscript.trim();
         const currentActive = activeListeningFieldRef.current;
-        if (cleanSessionTranscript && currentActive) {
+        if (cleanSessionTranscript && currentActive && isSafeKey(currentActive)) {
           const baseText = initialTextRef.current.trim();
           const updatedValue = baseText 
             ? `${baseText} ${cleanSessionTranscript}` 
@@ -191,7 +193,7 @@ export const RiskRegisterView: React.FC<RiskRegisterViewProps> = ({
     const levels: ('Low' | 'Medium' | 'High')[] = ['Low', 'Medium', 'High'];
     const current = risks.find(r => r.id === id)?.[field] || 'Medium';
     const next = levels[(levels.indexOf(current) + 1) % 3];
-    updateRow(id, { [field]: next });
+    isSafeKey(field) && updateRow(id, { [field]: next });
   };
 
   const toggleType = (id: string) => {

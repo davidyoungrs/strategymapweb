@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { isSafeKey } from '../../utils/security';
+
 import type { LlmInference } from '@mediapipe/tasks-genai';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, X, Loader2, Sparkles, ArrowRight, ArrowLeft, Mic, MicOff, Check, CheckCircle2 } from 'lucide-react';
@@ -118,7 +120,7 @@ export const SwotGuidedDrawer: React.FC<SwotGuidedDrawerProps> = ({ isOpen, onCl
           
           setAnswers(prev => ({
             ...prev,
-            [key]: updatedValue
+            ...(isSafeKey(key) ? { [key]: updatedValue } : {})
           }));
         }
       };

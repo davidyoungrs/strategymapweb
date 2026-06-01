@@ -74,6 +74,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('darkMode');
@@ -570,6 +571,8 @@ export default function App() {
         isPremium={isPremium}
         onAuthRequired={() => setIsAuthModalOpen(true)}
         handleExportReport={handleExportReport}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
       />
 
       <main className="flex-1 flex flex-col overflow-hidden relative">
@@ -616,6 +619,7 @@ export default function App() {
           isPremium={isPremium}
           isGuest={!user}
           onAuthRequired={() => setIsAuthModalOpen(true)}
+          onMenuToggle={() => setIsSidebarOpen(true)}
         />
 
         <div className="flex-1 overflow-y-auto bg-zinc-50 dark:bg-zinc-900/50 relative" ref={canvasRef}>
@@ -633,20 +637,20 @@ export default function App() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3, ease: "easeOut" }}
-                    className="p-10"
+                    className="p-4 sm:p-6 md:p-10"
                   >
-                    <div className="mb-8 flex justify-between items-end gap-8">
-                      <div className="flex-1">
+                    <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 sm:gap-8">
+                      <div className="flex-1 w-full">
                         <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400 mb-2 block">Project Workspace</span>
                         <input 
                           type="text"
                           value={canvasData.title}
                           onChange={(e) => setCanvasData(prev => ({ ...prev, title: e.target.value }))}
-                          className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 bg-transparent border-none outline-none focus:ring-0 p-0 w-full uppercase"
+                          className="text-3xl sm:text-4xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 bg-transparent border-none outline-none focus:ring-0 p-0 w-full uppercase"
                           placeholder="Canvas Title"
                         />
                       </div>
-                      <div className="text-right hidden md:block pt-4">
+                      <div className="text-left sm:text-right pt-2 sm:pt-4">
                         <button
                           onClick={() => setIsBmcGuidedOpen(true)}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-md shadow-blue-500/10 cursor-pointer"
@@ -782,6 +786,14 @@ export default function App() {
                         canvasData={canvasData} 
                         setCanvasData={setCanvasData} 
                         type="competitors"
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                    <Route path="/operations" element={
+                      <BusinessPlanView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        type="operations"
                         onBack={() => navigate('/')} 
                       />
                     } />

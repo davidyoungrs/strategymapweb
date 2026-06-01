@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { isSafeKey } from '../utils/security';
+
 import { Eye, Search, CreditCard, Heart, Megaphone, ArrowLeft, ArrowRight, Mic, MicOff } from 'lucide-react';
 import { CanvasData } from '../types';
 import { motion } from 'framer-motion';
@@ -146,7 +148,7 @@ export const CustomerJourneyView: React.FC<CustomerJourneyViewProps> = ({ canvas
         
         const cleanSessionTranscript = sessionTranscript.trim();
         const currentActiveField = activeListeningFieldRef.current;
-        if (cleanSessionTranscript && currentActiveField) {
+        if (cleanSessionTranscript && currentActiveField && isSafeKey(currentActiveField)) {
           const baseText = initialTextRef.current.trim();
           const formattedTranscript = `- ${cleanSessionTranscript}`;
           const updatedValue = baseText 

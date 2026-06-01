@@ -3,6 +3,7 @@ import { StrategyMapData, StrategyObjective, CanvasData } from '../types';
 import { Plus, Trash2, ArrowUp, ChevronDown, Activity, Mic, MicOff } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { isSafeKey } from '../utils/security';
 
 interface StrategyMapProps {
   data: StrategyMapData;
@@ -55,7 +56,7 @@ export const StrategyMap: React.FC<StrategyMapProps> = ({
         
         const cleanSessionTranscript = sessionTranscript.trim();
         const currentActive = activeListeningFieldRef.current;
-        if (cleanSessionTranscript && currentActive) {
+        if (cleanSessionTranscript && currentActive && isSafeKey(currentActive.perspective)) {
           const baseText = initialTextRef.current.trim();
           const updatedValue = baseText 
             ? `${baseText} ${cleanSessionTranscript}` 
@@ -122,6 +123,7 @@ export const StrategyMap: React.FC<StrategyMapProps> = ({
   ];
 
   const addObjective = (perspective: PerspectiveKey) => {
+    if (!isSafeKey(perspective)) return;
     const newObjective: StrategyObjective = {
       id: Math.random().toString(36).substr(2, 9),
       text: 'New Objective',
@@ -133,6 +135,7 @@ export const StrategyMap: React.FC<StrategyMapProps> = ({
   };
 
   const updateObjective = (perspective: PerspectiveKey, id: string, text: string) => {
+    if (!isSafeKey(perspective)) return;
     onChange({
       ...data,
       [perspective]: (data[perspective] || []).map((obj) => (obj.id === id ? { ...obj, text } : obj)),
@@ -140,6 +143,7 @@ export const StrategyMap: React.FC<StrategyMapProps> = ({
   };
 
   const removeObjective = (perspective: PerspectiveKey, id: string) => {
+    if (!isSafeKey(perspective)) return;
     onChange({
       ...data,
       [perspective]: (data[perspective] || []).filter((obj) => obj.id !== id),

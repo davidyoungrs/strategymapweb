@@ -15,6 +15,7 @@ import {
 import { CanvasData } from '../../types';
 import { Tooltip } from '../Tooltip';
 import { BMC_GUIDANCE } from '../../utils/guidance';
+import { isSafeKey } from '../../utils/security';
 
 interface BusinessModelCanvasProps {
   canvasData: CanvasData;
@@ -149,7 +150,7 @@ export const BusinessModelCanvas: React.FC<BusinessModelCanvasProps> = ({
         
         const cleanSessionTranscript = sessionTranscript.trim();
         const currentActiveField = activeListeningFieldRef.current;
-        if (cleanSessionTranscript && currentActiveField) {
+        if (cleanSessionTranscript && currentActiveField && isSafeKey(currentActiveField)) {
           const baseText = (initialTextRef.current || '').trim();
           const formattedTranscript = `- ${cleanSessionTranscript}`;
           const updatedValue = baseText 
@@ -207,6 +208,7 @@ export const BusinessModelCanvas: React.FC<BusinessModelCanvasProps> = ({
   };
 
   const updateField = (field: keyof CanvasData, value: any) => {
+    if (!isSafeKey(field)) return;
     setCanvasData(prev => ({ ...prev, [field]: value }));
   };
 

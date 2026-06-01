@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { isSafeKey } from '../utils/security';
+
 import { 
   Globe2, 
   Target, 
@@ -162,7 +164,7 @@ export const MarketSizingView: React.FC<MarketSizingViewProps> = ({
         
         const cleanSessionTranscript = sessionTranscript.trim();
         const currentActiveField = activeListeningFieldRef.current;
-        if (cleanSessionTranscript && currentActiveField) {
+        if (cleanSessionTranscript && currentActiveField && isSafeKey(currentActiveField)) {
           const baseText = initialTextRef.current.trim();
           const formattedTranscript = `- ${cleanSessionTranscript}`;
           const updatedValue = baseText 

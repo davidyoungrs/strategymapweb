@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { isSafeKey } from '../utils/security';
+
 import { 
   TrendingUp, 
   DollarSign, 
@@ -85,6 +87,7 @@ export const FinancialProjectionsView: React.FC<FinancialProjectionsViewProps> =
       const currentFinancials = prev.financials || { years: [] };
       const updatedYears = (currentFinancials.years || []).map(y => {
         if (y.year === yearNum) {
+          if (!isSafeKey(field)) return y;
           const updatedYear = { ...y, [field]: numValue };
           
           // Re-calculate opex if detailed subfields are modified
@@ -126,10 +129,7 @@ export const FinancialProjectionsView: React.FC<FinancialProjectionsViewProps> =
       ...prev,
       financials: {
         ...(prev.financials || { years: [] }),
-        startupCosts: {
-          ...(prev.financials?.startupCosts || defaultStartupCosts),
-          [field]: numValue
-        }
+        startupCosts: !isSafeKey(field) ? (prev.financials?.startupCosts || defaultStartupCosts) : { ...(prev.financials?.startupCosts || defaultStartupCosts), [field]: numValue }
       }
     }));
   };
@@ -140,10 +140,7 @@ export const FinancialProjectionsView: React.FC<FinancialProjectionsViewProps> =
       ...prev,
       financials: {
         ...(prev.financials || { years: [] }),
-        personalBudget: {
-          ...(prev.financials?.personalBudget || defaultPersonalBudget),
-          [field]: numValue
-        }
+        personalBudget: !isSafeKey(field) ? (prev.financials?.personalBudget || defaultPersonalBudget) : { ...(prev.financials?.personalBudget || defaultPersonalBudget), [field]: numValue }
       }
     }));
   };
@@ -154,10 +151,7 @@ export const FinancialProjectionsView: React.FC<FinancialProjectionsViewProps> =
       ...prev,
       financials: {
         ...(prev.financials || { years: [] }),
-        sourcingFinance: {
-          ...(prev.financials?.sourcingFinance || defaultSourcingFinance),
-          [field]: finalVal
-        }
+        sourcingFinance: !isSafeKey(field) ? (prev.financials?.sourcingFinance || defaultSourcingFinance) : { ...(prev.financials?.sourcingFinance || defaultSourcingFinance), [field]: finalVal }
       }
     }));
   };

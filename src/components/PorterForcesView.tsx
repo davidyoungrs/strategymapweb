@@ -4,6 +4,7 @@ import { CanvasData } from '../types';
 import { motion } from 'framer-motion';
 import { Tooltip } from './Tooltip';
 import { PORTER_GUIDANCE } from '../utils/guidance';
+import { isSafeKey } from '../utils/security';
 
 interface PorterForcesViewProps {
   canvasData: CanvasData;
@@ -128,7 +129,7 @@ export const PorterForcesView: React.FC<PorterForcesViewProps> = ({ canvasData, 
         
         const cleanSessionTranscript = sessionTranscript.trim();
         const currentActiveField = activeListeningFieldRef.current;
-        if (cleanSessionTranscript && currentActiveField) {
+        if (cleanSessionTranscript && currentActiveField && isSafeKey(currentActiveField)) {
           const baseText = initialTextRef.current.trim();
           const formattedTranscript = `- ${cleanSessionTranscript}`;
           const updatedValue = baseText 
@@ -190,6 +191,7 @@ export const PorterForcesView: React.FC<PorterForcesViewProps> = ({ canvasData, 
   };
 
   const updateForces = (field: keyof NonNullable<CanvasData['porterForces']>, value: string) => {
+    if (!isSafeKey(field)) return;
     setCanvasData(prev => ({
       ...prev,
       porterForces: {

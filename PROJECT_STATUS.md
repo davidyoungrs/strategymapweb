@@ -29,6 +29,19 @@
 
 ---
 
+### 4. Mobile Responsiveness Overhaul
+- Refactored the left-hand navigation sidebar to collapse on mobile devices (< 768px) into a slide-out drawer, complete with a dark overlay backdrop and auto-close behaviour upon routing.
+- Integrated a hamburger menu trigger inside the header and modified header buttons ("New", "Save", "Tools") to dynamically hide text labels and show only icons on narrow viewports, preventing layout breakage.
+- Adjusted main dashboard padding from static `p-10` to responsive `p-4 sm:p-6 md:p-10`.
+
+### 5. Prototype Pollution Security Hardening
+- Created a centralized safety utility function `isSafeKey` and applied guards before all dynamic bracket notation lookups and writes in over 15 view components and modals, securing the application from arbitrary prototype tampering or constructor access.
+
+### 6. Dependency Version Pinning (Security Hardening)
+- Replaced all variant/dynamic version ranges in `package.json` with exact, locked versions to prevent dependency hijacking and dependency confusion attacks.
+
+---
+
 ## 🟡 Status of Rolled Back/Pending Features
 
 1. **User Engagement Analytics**: still to re-implement (`firstLoginAt`, `lastActiveAt`).
@@ -43,6 +56,3 @@
 
 ### 2. Operations cost views (Staff, Suppliers, Equipment)
 - Build out the outstanding operations tables mapping staff roles, supplier credit terms, and equipment unit check sheets as detailed in the gaps mapping.
-
-### 3. Mobile Responsiveness Overhaul
-- Implement a collapsible "Hamburger Menu" for mobile devices and refactor action buttons for smaller screens.

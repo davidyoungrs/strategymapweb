@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { isSafeKey } from '../utils/security';
+
 import {
   AlertTriangle, Lightbulb, Diamond, ShieldCheck, Users, BarChart3, Truck, Banknote, Wallet, ArrowLeft, Mic, MicOff
 } from 'lucide-react';
@@ -134,7 +136,7 @@ export const LeanCanvasView: React.FC<LeanCanvasViewProps> = ({ canvasData, setC
         
         const cleanSessionTranscript = sessionTranscript.trim();
         const currentActiveField = activeListeningFieldRef.current;
-        if (cleanSessionTranscript && currentActiveField) {
+        if (cleanSessionTranscript && currentActiveField && isSafeKey(currentActiveField)) {
           const baseText = initialTextRef.current.trim();
           const formattedTranscript = `- ${cleanSessionTranscript}`;
           const updatedValue = baseText 

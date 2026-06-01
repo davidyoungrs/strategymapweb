@@ -8,7 +8,8 @@ import {
   Loader2,
   Cloud,
   Check,
-  Lock
+  Lock,
+  Menu
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
@@ -23,6 +24,7 @@ interface HeaderProps {
   isPremium: boolean;
   isGuest: boolean;
   onAuthRequired: () => void;
+  onMenuToggle?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -34,7 +36,8 @@ export const Header: React.FC<HeaderProps> = ({
   saveStatus,
   isPremium,
   isGuest,
-  onAuthRequired
+  onAuthRequired,
+  onMenuToggle
 }) => {
   const location = useLocation();
   const currentPath = location.pathname.substring(1) || 'canvas';
@@ -60,9 +63,16 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
   return (
-    <header className="h-16 bg-white dark:bg-zinc-950 border-b border-zinc-100 dark:border-zinc-800 px-8 flex items-center justify-between sticky top-0 z-50">
-      <div className="flex items-center gap-8">
-        <h2 className="text-xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 uppercase">
+    <header className="h-16 bg-white dark:bg-zinc-950 border-b border-zinc-100 dark:border-zinc-800 px-4 md:px-8 flex items-center justify-between sticky top-0 z-50">
+      <div className="flex items-center gap-3 md:gap-8">
+        <button
+          onClick={onMenuToggle}
+          className="p-2 -ml-2 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 md:hidden rounded-lg transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-900"
+          title="Open Menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <h2 className="text-lg md:text-xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 uppercase truncate max-w-[140px] sm:max-w-none">
           {getTitle()}
         </h2>
         <nav className="hidden md:flex gap-6 font-sans antialiased text-zinc-900 dark:text-zinc-100 tracking-tight font-medium">
@@ -75,35 +85,35 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </nav>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2">
         <motion.button 
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleNewCanvas}
-          className="px-4 py-2 text-zinc-600 dark:text-zinc-300 font-bold text-xs uppercase tracking-widest hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors flex items-center gap-2"
+          className="px-2.5 sm:px-4 py-2 text-zinc-600 dark:text-zinc-300 font-bold text-xs uppercase tracking-widest hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
-          New
+          <span className="hidden sm:inline">New</span>
         </motion.button>
         
         {isPremium && (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 mr-2 transition-all">
+          <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 mr-1 sm:mr-2 transition-all">
             {saveStatus === 'saving' && (
               <>
                 <Loader2 className="w-3 h-3 text-blue-500 animate-spin" />
-                <span className="text-[9px] font-black uppercase tracking-widest text-blue-500">Saving...</span>
+                <span className="text-[9px] font-black uppercase tracking-widest text-blue-500 hidden sm:inline">Saving...</span>
               </>
             )}
             {saveStatus === 'saved' && (
               <>
                 <Check className="w-3 h-3 text-emerald-500" />
-                <span className="text-[9px] font-black uppercase tracking-widest text-emerald-500">Saved</span>
+                <span className="text-[9px] font-black uppercase tracking-widest text-emerald-500 hidden sm:inline">Saved</span>
               </>
             )}
             {saveStatus === 'unsaved' && (
               <>
                 <Cloud className="w-3 h-3 text-zinc-400" />
-                <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Unsaved</span>
+                <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400 hidden sm:inline">Unsaved</span>
               </>
             )}
           </div>
@@ -122,14 +132,14 @@ export const Header: React.FC<HeaderProps> = ({
             }
           }}
           disabled={saveStatus === 'saving'}
-          className={`px-4 py-2 font-bold text-xs uppercase tracking-widest rounded-lg transition-colors flex items-center gap-2 ${
+          className={`px-2.5 sm:px-4 py-2 font-bold text-xs uppercase tracking-widest rounded-lg transition-colors flex items-center gap-2 ${
             !isPremium 
               ? 'text-zinc-400 dark:text-zinc-600 cursor-not-allowed opacity-50' 
               : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
           }`}
         >
           {!isPremium ? <Lock className="w-4 h-4" /> : (saveStatus === 'saving' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />)}
-          Save
+          <span className="hidden sm:inline">Save</span>
         </motion.button>
         <motion.button 
           whileHover={isPremium ? { scale: 1.02 } : {}}
@@ -143,7 +153,7 @@ export const Header: React.FC<HeaderProps> = ({
               alert("Strategic Tools and Reports are Pro features. Please upgrade to access export options.");
             }
           }}
-          className={`px-4 py-2 font-bold text-xs uppercase tracking-widest rounded-lg transition-colors flex items-center gap-2 ${
+          className={`px-2.5 sm:px-4 py-2 font-bold text-xs uppercase tracking-widest rounded-lg transition-colors flex items-center gap-2 ${
             !isPremium 
               ? 'text-zinc-400 dark:text-zinc-600 cursor-not-allowed opacity-50' 
               : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
@@ -151,13 +161,13 @@ export const Header: React.FC<HeaderProps> = ({
           title="Tools"
         >
           {!isPremium ? <Lock className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
-          <span className="hidden lg:block">Tools</span>
+          <span className="hidden sm:inline">Tools</span>
         </motion.button>
         <motion.button 
           whileHover={{ scale: 1.1, rotate: 15 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setDarkMode(!darkMode)} 
-          className="p-2 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-all ml-2"
+          className="p-2 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-all ml-1 sm:ml-2"
           title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
         >
           {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}

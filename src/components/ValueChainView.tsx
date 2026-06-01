@@ -7,6 +7,7 @@ import { CanvasData } from '../types';
 import { motion } from 'framer-motion';
 import { Tooltip } from './Tooltip';
 import { VALUE_CHAIN_GUIDANCE, TooltipContent } from '../utils/guidance';
+import { isSafeKey } from '../utils/security';
 
 interface ValueChainViewProps {
   canvasData: CanvasData;
@@ -141,7 +142,7 @@ export const ValueChainView: React.FC<ValueChainViewProps> = ({ canvasData, setC
         
         const cleanSessionTranscript = sessionTranscript.trim();
         const currentActiveField = activeListeningFieldRef.current;
-        if (cleanSessionTranscript && currentActiveField) {
+        if (cleanSessionTranscript && currentActiveField && isSafeKey(currentActiveField)) {
           const baseText = initialTextRef.current.trim();
           const formattedTranscript = `- ${cleanSessionTranscript}`;
           const updatedValue = baseText 
@@ -208,6 +209,7 @@ export const ValueChainView: React.FC<ValueChainViewProps> = ({ canvasData, setC
   };
 
   const updateChain = (field: keyof NonNullable<CanvasData['valueChain']>, value: string) => {
+    if (!isSafeKey(field)) return;
     setCanvasData(prev => ({
       ...prev,
       valueChain: { ...(prev.valueChain || defaults), [field]: value }
