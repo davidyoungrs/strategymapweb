@@ -789,14 +789,6 @@ export default function App() {
                         onBack={() => navigate('/')} 
                       />
                     } />
-                    <Route path="/operations" element={
-                      <BusinessPlanView 
-                        canvasData={canvasData} 
-                        setCanvasData={setCanvasData} 
-                        type="operations"
-                        onBack={() => navigate('/')} 
-                      />
-                    } />
                   </>
                 )}
                 <Route path="/strategy-map" element={

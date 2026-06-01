@@ -77,7 +77,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'risk-register'].includes(currentView)
   );
   const [isBusinessPlanOpen, setIsBusinessPlanOpen] = useState(
-    ['executive-summary', 'business-details', 'strategic-policy', 'business-products', 'business-market', 'business-competitors', 'operations', 'financials'].includes(currentView)
+    ['executive-summary', 'business-details', 'strategic-policy', 'business-products', 'business-market', 'business-competitors', 'financials'].includes(currentView)
   );
 
   return (
@@ -406,15 +406,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             Competitor Analysis
                           </motion.button>
 
-                          <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
-                            onClick={() => { navigate('/operations'); onClose?.(); }}
-                            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
-                              currentView === 'operations' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
-                            }`}
-                          >
-                            <Factory className="w-4 h-4" />
-                            Operations & Costs
-                          </motion.button>
 
                           <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
                             onClick={() => { navigate('/strategic-policy'); onClose?.(); }}
