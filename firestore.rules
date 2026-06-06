@@ -166,8 +166,7 @@ service cloud.firestore {
     }
 
     match /canvases/{canvasId} {
-      allow read: if isDocOwner() || isAdmin();
-      allow list: if isAdmin();
+      allow read, list: if isDocOwner() || isAdmin();
       
       allow create: if (isAuthenticated() || isAdmin()) && 
                        isValidCanvas() &&
