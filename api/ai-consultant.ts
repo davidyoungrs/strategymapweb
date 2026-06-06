@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { checkRateLimit } from './lib/rate-limiter';
+import { sanitizeString, validateCanvasData } from './lib/sanitizer';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
 
@@ -19,9 +20,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { canvasData, context } = req.body;
 
-  if (!canvasData) {
-    return res.status(400).json({ error: 'Missing canvas data' });
+  // Validate canvasData payload structure and reject if malformed
+  if (!canvasData || !validateCanvasData(canvasData)) {
+    return res.status(400).json({ error: 'Invalid or malformed canvas data' });
   }
+
+  // Sanitize incoming fields and truncate lengths to prevent payload inflation
+  const sanitizedTitle = sanitizeString(canvasData.title, 200);
+  const sanitizedValuePropositions = sanitizeString(canvasData.valuePropositions, 5000);
+  const sanitizedCustomerSegments = sanitizeString(canvasData.customerSegments, 5000);
+  const sanitizedRevenueStreams = sanitizeString(canvasData.revenueStreams, 5000);
+  const sanitizedKeyActivities = sanitizeString(canvasData.keyActivities, 5000);
+  const sanitizedCostStructure = sanitizeString(canvasData.costStructure, 5000);
+
+  const swot = canvasData.swot || {};
+  const sanitizedStrengths = sanitizeString(swot.strengths, 5000);
+  const sanitizedWeaknesses = sanitizeString(swot.weaknesses, 5000);
+  const sanitizedOpportunities = sanitizeString(swot.opportunities, 5000);
+  const sanitizedThreats = sanitizeString(swot.threats, 5000);
+
+  const sanitizedContext = sanitizeString(context, 2000);
 
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
@@ -31,23 +49,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       Your goal is to review a Business Strategic Plan and provide sharp, guiding suggestions to improve its viability, scalability, and impact.
 
       CURRENT STRATEGIC PLAN:
-      Title: ${canvasData.title}
+      Title: ${sanitizedTitle}
       
       BUSINESS MODEL CANVAS:
-      - Value Propositions: ${canvasData.valuePropositions}
-      - Customer Segments: ${canvasData.customerSegments}
-      - Revenue Streams: ${canvasData.revenueStreams}
-      - Key Activities: ${canvasData.keyActivities}
-      - Cost Structure: ${canvasData.costStructure}
+      - Value Propositions: ${sanitizedValuePropositions}
+      - Customer Segments: ${sanitizedCustomerSegments}
+      - Revenue Streams: ${sanitizedRevenueStreams}
+      - Key Activities: ${sanitizedKeyActivities}
+      - Cost Structure: ${sanitizedCostStructure}
 
       SWOT ANALYSIS:
-      - Strengths: ${canvasData.swot?.strengths}
-      - Weaknesses: ${canvasData.swot?.weaknesses}
-      - Opportunities: ${canvasData.swot?.opportunities}
-      - Threats: ${canvasData.swot?.threats}
+      - Strengths: ${sanitizedStrengths}
+      - Weaknesses: ${sanitizedWeaknesses}
+      - Opportunities: ${sanitizedOpportunities}
+      - Threats: ${sanitizedThreats}
 
       USER QUESTION/CONTEXT:
-      ${context || 'Please review the overall plan and suggest 3 high-impact additions or refinements.'}
+      ${sanitizedContext || 'Please review the overall plan and suggest 3 high-impact additions or refinements.'}
 
       INSTRUCTIONS:
       1. Be concise but deep.
