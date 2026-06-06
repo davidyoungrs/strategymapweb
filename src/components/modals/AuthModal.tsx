@@ -26,7 +26,51 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, title }) 
   const [authError, setAuthError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const RATE_LIMIT_KEY = 'strat_labs_auth_attempts';
+  const MAX_ATTEMPTS = 5;
+  const WINDOW_MS = 15 * 60 * 1000;
+
+  const getRemainingTime = (): number => {
+    try {
+      const raw = localStorage.getItem(RATE_LIMIT_KEY);
+      if (!raw) return 0;
+      const attempts: number[] = JSON.parse(raw);
+      const now = Date.now();
+      const activeAttempts = attempts.filter(t => now - t < WINDOW_MS);
+      if (activeAttempts.length < MAX_ATTEMPTS) return 0;
+      const oldest = Math.min(...activeAttempts);
+      return Math.max(0, WINDOW_MS - (now - oldest));
+    } catch {
+      return 0;
+    }
+  };
+
+  const recordAttempt = () => {
+    try {
+      const raw = localStorage.getItem(RATE_LIMIT_KEY);
+      const attempts: number[] = raw ? JSON.parse(raw) : [];
+      const now = Date.now();
+      attempts.push(now);
+      const activeAttempts = attempts.filter(t => now - t < WINDOW_MS);
+      localStorage.setItem(RATE_LIMIT_KEY, JSON.stringify(activeAttempts));
+    } catch (e) {
+      console.error('Failed to record auth attempt:', e);
+    }
+  };
+
+  const checkRateLimit = (): boolean => {
+    const timeLeft = getRemainingTime();
+    if (timeLeft > 0) {
+      const mins = Math.ceil(timeLeft / (60 * 1000));
+      setAuthError(`Too many login attempts. Please try again in ${mins} minute${mins > 1 ? 's' : ''}.`);
+      return true;
+    }
+    return false;
+  };
+
   const handleGoogleLogin = async () => {
+    if (checkRateLimit()) return;
+    recordAttempt();
     setAuthError(null);
     setIsLoading(true);
     try {
@@ -41,6 +85,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, title }) 
   };
 
   const handleAppleLogin = async () => {
+    if (checkRateLimit()) return;
+    recordAttempt();
     setAuthError(null);
     setIsLoading(true);
     try {
@@ -56,6 +102,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, title }) 
 
   const handleEmailAuth = async (e: FormEvent) => {
     e.preventDefault();
+    if (checkRateLimit()) return;
+    recordAttempt();
     setAuthError(null);
     setIsLoading(true);
     try {

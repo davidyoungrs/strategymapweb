@@ -1,11 +1,20 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { checkRateLimit } from './lib/rate-limiter';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Enforce IP-based rate limiting (30 attempts per 15 minutes)
+  const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
+  const rateLimit = await checkRateLimit(clientIp, 30, 15 * 60 * 1000);
+  if (!rateLimit.allowed) {
+    res.setHeader('Retry-After', Math.ceil((rateLimit.resetTime - Date.now()) / 1000).toString());
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
   }
 
   const { canvasData, context } = req.body;

@@ -1,43 +1,7 @@
 import crypto from 'crypto';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-// Initialize Firebase Admin
-if (!getApps().length) {
-  try {
-    const b64Config = process.env.FIREBASE_SERVICE_ACCOUNT_B64;
-    
-    if (b64Config) {
-      // Best way: use the base64 encoded JSON
-      const jsonConfig = JSON.parse(Buffer.from(b64Config, 'base64').toString('utf8'));
-      initializeApp({
-        credential: cert(jsonConfig),
-      });
-      console.log('Firebase Admin initialized via Base64 JSON');
-    } else {
-      // Fallback to individual env vars (for local dev or if not using b64)
-      const rawKey = process.env.FIREBASE_PRIVATE_KEY;
-      if (!rawKey) throw new Error('Missing FIREBASE_SERVICE_ACCOUNT_B64 or FIREBASE_PRIVATE_KEY');
-
-      const formattedKey = rawKey.replace(/\\n/g, '\n').replace(/^"|"$/g, '').trim();
-      
-      initializeApp({
-        credential: cert({
-          projectId: process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey: formattedKey,
-        }),
-      });
-      console.log('Firebase Admin initialized via individual env vars');
-    }
-  } catch (error) {
-    console.error('Firebase admin initialization error:', error);
-  }
-}
-
-const databaseId = process.env.FIREBASE_FIRESTORE_DATABASE_ID || 'ai-studio-51d41aa2-0bcf-4c7d-9cab-69a1a391248c';
-const db = getFirestore(databaseId);
+import { db, FieldValue } from './lib/firebase-admin';
+import { checkRateLimit } from './lib/rate-limiter';
 
 // We need the raw body for signature verification
 export const config = {
@@ -57,6 +21,14 @@ async function getRawBody(readable: any): Promise<Buffer> {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Enforce IP-based rate limiting (60 requests per 15 minutes)
+  const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
+  const rateLimit = await checkRateLimit(clientIp, 60, 15 * 60 * 1000);
+  if (!rateLimit.allowed) {
+    res.setHeader('Retry-After', Math.ceil((rateLimit.resetTime - Date.now()) / 1000).toString());
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
   }
 
   const secret = process.env.LEMON_SQUEEZY_WEBHOOK_SECRET;
