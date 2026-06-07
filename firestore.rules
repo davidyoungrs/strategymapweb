@@ -56,6 +56,11 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == resource.data.userId;
     }
     
+    function isUnchanged(field) {
+      return (!(field in request.resource.data) && !(field in resource.data)) ||
+             (field in request.resource.data && field in resource.data && request.resource.data[field] == resource.data[field]);
+    }
+    
     function hasRequiredFields(fields) {
       return request.resource.data.keys().hasAll(fields);
     }
@@ -162,7 +167,8 @@ service cloud.firestore {
                        isValidUserProfile() && 
                        request.resource.data.isPaidTier == false;
       allow update: if (isOwner(userId) || isAdmin()) && 
-                       isValidUserProfile();
+                       isValidUserProfile() &&
+                       (isAdmin() || (isUnchanged('role') && isUnchanged('isPaidTier')));
     }
 
     match /canvases/{canvasId} {
