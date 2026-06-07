@@ -73,6 +73,26 @@ export interface BcgMatrixData {
   dogs: string;
 }
 
+export interface Mckinsey7SData {
+  sharedValues: string;
+  strategy: string;
+  structure: string;
+  systems: string;
+  style: string;
+  staff: string;
+  skills: string;
+}
+
+export interface ElevatorPitchData {
+  targetCustomer: string;
+  unmetNeed: string;
+  productName: string;
+  marketCategory: string;
+  productBenefit: string;
+  competitors: string;
+  differentiator: string;
+}
+
 export interface ValueChainData {
   inboundLogistics: string;
   operations: string;
@@ -278,6 +298,8 @@ export interface CanvasData {
   marketSizing?: MarketSizingData;
   riskRegister?: RiskRegisterData;
   financials?: FinancialProjectionsData;
+  mckinsey7s?: Mckinsey7SData;
+  elevatorPitch?: ElevatorPitchData;
   createdAt: any;
   updatedAt: any;
   imageUrl?: string;

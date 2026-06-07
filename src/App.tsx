@@ -40,6 +40,8 @@ const CustomerJourneyView = lazy(() => import('./components/CustomerJourneyView'
 const RiskRegisterView = lazy(() => import('./components/RiskRegisterView').then(m => ({ default: m.RiskRegisterView })));
 const FinancialProjectionsView = lazy(() => import('./components/FinancialProjectionsView').then(m => ({ default: m.FinancialProjectionsView })));
 const BusinessPlanView = lazy(() => import('./components/BusinessPlanView').then(m => ({ default: m.BusinessPlanView })));
+const Mckinsey7SView = lazy(() => import('./components/Mckinsey7SView').then(m => ({ default: m.Mckinsey7SView })));
+const ElevatorPitchView = lazy(() => import('./components/ElevatorPitchView').then(m => ({ default: m.ElevatorPitchView })));
 const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 
 // Modals & Layouts (Lazy Loaded)
@@ -675,6 +677,13 @@ export default function App() {
                     onBack={() => navigate('/')} 
                   />
                 } />
+                <Route path="/pitch" element={
+                  <ElevatorPitchView 
+                    canvasData={canvasData} 
+                    setCanvasData={setCanvasData} 
+                    onBack={() => navigate('/')} 
+                  />
+                } />
                 <Route path="/mission-vision" element={
                   <BusinessPlanView 
                     canvasData={canvasData} 
@@ -722,6 +731,13 @@ export default function App() {
                     } />
                     <Route path="/customer-journey" element={
                       <CustomerJourneyView 
+                        canvasData={canvasData} 
+                        setCanvasData={setCanvasData} 
+                        onBack={() => navigate('/')} 
+                      />
+                    } />
+                    <Route path="/mckinsey-7s" element={
+                      <Mckinsey7SView 
                         canvasData={canvasData} 
                         setCanvasData={setCanvasData} 
                         onBack={() => navigate('/')} 

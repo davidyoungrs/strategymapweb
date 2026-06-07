@@ -623,3 +623,129 @@ export const BUSINESS_PLAN_GUIDANCE: Record<string, TooltipContent> = {
     example: "Our price: $29/mo. Competitor range: $49 - $99/mo. Difference reason: Cost efficiency from local on-device AI operations."
   }
 };
+
+export const MCKINSEY_7S_GUIDANCE: Record<string, TooltipContent> = {
+  sharedValues: {
+    definition: "The core values, beliefs, and norms of the organization that shape corporate culture and guide behavior.",
+    questions: [
+      "What are the central values upon which the organization was built?",
+      "How strong is the company culture, and how are values demonstrated daily?",
+      "Are values aligned across different teams and departments?"
+    ],
+    example: "Privacy First (offline-first execution), transparency, and absolute user empowerment."
+  },
+  strategy: {
+    definition: "The plan devised by the organization to maintain and build competitive advantage over time.",
+    questions: [
+      "What is our strategy to achieve our long-term business objectives?",
+      "How do we plan to compete and differentiate ourselves in the market?",
+      "How does the strategy adapt to changes in the environment or competitor actions?"
+    ],
+    example: "Differentiating through secure local AI compute rather than costly cloud servers."
+  },
+  structure: {
+    definition: "The organizational structure and hierarchy, including reporting lines and division of responsibilities.",
+    questions: [
+      "How is the organization structured (e.g. flat, functional, matrix)?",
+      "How are decisions made, and where is the authority concentrated?",
+      "How do different teams communicate and coordinate with one another?"
+    ],
+    example: "Flat team structure with three core nodes: Product/Engineering, Operations, and Growth."
+  },
+  systems: {
+    definition: "The daily activities, procedures, and IT infrastructure that employees use to get work done.",
+    questions: [
+      "What are the primary systems or workflows that run the business (e.g. CRM, CI/CD)?",
+      "How are these systems monitored and evaluated for efficiency?",
+      "Are there bottlenecks in our operational or technical procedures?"
+    ],
+    example: "Automated GitHub Actions pipelines, Stripe for billing, and client-side database synchronization."
+  },
+  style: {
+    definition: "The style of leadership adopted by management and the overall cultural style of the organization.",
+    questions: [
+      "What style of leadership is most prominent in the company (e.g. collaborative, top-down)?",
+      "How effective is management in motivating employees and guiding direction?",
+      "Do team members feel comfortable sharing feedback and voicing concerns?"
+    ],
+    example: "Collaborative, data-driven leadership style prioritizing rapid prototyping and developer autonomy."
+  },
+  staff: {
+    definition: "The employees, their characteristics, and how they are recruited, trained, and motivated.",
+    questions: [
+      "What are the current staffing levels and do we have talent gaps?",
+      "How are employees onboarded, trained, and supported in their roles?",
+      "Are staffing requirements aligned with our current strategic goals?"
+    ],
+    example: "Small, high-efficiency team of 3 full-stack engineers and 1 product designer."
+  },
+  skills: {
+    definition: "The actual capabilities, competencies, and specialized skills of the organization's workforce.",
+    questions: [
+      "What are the core competencies or specialized technical skills of our team?",
+      "Are there skill gaps that could hinder execution?",
+      "How do we keep our skills up to date with new technology (e.g. WebGPU/WASM)?"
+    ],
+    example: "Advanced skills in WebAssembly compilation, GPU browser acceleration, and modern React architectures."
+  }
+};
+
+export const ELEVATOR_PITCH_GUIDANCE: Record<string, TooltipContent> = {
+  targetCustomer: {
+    definition: "The specific group or profile of ideal users/buyers who experience the core problem you solve.",
+    questions: [
+      "Who is the primary audience or target customer segment?",
+      "Who will derive the most value from this product immediately?"
+    ],
+    example: "early-stage tech founders and strategic management consultants"
+  },
+  unmetNeed: {
+    definition: "The specific, unresolved pain point, problem, or desire that your target customer faces.",
+    questions: [
+      "What is the biggest frustration or challenge the customer experiences?",
+      "Why are existing solutions or workarounds failing them?"
+    ],
+    example: "need to build and present strategic plans quickly without cloud data privacy risks"
+  },
+  productName: {
+    definition: "The formal name of your product, service, platform, or venture.",
+    questions: [
+      "What is the brand name of the product?",
+      "Is it easy to pronounce, recall, and associate with the solution?"
+    ],
+    example: "Kettle Strat"
+  },
+  marketCategory: {
+    definition: "The specific product category or industry sector that clearly identifies what your product is.",
+    questions: [
+      "What category of application or tool is this?",
+      "How would a buyer describe this to a colleague (e.g. B2B SaaS, CRM, canvas tool)?"
+    ],
+    example: "on-device strategic planning workspace"
+  },
+  productBenefit: {
+    definition: "The primary way your product solves the customer's problem and the main benefit it delivers.",
+    questions: [
+      "What is the primary action or benefit the product provides?",
+      "How does it make the user's life easier or business more profitable?"
+    ],
+    example: "creates secure, local AI-powered canvases, roadmaps, and business plans instantly"
+  },
+  competitors: {
+    definition: "The primary alternatives or rivals that your customers currently use to address this problem.",
+    questions: [
+      "Who are your direct competitors or dominant market alternatives?",
+      "What static workarounds (e.g., standard spreadsheets, slides) are they using?"
+    ],
+    example: "classic cloud-based canvas templates and static PowerPoint strategy decks"
+  },
+  differentiator: {
+    definition: "Your unique value proposition or technological advantage that sets you apart from all competitors.",
+    questions: [
+      "What is your unfair advantage or proprietary technology?",
+      "Why will customers choose you over established alternatives?"
+    ],
+    example: "runs entirely in the browser using secure, offline local AI models so user IP never leaves the device"
+  }
+};
+

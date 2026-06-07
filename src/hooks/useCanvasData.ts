@@ -70,6 +70,24 @@ export const useCanvasData = (userId: string | undefined, profile: UserProfile |
         { year: 3, revenue: 0, cogs: 0, operatingExpenses: 0 },
       ]
     },
+    mckinsey7s: {
+      sharedValues: '',
+      strategy: '',
+      structure: '',
+      systems: '',
+      style: '',
+      staff: '',
+      skills: '',
+    },
+    elevatorPitch: {
+      targetCustomer: '',
+      unmetNeed: '',
+      productName: '',
+      marketCategory: '',
+      productBenefit: '',
+      competitors: '',
+      differentiator: '',
+    },
     createdAt: null,
     updatedAt: null,
   });

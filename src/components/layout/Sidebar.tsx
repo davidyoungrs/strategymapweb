@@ -25,6 +25,7 @@ import {
   AlertTriangle,
   Calculator,
   Factory,
+  Megaphone,
   X
 } from 'lucide-react';
 import { Kettle } from '../icons/Kettle';
@@ -74,7 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const currentView = location.pathname.substring(1) || 'canvas';
 
   const [isMoreModelsOpen, setIsMoreModelsOpen] = useState(
-    ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'risk-register'].includes(currentView)
+    ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'mckinsey-7s', 'risk-register'].includes(currentView)
   );
   const [isBusinessPlanOpen, setIsBusinessPlanOpen] = useState(
     ['executive-summary', 'business-details', 'strategic-policy', 'business-products', 'business-market', 'business-competitors', 'financials'].includes(currentView)
@@ -120,6 +121,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex-1 overflow-y-auto">
           <div className="p-8 pb-4 pt-2">
             <nav className="space-y-1">
+              <motion.button 
+                whileHover={{ x: 4 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => { navigate('/pitch'); onClose?.(); }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                  currentView === 'pitch'
+                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' 
+                    : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                }`}
+              >
+                <Megaphone className="w-5 h-5" />
+                Elevator Pitch
+              </motion.button>
               <motion.button 
                 whileHover={{ x: 4 }}
                 whileTap={{ scale: 0.98 }}
@@ -190,7 +204,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
               {/* More Models Dropdown */}
               {(() => {
-                const moreModelViews = ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'market-sizing', 'risk-register'];
+                const moreModelViews = ['porter', 'lean-canvas', 'ansoff', 'bcg', 'value-chain', 'customer-journey', 'mckinsey-7s', 'market-sizing', 'risk-register'];
                 const isMoreModelActive = moreModelViews.includes(currentView);
                 return (
                   <div className="mt-2">
@@ -292,6 +306,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           >
                             <Route className="w-4 h-4" />
                             Customer Journey
+                          </motion.button>
+
+                          <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
+                            onClick={() => { navigate('/mckinsey-7s'); onClose?.(); }}
+                            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-bold tracking-tight text-sm ${
+                              currentView === 'mckinsey-7s' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100'
+                            }`}
+                          >
+                            <LayoutTemplate className="w-4 h-4" />
+                            McKinsey 7S
                           </motion.button>
 
                           <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
