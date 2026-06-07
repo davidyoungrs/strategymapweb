@@ -49,67 +49,90 @@ export const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({ isOpen, 
             <div className="flex-1 overflow-y-auto p-8 prose prose-zinc dark:prose-invert max-w-none prose-sm">
               <div className="space-y-8">
                 <section>
-                  <h3 className="text-base font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-50">1. Introduction</h3>
+                  <h3 className="text-base font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-50">1. What Information We Collect</h3>
                   <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                    Kettlestrat ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our AI-generated website and application development services.
+                    We may collect and process the following personal data:
                   </p>
-                </section>
-
-                <section>
-                  <h3 className="text-base font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-50">2. Information We Collect</h3>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    {[
-                      { title: "Personal Data", desc: "Name, email address, and billing information collected during registration." },
-                      { title: "Project Data", desc: "Files, configurations, and assets you upload or generate using our AI tools." },
-                      { title: "Usage Logs", desc: "IP address, browser type, device identifiers, and interaction data." },
-                      { title: "Cookies", desc: "Session maintenance, preferences, and site traffic analysis." }
-                    ].map((item, i) => (
-                      <div key={i} className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800">
-                        <p className="font-bold text-zinc-900 dark:text-zinc-50 mb-1">{item.title}</p>
-                        <p className="text-[11px] text-zinc-500 leading-normal">{item.desc}</p>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                <section>
-                  <h3 className="text-base font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-50">4. AI Data Handling & Privacy</h3>
-                  <div className="space-y-4">
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/50 rounded-2xl">
-                      <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                        <strong className="text-zinc-900 dark:text-zinc-100 italic block mb-1">No Public Training:</strong> 
-                        We do not use your proprietary project data or private code to train our public AI models without your explicit, written consent.
-                      </p>
-                    </div>
-                    <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                      <strong className="text-zinc-900 dark:text-zinc-100">Private by Design:</strong> We treat your prompts and the resulting AI-generated code as your private data.
-                    </p>
-                  </div>
-                </section>
-
-                <section>
-                  <h3 className="text-base font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-50">6. Data Security</h3>
-                  <ul className="space-y-3 list-none p-0">
-                    <li className="flex gap-3">
-                      <span className="font-bold text-emerald-600 shrink-0">✓</span>
-                      <span><strong className="text-zinc-900 dark:text-zinc-100">256-bit SSL Encryption:</strong> For all data transfers.</span>
-                    </li>
-                    <li className="flex gap-3">
-                      <span className="font-bold text-emerald-600 shrink-0">✓</span>
-                      <span><strong className="text-zinc-900 dark:text-zinc-100">Redundant Backups:</strong> To prevent data loss.</span>
-                    </li>
-                    <li className="flex gap-3">
-                      <span className="font-bold text-emerald-600 shrink-0">✓</span>
-                      <span><strong className="text-zinc-900 dark:text-zinc-100">Access Controls:</strong> Restricted access limited to essential support staff only.</span>
-                    </li>
+                  <ul className="list-disc pl-5 mt-2 text-zinc-600 dark:text-zinc-400 space-y-1">
+                    <li>Your name</li>
+                    <li>Contact details (phone number, email address)</li>
                   </ul>
                 </section>
 
                 <section>
-                  <h3 className="text-base font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-50">9. Contact Us</h3>
+                  <h3 className="text-base font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-50">2. How We Use Your Information</h3>
                   <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                    If you have any questions about this Privacy Policy or our data practices, please contact us at: <br/>
-                    <a href="mailto:info@reallysimpleapps.com" className="text-blue-600 font-bold hover:underline">info@reallysimpleapps.com</a>
+                    We use your data to:
+                  </p>
+                  <ul className="list-disc pl-5 mt-2 text-zinc-600 dark:text-zinc-400 space-y-1">
+                    <li>Contact you regarding the services and solutions we offer.</li>
+                    <li>Maintain internal records.</li>
+                    <li>Comply with legal or regulatory obligations.</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h3 className="text-base font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-50">3. Legal Basis for Processing</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                    We process your personal data under the following lawful bases:
+                  </p>
+                  <ul className="list-disc pl-5 mt-2 text-zinc-600 dark:text-zinc-400 space-y-1">
+                    <li>Contract (to provide services you have requested)</li>
+                    <li>Legitimate interests (to manage our business effectively)</li>
+                    <li>Legal obligations (where applicable)</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h3 className="text-base font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-50">4. Data Sharing</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                    We do not sell or rent your personal data. We may share your data with:
+                  </p>
+                  <ul className="list-disc pl-5 mt-2 text-zinc-600 dark:text-zinc-400 space-y-1">
+                    <li>Service providers (e.g., booking systems) who process data on our behalf.</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h3 className="text-base font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-50">5. Data Retention</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                    We retain your data only as long as necessary to fulfil the purposes we collected it for, including legal, accounting, or reporting requirements.
+                  </p>
+                </section>
+
+                <section>
+                  <h3 className="text-base font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-50">6. Data Security</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                    We take appropriate technical and organisational measures to protect your personal data from unauthorised access, loss, or misuse.
+                  </p>
+                </section>
+
+                <section>
+                  <h3 className="text-base font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-50">7. Your Rights</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                    Under UK GDPR, you have the right to:
+                  </p>
+                  <ul className="list-disc pl-5 mt-2 text-zinc-600 dark:text-zinc-400 space-y-1">
+                    <li>Access your personal data.</li>
+                    <li>Request correction of inaccurate data</li>
+                    <li>Request deletion of your data</li>
+                    <li>Object to or restrict processing.</li>
+                    <li>Withdraw consent at any time (where applicable)</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h3 className="text-base font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-50">8. Contact Us</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                    If you have any questions about this privacy notice or your data, please contact: <br/>
+                    <a href="mailto:info@reallysimpleapps.com" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">info@reallysimpleapps.com</a>
+                  </p>
+                </section>
+
+                <section>
+                  <h3 className="text-base font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-50">9. Complaints</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                    You have the right to lodge a complaint with the Information Commissioner’s Office (ICO) if you believe your data has been handled improperly.
                   </p>
                 </section>
               </div>
