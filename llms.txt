@@ -1,0 +1,40 @@
+# Strategy Labs (KettleStrat)
+
+Strategy Labs (served at KettleStrat.com) is a comprehensive, production-grade business planning and strategy suite designed to help entrepreneurs, founders, and strategists map, analyze, and build their business models.
+
+## Tech Stack
+- **Frontend:** React 19, Vite 8, Tailwind CSS 4, Lucide Icons, Motion (framer-motion).
+- **Backend/API:** Node.js, Express, Vercel Serverless Functions.
+- **Database & Auth:** Firebase client SDK (v12) and Firebase Admin SDK (v13).
+- **AI Engine:** Gemini API integrations (`@google/genai` and `@google/generative-ai`).
+- **File Exporters:** `docx` (Word document generator), `jspdf`/`html2canvas` (PDF report exporter).
+
+---
+
+## Key Features & Component Map
+- **Strategic Mapping Tools:**
+  - SWOT Analysis (`SwotView.tsx`)
+  - PESTEL Analysis (`PestelView.tsx`)
+  - Porter's Five Forces (`PorterForcesView.tsx`)
+  - Lean Canvas & Business Model Canvas (`LeanCanvasView.tsx`, `BusinessModelCanvas.tsx`)
+  - Ansoff & BCG Matrices (`AnsoffMatrixView.tsx`, `BcgMatrixView.tsx`)
+  - Value Chain & Customer Journey (`ValueChainView.tsx`, `CustomerJourneyView.tsx`)
+- **Financial Planning Suite:**
+  - P&L Cost Splitting (3-year projection tracking OpEx, salaries, overheads, and dynamic Breakeven calculation).
+  - Pre-trading Startup Cost Calculator.
+  - Personal Survival Budget & Sourcing of Finance logs.
+- **Interactive Assistance:**
+  - Real-Time Speech-to-Text (STT) dictation queue preventing race conditions.
+  - Gemini-powered AI Strategy Consultant (`AIConsultant.tsx`) offering contextual business planning feedback.
+
+---
+
+## Security & Architecture Rules
+- **Row-Level Security (RLS):**
+  - Configured in `firestore.rules`.
+  - All users can read/write their own canvases, but administrative variables (`role` and `isPaidTier`) are immutable for non-admin accounts.
+- **Data Integrity:**
+  - Backend API requests are sanitized using `sanitizeString` to prevent XSS.
+  - Centralized prototype pollution protection (`isSafeKey`) guards all bracket-notation operations.
+- **Dependency Pinning:**
+  - All packages in `package.json` are exact-pinned (no `^` or `~` ranges) to prevent dependency hijacking.
