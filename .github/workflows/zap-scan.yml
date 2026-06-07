@@ -1,0 +1,23 @@
+name: OWASP ZAP Baseline Scan
+
+on:
+  schedule:
+    # Runs weekly on Sundays at midnight UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
+
+jobs:
+  zap_scan:
+    runs-on: ubuntu-latest
+    name: Run ZAP Baseline Scan
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target: 'https://kettlestrat.com'
+          cmd_options: '-j' # Generates JSON report format in addition to HTML
+          fail_action: false # Set to true if you want the action to fail on warnings/issues
